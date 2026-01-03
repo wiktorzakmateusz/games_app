@@ -21,7 +21,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Provide AuthCubit at app level so auth state persists across all routes
     return BlocProvider(
       create: (_) => di.sl<AuthCubit>(),
       child: CupertinoApp(
@@ -34,7 +33,6 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/',
         onGenerateRoute: (settings) {
-          // Use onGenerateRoute for better control over BLoC providers
           switch (settings.name) {
             case '/':
               return CupertinoPageRoute(
@@ -47,14 +45,11 @@ class MyApp extends StatelessWidget {
                 settings: settings,
               );
             case '/auth':
-              // New refactored auth page (AuthCubit provided at app level)
               return CupertinoPageRoute(
                 builder: (_) => const AuthPage(),
                 settings: settings,
               );
             case '/lobby_list':
-            case '/lobby_browser':
-              // New refactored lobby list page (AuthCubit from app level)
               return CupertinoPageRoute(
                 builder: (_) => BlocProvider(
                   create: (_) => di.sl<LobbyListCubit>(),
@@ -63,7 +58,6 @@ class MyApp extends StatelessWidget {
                 settings: settings,
               );
             case '/lobby_waiting':
-              // New refactored lobby waiting page (AuthCubit from app level)
               return CupertinoPageRoute(
                 builder: (_) => BlocProvider(
                   create: (_) => di.sl<LobbyWaitingCubit>(),
@@ -72,7 +66,6 @@ class MyApp extends StatelessWidget {
                 settings: settings,
               );
             case '/online_game':
-              // Provide GameCubit for the new refactored page (AuthCubit from app level)
               return CupertinoPageRoute(
                 builder: (_) => BlocProvider(
                   create: (_) => di.sl<GameCubit>(),

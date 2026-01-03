@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../injection_container.dart' as di;
 import '../../../../widgets/game_button.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
+import '../../../lobby/domain/usecases/leave_lobby_usecase.dart';
 import '../cubit/game_cubit.dart';
 import '../cubit/game_state.dart';
 import '../widgets/game_board.dart';
@@ -18,6 +20,7 @@ class OnlineGamePage extends StatefulWidget {
 
 class _OnlineGamePageState extends State<OnlineGamePage> {
   String? _gameId;
+  String? _lobbyId;
   String? _currentUserId;
   bool _isLoadingUserId = false;
 
@@ -94,6 +97,19 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
     }
   }
 
+  Future<void> _leaveLobbyAndNavigateBack(String lobbyId) async {
+    try {
+      final leaveLobbyUseCase = di.sl<LeaveLobbyUseCase>();
+      await leaveLobbyUseCase(lobbyId);
+    } catch (e) {
+      // Silently fail - we'll navigate back anyway
+    }
+
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, '/lobby_list');
+    }
+  }
+
   void _showError(String message) {
     showCupertinoDialog(
       context: context,
@@ -125,10 +141,19 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
 
     return BlocConsumer<GameCubit, GameState>(
       listener: (context, state) {
+        if (state is GameLoaded && _lobbyId == null) {
+          // Store the lobby ID when game first loads
+          _lobbyId = state.game.lobbyId;
+        }
+        
         if (state is GameError) {
           _showError(state.message);
         } else if (state is GameAbandoned) {
-          Navigator.pushReplacementNamed(context, '/lobby_browser');
+          if (_lobbyId != null) {
+            _leaveLobbyAndNavigateBack(_lobbyId!);
+          } else {
+            Navigator.pushReplacementNamed(context, '/lobby_list');
+          }
         }
       },
       builder: (context, state) {
@@ -187,7 +212,11 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
           const SizedBox(height: 12),
           CupertinoButton(
             onPressed: () {
-              Navigator.pushReplacementNamed(context, '/lobby_browser');
+              if (_lobbyId != null) {
+                _leaveLobbyAndNavigateBack(_lobbyId!);
+              } else {
+                Navigator.pushReplacementNamed(context, '/lobby_list');
+              }
             },
             child: const Text('Back to Lobbies'),
           ),
@@ -257,7 +286,7 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
               GameButton(
                 label: 'Back to Lobbies',
                 onTap: () {
-                  Navigator.pushReplacementNamed(context, '/lobby_browser');
+                  _leaveLobbyAndNavigateBack(game.lobbyId);
                 },
               ),
             ],
