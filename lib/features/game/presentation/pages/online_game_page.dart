@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../services/user_service.dart';
 import '../../../../widgets/game_button.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../auth/presentation/cubit/auth_state.dart';
 import '../cubit/game_cubit.dart';
 import '../cubit/game_state.dart';
 import '../widgets/game_board.dart';
@@ -46,16 +47,16 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
     });
 
     try {
-      final userService = context.read<UserService>();
-      final userData = await userService.getCurrentUser();
-      if (mounted) {
-        setState(() {
-          _currentUserId = userData['id'] as String?;
-          _isLoadingUserId = false;
-        });
+      // Get user from AuthCubit
+      final authState = context.read<AuthCubit>().state;
+      if (authState is Authenticated) {
+        if (mounted) {
+          setState(() {
+            _currentUserId = authState.user.id;
+            _isLoadingUserId = false;
+          });
 
-        // Set user ID in cubit for optimistic updates
-        if (_currentUserId != null) {
+          // Set user ID in cubit for optimistic updates
           context.read<GameCubit>().setCurrentUserId(_currentUserId!);
         }
       }

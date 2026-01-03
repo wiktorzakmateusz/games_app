@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/utils/typedefs.dart';
 import '../../../../models/enums.dart';
-import '../../../../services/auth_service.dart';
+import '../../../auth/data/datasources/auth_firebase_datasource.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 abstract class LobbyRemoteDataSource {
@@ -21,27 +21,22 @@ abstract class LobbyRemoteDataSource {
 }
 
 class LobbyRemoteDataSourceImpl implements LobbyRemoteDataSource {
-  final AuthService authService;
+  final AuthFirebaseDataSource authDataSource;
   final http.Client client;
 
   LobbyRemoteDataSourceImpl({
-    required this.authService,
+    required this.authDataSource,
     required this.client,
   });
 
   String get baseUrl => dotenv.env['BACKEND_URL'] ?? 'http://localhost:3000';
 
   Future<Map<String, String>> _getHeaders() async {
-    final token = await authService.getIdToken();
-    final headers = <String, String>{
+    final token = await authDataSource.getIdToken();
+    return {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
     };
-
-    if (token != null) {
-      headers['Authorization'] = 'Bearer $token';
-    }
-
-    return headers;
   }
 
   @override

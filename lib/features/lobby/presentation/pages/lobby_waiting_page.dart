@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../services/user_service.dart';
 import '../../../../widgets/game_button.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../auth/presentation/cubit/auth_state.dart';
 import '../cubit/lobby_waiting_cubit.dart';
 import '../cubit/lobby_waiting_state.dart';
 import '../widgets/empty_slot_widget.dart';
@@ -45,15 +46,15 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
     });
 
     try {
-      final userService = context.read<UserService>();
-      final userData = await userService.getCurrentUser();
-      if (mounted) {
-        setState(() {
-          _currentUserId = userData['id'] as String?;
-          _isLoadingUserId = false;
-        });
+      // Get user from AuthCubit
+      final authState = context.read<AuthCubit>().state;
+      if (authState is Authenticated) {
+        if (mounted) {
+          setState(() {
+            _currentUserId = authState.user.id;
+            _isLoadingUserId = false;
+          });
 
-        if (_currentUserId != null) {
           context.read<LobbyWaitingCubit>().setCurrentUserId(_currentUserId!);
         }
       }

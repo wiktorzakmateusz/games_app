@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
-import '../services/auth_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../features/auth/presentation/cubit/auth_cubit.dart';
+import '../features/auth/presentation/cubit/auth_state.dart';
 import '../widgets/game_button.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -29,15 +30,18 @@ class WelcomePage extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 20),
-              GameButton(
-                label: 'Multiplayer',
-                onTap: () {
-                  final authService = Provider.of<AuthService>(context, listen: false);
-                  if (authService.isLoggedIn) {
-                    Navigator.pushReplacementNamed(context, '/lobby_list');
-                  } else {
-                    Navigator.pushNamed(context, '/auth');
-                  }
+              BlocBuilder<AuthCubit, AuthState>(
+                builder: (context, state) {
+                  return GameButton(
+                    label: 'Multiplayer',
+                    onTap: () {
+                      if (state is Authenticated) {
+                        Navigator.pushNamed(context, '/lobby_list');
+                      } else {
+                        Navigator.pushNamed(context, '/auth');
+                      }
+                    },
+                  );
                 },
               ),
             ],

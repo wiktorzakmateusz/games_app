@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../models/enums.dart';
-import '../../../../services/auth_service.dart';
 import '../../../../widgets/game_button.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../auth/presentation/cubit/auth_state.dart';
 import '../cubit/lobby_list_cubit.dart';
 import '../cubit/lobby_list_state.dart';
 import '../widgets/lobby_card.dart';
@@ -37,43 +38,100 @@ class _LobbyListPageState extends State<LobbyListPage> {
     // Save the correct context before showing dialog
     final cubit = context.read<LobbyListCubit>();
     
-    showCupertinoDialog(
+    showCupertinoModalPopup(
       context: context,
-      builder: (dialogContext) => CupertinoAlertDialog(
-        title: const Text('Create Lobby'),
-        content: Padding(
-          padding: const EdgeInsets.only(top: 16),
-          child: CupertinoTextField(
-            controller: _lobbyNameController,
-            placeholder: 'Lobby name',
-            padding: const EdgeInsets.all(12),
+      builder: (BuildContext context) => Container(
+        height: 280,
+        padding: const EdgeInsets.only(top: 6.0),
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                height: 44,
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: CupertinoColors.separator.resolveFrom(context),
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _lobbyNameController.clear();
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                    const Text(
+                      'Create Lobby',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 17,
+                      ),
+                    ),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        if (_lobbyNameController.text.trim().isNotEmpty) {
+                          Navigator.pop(context);
+                          cubit.createLobby(
+                            name: _lobbyNameController.text.trim(),
+                            gameType: GameType.ticTacToe,
+                            maxPlayers: 2,
+                          );
+                          _lobbyNameController.clear();
+                        }
+                      },
+                      child: const Text(
+                        'Create',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Content
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Lobby Name',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: CupertinoColors.secondaryLabel,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      CupertinoTextField(
+                        controller: _lobbyNameController,
+                        placeholder: 'Enter lobby name',
+                        padding: const EdgeInsets.all(12),
+                        autofocus: true,
+                        textCapitalization: TextCapitalization.words,
+                        clearButtonMode: OverlayVisibilityMode.editing,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              _lobbyNameController.clear();
-            },
-            child: const Text('Cancel'),
-          ),
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              if (_lobbyNameController.text.trim().isNotEmpty) {
-                // Use the cubit we saved earlier
-                cubit.createLobby(
-                  name: _lobbyNameController.text.trim(),
-                  gameType: GameType.ticTacToe,
-                  maxPlayers: 2,
-                );
-              }
-              _lobbyNameController.clear();
-            },
-            child: const Text('Create'),
-          ),
-        ],
       ),
     );
   }
@@ -94,10 +152,36 @@ class _LobbyListPageState extends State<LobbyListPage> {
     );
   }
 
+  void _handleLogout(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (dialogContext) => CupertinoAlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              context.read<AuthCubit>().signOut();
+              Navigator.pushReplacementNamed(context, '/');
+            },
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final authService = context.read<AuthService>();
-    final currentUserUid = authService.uid ?? '';
+    // Get current user from AuthCubit (assuming it's provided higher in the tree)
+    final authState = context.watch<AuthCubit>().state;
+    final currentUserUid = authState is Authenticated ? authState.user.firebaseUid : '';
 
     return BlocConsumer<LobbyListCubit, LobbyListState>(
       listener: (context, state) {
@@ -121,12 +205,22 @@ class _LobbyListPageState extends State<LobbyListPage> {
         return CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
             middle: const Text('Lobbies'),
-            trailing: CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: state is LobbyListLoaded && !state.isPerformingAction
-                  ? _showCreateLobbyDialog
-                  : null,
-              child: const Icon(CupertinoIcons.add),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () => _handleLogout(context),
+                  child: const Icon(CupertinoIcons.square_arrow_right),
+                ),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: state is LobbyListLoaded && !state.isPerformingAction
+                      ? _showCreateLobbyDialog
+                      : null,
+                  child: const Icon(CupertinoIcons.add),
+                ),
+              ],
             ),
           ),
           child: SafeArea(
