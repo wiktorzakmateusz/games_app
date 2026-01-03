@@ -74,5 +74,20 @@ class FirestoreService {
     data['id'] = doc.id;
     return Game.fromJson(data);
   }
+
+  Future<Game?> getGameByLobbyId(String lobbyId) async {
+    final snapshot = await _firestore
+        .collection('games')
+        .where('lobbyId', isEqualTo: lobbyId)
+        .limit(1)
+        .get();
+    
+    if (snapshot.docs.isEmpty) return null;
+    
+    final doc = snapshot.docs.first;
+    final data = doc.data();
+    data['id'] = doc.id;
+    return Game.fromJson(data);
+  }
 }
 

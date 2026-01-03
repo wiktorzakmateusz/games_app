@@ -1,19 +1,21 @@
-import 'enums.dart';
-import 'player.dart';
+import '../../../../core/utils/typedefs.dart';
+import '../../../../models/enums.dart';
+import '../../domain/entities/lobby_entity.dart';
+import '../../domain/entities/lobby_player_entity.dart';
 
-class Lobby {
+class LobbyModel {
   final String id;
   final String name;
   final String ownerId;
   final int maxPlayers;
   final LobbyStatus status;
   final GameType gameType;
-  final List<Player> players;
+  final List<LobbyPlayerEntity> players;
   final String? gameId;
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  Lobby({
+  LobbyModel({
     required this.id,
     required this.name,
     required this.ownerId,
@@ -26,13 +28,20 @@ class Lobby {
     required this.updatedAt,
   });
 
-  factory Lobby.fromJson(Map<String, dynamic> json) {
+  factory LobbyModel.fromJson(JsonMap json) {
     final playersData = json['players'] as List? ?? [];
     final players = playersData
-        .map((p) => Player.fromJson(p as Map<String, dynamic>))
+        .map((p) => LobbyPlayerEntity(
+              userId: p['userId'] as String,
+              username: p['username'] as String,
+              displayName: p['displayName'] as String? ?? p['username'] as String,
+              photoURL: p['photoURL'] as String?,
+              isReady: p['isReady'] as bool? ?? false,
+              joinedAt: _parseDateTime(p['joinedAt']),
+            ))
         .toList();
 
-    return Lobby(
+    return LobbyModel(
       id: json['id'] as String,
       name: json['name'] as String,
       ownerId: json['ownerId'] as String,
@@ -46,7 +55,7 @@ class Lobby {
     );
   }
 
-  Map<String, dynamic> toJson() {
+  JsonMap toJson() {
     final json = {
       'id': id,
       'name': name,
@@ -54,7 +63,16 @@ class Lobby {
       'maxPlayers': maxPlayers,
       'status': status.value,
       'gameType': gameType.value,
-      'players': players.map((p) => p.toJson()).toList(),
+      'players': players
+          .map((p) => {
+                'userId': p.userId,
+                'username': p.username,
+                'displayName': p.displayName,
+                'photoURL': p.photoURL,
+                'isReady': p.isReady,
+                'joinedAt': p.joinedAt.toIso8601String(),
+              })
+          .toList(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -64,6 +82,36 @@ class Lobby {
     }
     
     return json;
+  }
+
+  LobbyEntity toEntity() {
+    return LobbyEntity(
+      id: id,
+      name: name,
+      ownerId: ownerId,
+      maxPlayers: maxPlayers,
+      status: status,
+      gameType: gameType,
+      players: players,
+      gameId: gameId,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+
+  factory LobbyModel.fromEntity(LobbyEntity entity) {
+    return LobbyModel(
+      id: entity.id,
+      name: entity.name,
+      ownerId: entity.ownerId,
+      maxPlayers: entity.maxPlayers,
+      status: entity.status,
+      gameType: entity.gameType,
+      players: entity.players,
+      gameId: entity.gameId,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
   }
 
   static DateTime _parseDateTime(dynamic value) {
@@ -77,17 +125,4 @@ class Lobby {
     }
     return DateTime.now();
   }
-
-  int get currentPlayerCount => players.length;
-
-  bool get isFull => currentPlayerCount >= maxPlayers;
-
-  bool isOwner(String userId) => ownerId == userId;
-
-  bool hasPlayer(String userId) {
-    return players.any((p) => p.userId == userId);
-  }
-
-  bool get isWaiting => status == LobbyStatus.waiting;
 }
-
