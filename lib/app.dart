@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import '../pages/home_page.dart';
-import '../pages/game_settings_page.dart';
-import '../pages/difficulty_page.dart';
+import 'pages/game_player_settings_page.dart';
+import 'pages/game_difficulty_settings_page.dart';
 import '../pages/tic_tac_toe_game_page.dart';
+import '../pages/mini_sudoku_game_page.dart';
 import '../pages/players_names_page.dart';
 
 class MyApp extends StatelessWidget {
@@ -21,10 +22,11 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const HomePage(),
-        '/settings': (context) => const GameSettingsPage(),
-        '/difficulty': (context) => const DifficultyPage(),
+        '/game_player_settings': (context) => const GameSettingsPage(),
+        '/game_difficulty_settings': (context) => const DifficultyPage(),
         '/player_names': (context) => const PlayerNamesPage(),
         '/tic_tac_toe': (context) => const TicTacToePage(),
+        '/mini_sudoku': (context) => const MiniSudokuPage(),
       },
     );
   }

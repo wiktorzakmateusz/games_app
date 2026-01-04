@@ -54,7 +54,10 @@ class HomePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, '/settings'),
+                    onTap: () => Navigator.pushNamed(
+                      context, 
+                      '/game_player_settings',
+                      arguments: 'tic_tac_toe'),
                     child: Column(
                       children: [
                         Image.asset('images/tic_tac_toe.png',
@@ -66,7 +69,10 @@ class HomePage extends StatelessWidget {
                   ),
                   const SizedBox(width: 40),
                   GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, '/settings'),
+                    onTap: () => Navigator.pushNamed(
+                      context, 
+                      '/game_difficulty_settings',
+                      arguments: 'mini_sudoku'),
                     child: Column(
                       children: [
                         Image.asset('images/mini_sudoku.png',

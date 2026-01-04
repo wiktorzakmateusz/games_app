@@ -18,7 +18,7 @@ class GameSettingsPage extends StatelessWidget {
             children: [
               GameButton(
                 label: 'Play solo',
-                onTap: () => Navigator.pushNamed(context, '/difficulty'),
+                onTap: () => Navigator.pushNamed(context, '/game_difficulty_settings'),
               ),
               const SizedBox(height: 20),
               GameButton(

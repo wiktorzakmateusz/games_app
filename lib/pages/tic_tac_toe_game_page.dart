@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'dart:math' as math;
+import 'package:flutter/material.dart'; // Needed for Colors and CustomPainter
+import '../logic/tic_tac_toe_logic.dart'; // Import the extracted logic
 
 class TicTacToePage extends StatefulWidget {
-
   const TicTacToePage({super.key});
 
   @override
@@ -11,12 +10,25 @@ class TicTacToePage extends StatefulWidget {
 }
 
 class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProviderStateMixin {
+  
+  // 1. Instantiate the Logic Class
+  final TicTacToeLogic _gameLogic = TicTacToeLogic();
 
+  // Settings & State Variables
   late bool isUserFirstPlayer;
   late bool isTwoPlayerMode;
+  late String difficulty;
   late String? playerOneName;
   late String? playerTwoName;
 
+  List<String> board = List.filled(9, '');
+  String? winner;
+  List<int>? winningPattern;
+  late String currentPlayer;
+
+  // Animation Variables
+  late AnimationController _lineController;
+  late Animation<double> _lineAnimation;
 
   @override
   void didChangeDependencies() {
@@ -24,21 +36,20 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
     isUserFirstPlayer = args?['isUserFirstPlayer'] ?? true;
     isTwoPlayerMode = args?['isTwoPlayerMode'] ?? false;
+    difficulty = args?['difficulty'] ?? 'Easy';
     playerOneName = args?['playerOneName'] ?? 'Player 1';
     playerTwoName = args?['playerTwoName'] ?? 'Player 2';
 
+    // Initialize turn
     currentPlayer = 'X';
 
+    // If Computer starts (and it's not 2-player mode), trigger the first move
     if (!isTwoPlayerMode && !isUserFirstPlayer) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _makeComputerMove();
       });
     }
   }
-
-
-  late AnimationController _lineController;
-  late Animation<double> _lineAnimation;
 
   @override
   void initState() {
@@ -50,8 +61,6 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
     _lineAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _lineController, curve: Curves.easeInOut),
     );
-
-
   }
 
   @override
@@ -60,14 +69,12 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
     super.dispose();
   }
 
-  List<String> board = List.filled(9, '');
-  String? winner;
-  List<int>? winningPattern;
-  late String currentPlayer;
+  // --- INTERACTION HANDLERS ---
 
   void _handleTap(int index) {
     if (board[index] != '' || winner != null) return;
 
+    // 1. Human Move
     setState(() {
       board[index] = currentPlayer;
       currentPlayer = currentPlayer == 'X' ? 'O' : 'X';
@@ -75,69 +82,70 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
 
     _checkGameOver();
 
-    if (!isTwoPlayerMode) {
+    // 2. Trigger Computer Move (if applicable)
+    if (!isTwoPlayerMode && winner == null) {
       final isComputerTurn = (currentPlayer == 'X' && !isUserFirstPlayer) ||
-          (currentPlayer == 'O' && isUserFirstPlayer);
-      if (isComputerTurn && winner == null) {
-        Future.delayed(const Duration(milliseconds: 1000), _makeComputerMove);
+                             (currentPlayer == 'O' && isUserFirstPlayer);
+      
+      if (isComputerTurn) {
+        // Small delay for realism so the AI doesn't move instantly
+        Future.delayed(const Duration(milliseconds: 600), _makeComputerMove);
       }
     }
-
   }
 
   void _makeComputerMove() {
     if (winner != null) return;
 
-    final emptyIndices = [
-      for (int i = 0; i < board.length; i++)
-        if (board[i] == '') i
-    ];
-    if (emptyIndices.isEmpty) return;
+    // 3. Use the Logic Class to get the best move
+    int bestMoveIndex = _gameLogic.getComputerMove(
+      board: board, 
+      difficulty: difficulty, 
+      currentPlayer: currentPlayer
+    );
 
-    final randomIndex = (emptyIndices..shuffle()).first;
-    setState(() {
-      board[randomIndex] = currentPlayer;
-      currentPlayer = currentPlayer == 'X' ? 'O' : 'X';
-    });
-
-    _checkGameOver();
+    if (bestMoveIndex != -1) {
+      setState(() {
+        board[bestMoveIndex] = currentPlayer;
+        currentPlayer = currentPlayer == 'X' ? 'O' : 'X';
+      });
+      _checkGameOver();
+    }
   }
 
   void _checkGameOver() {
-    final result = _checkWinner();
+    // 4. Use the Logic Class to check for a winner
+    final result = _gameLogic.checkWinner(board);
+    
     if (result != null) {
       setState(() {
         winner = result['winner'];
         winningPattern = result['pattern'];
       });
+      // Start the line animation if someone won
       if (winningPattern != null) {
-        _lineController.forward(from: 0); // animate the line
+        _lineController.forward(from: 0);
       }
     }
   }
 
-  Map<String, dynamic>? _checkWinner() {
-    const List<List<int>> winPatterns = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-
-    for (final pattern in winPatterns) {
-      final a = pattern[0], b = pattern[1], c = pattern[2];
-      if (board[a] != '' && board[a] == board[b] && board[a] == board[c]) {
-        return {'winner': board[a], 'pattern': pattern};
+  void _resetBoard({bool? startAsUser}) {
+    setState(() {
+      board = List.filled(9, '');
+      winner = null;
+      winningPattern = null;
+      currentPlayer = 'X';
+      
+      // If computer starts, make the first move
+      if (!isTwoPlayerMode &&
+        ((currentPlayer == 'X' && !isUserFirstPlayer) ||
+        (currentPlayer == 'O' && isUserFirstPlayer))) {
+        Future.delayed(const Duration(milliseconds: 600), _makeComputerMove);
       }
-    }
-
-    if (!board.contains('')) return {'winner': 'draw', 'pattern': null};
-    return null;
+    });
   }
+
+  // --- UI BUILDERS ---
 
   Widget _buildCell(int index) {
     final isWinningCell = winningPattern?.contains(index) ?? false;
@@ -176,7 +184,6 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
 
     final width = constraints.maxWidth;
     final cellSize = width / 3;
-
     final p = winningPattern!;
     final start = _cellCenter(p.first, cellSize);
     final end = _cellCenter(p.last, cellSize);
@@ -205,23 +212,8 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
     );
   }
 
-  void _resetBoard({bool? startAsUser}) {
-    setState(() {
-      board = List.filled(9, '');
-      winner = null;
-      winningPattern = null;
-      currentPlayer = 'X';
-      if (!isTwoPlayerMode &&
-        ((currentPlayer == 'X' && !isUserFirstPlayer) ||
-        (currentPlayer == 'O' && isUserFirstPlayer))) {
-        Future.delayed(const Duration(milliseconds: 1000), _makeComputerMove);
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-
     String statusText;
     if (winner == null) {
       if (isTwoPlayerMode) {
@@ -232,9 +224,6 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
         statusText = isUserTurn
             ? 'Your turn ($currentPlayer)'
             : 'Computer\'s turn ($currentPlayer)';
-        // statusText = '${(currentPlayer == 'X' && isUserFirstPlayer == true) ||
-        //               (currentPlayer == 'O' && isUserFirstPlayer == false)
-        //               ? 'Your' : "Computer's"} turn ($currentPlayer)';
       }
     } else if (winner == 'draw') {
       statusText = 'It\'s a draw!';
@@ -253,7 +242,7 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: const Text('Tic-Tac-Toe'),
+        middle: Text('Tic-Tac-Toe ($difficulty)'),
         leading: GestureDetector(
           child: const Icon(CupertinoIcons.xmark, color: CupertinoColors.activeBlue),
           onTap: () => Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false),
@@ -303,28 +292,28 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
               ),
               const SizedBox(height: 20),
               SizedBox(
-                height: 50, // reserve space for the button
+                height: 50,
                 child: winner != null
                     ? CupertinoButton.filled(
                         onPressed: () => _resetBoard(startAsUser: isUserFirstPlayer),
                         child: const Text('Play Again'),
                       )
-                    : const SizedBox.shrink(), // empty when no winner
+                    : const SizedBox.shrink(),
               ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }
-              }
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
+// Custom Painter for the winning line
 class _LinePainter extends CustomPainter {
   final Offset start;
   final Offset end;
-
   _LinePainter(this.start, this.end);
-
+  
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -333,7 +322,7 @@ class _LinePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     canvas.drawLine(start, end, paint);
   }
-
+  
   @override
   bool shouldRepaint(covariant _LinePainter oldDelegate) =>
       oldDelegate.start != start || oldDelegate.end != end;

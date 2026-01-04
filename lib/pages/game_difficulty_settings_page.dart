@@ -14,6 +14,7 @@ class _DifficultyPageState extends State<DifficultyPage> {
 
   @override
   Widget build(BuildContext context) {
+    final String gameType = (ModalRoute.of(context)?.settings.arguments as String?) ?? 'tic-tac-toe';
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
         middle: Text('Choose difficulty'),
@@ -47,27 +48,37 @@ class _DifficultyPageState extends State<DifficultyPage> {
                     ),
                   ),
                 ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('You start ', style: TextStyle(fontSize: 13)),
-                  const SizedBox(width: 10),
-                  CupertinoSwitch(
-                    value: isUserFirstPlayer,
-                    activeTrackColor: CupertinoTheme.of(context).primaryColor,
-                    onChanged: (bool value) {
-                      setState(() => isUserFirstPlayer = value);
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
+              if (gameType == 'tic-tac-toe') ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('You start ', style: TextStyle(fontSize: 13)),
+                    const SizedBox(width: 10),
+                    CupertinoSwitch(
+                      value: isUserFirstPlayer,
+                      activeTrackColor: CupertinoTheme.of(context).primaryColor,
+                      onChanged: (bool value) {
+                        setState(() => isUserFirstPlayer = value);
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ],
               GameButton(
                 label: 'PLAY',
-                onTap: () => Navigator.pushNamed(
-                  context, 
-                  '/tic_tac_toe', 
-                  arguments: {'isUserFirstPlayer': isUserFirstPlayer}), 
+                onTap: () {
+                  String routeName = gameType == 'tic-tac-toe' ? '/tic_tac_toe' : '/mini_sudoku';
+                  Navigator.pushNamed(
+                    context,
+                    routeName,
+                    arguments: {
+                      'difficulty': selectedDifficulty,
+                      'isUserFirstPlayer': isUserFirstPlayer,
+                      'gameType': gameType,
+                    },
+                  );
+                }
               ),
             ],
           ),
