@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 
 class GameButton extends StatelessWidget {
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
-  const GameButton({super.key, required this.label, required this.onTap});
+  const GameButton({super.key, required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
