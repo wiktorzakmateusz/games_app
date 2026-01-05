@@ -126,7 +126,11 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
         if (state is LobbyWaitingError) {
           _showError(state.message);
         } else if (state is LobbyLeft) {
-          Navigator.pushReplacementNamed(context, '/lobby_list');
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/lobby_list',
+            (route) => route.settings.name == '/',
+          );
         } else if (state is GameStarted) {
           Navigator.pushReplacementNamed(
             context,
@@ -202,7 +206,11 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
           const SizedBox(height: 12),
           CupertinoButton(
             onPressed: () {
-              Navigator.pushReplacementNamed(context, '/lobby_list');
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/lobby_list',
+                (route) => route.settings.name == '/',
+              );
             },
             child: const Text('Back to Lobbies'),
           ),

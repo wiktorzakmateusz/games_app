@@ -36,9 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   provider: ^6.1.5
   english_words: ^4.0.0
-<<<<<<< HEAD
   window_manager: ^0.5.1
-=======
   firebase_core: ^4.3.0
   firebase_auth: ^6.1.3
   cloud_firestore: ^6.1.1
@@ -50,7 +48,6 @@ dependencies:
   equatable: ^2.0.5
   get_it: ^8.0.2
   dartz: ^0.10.1
->>>>>>> deacb0417d923abe6e09041a0186731e835bba90
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,5 @@
 import '../../../../core/utils/result.dart';
-import '../../../../models/enums.dart';
+import '../../../../core/shared/enums.dart';
 import '../entities/lobby_entity.dart';
 import '../repositories/lobby_repository.dart';
 

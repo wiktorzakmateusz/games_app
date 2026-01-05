@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/utils/result.dart';
-import '../../../../models/enums.dart';
+import '../../../../core/shared/enums.dart';
 import '../../domain/entities/lobby_entity.dart';
 import '../../domain/repositories/lobby_repository.dart';
 import '../datasources/lobby_firestore_datasource.dart';

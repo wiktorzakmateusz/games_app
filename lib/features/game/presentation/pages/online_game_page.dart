@@ -106,7 +106,11 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
     }
 
     if (mounted) {
-      Navigator.pushReplacementNamed(context, '/lobby_list');
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/lobby_list',
+        (route) => route.settings.name == '/',
+      );
     }
   }
 
@@ -152,7 +156,11 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
           if (_lobbyId != null) {
             _leaveLobbyAndNavigateBack(_lobbyId!);
           } else {
-            Navigator.pushReplacementNamed(context, '/lobby_list');
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/lobby_list',
+              (route) => route.settings.name == '/',
+            );
           }
         }
       },
@@ -215,7 +223,11 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
               if (_lobbyId != null) {
                 _leaveLobbyAndNavigateBack(_lobbyId!);
               } else {
-                Navigator.pushReplacementNamed(context, '/lobby_list');
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/lobby_list',
+                  (route) => route.settings.name == '/',
+                );
               }
             },
             child: const Text('Back to Lobbies'),

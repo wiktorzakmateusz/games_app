@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../models/enums.dart';
+import '../../../../core/shared/enums.dart';
 import '../../../game/domain/usecases/start_game_usecase.dart';
 import '../../domain/usecases/leave_lobby_usecase.dart';
 import '../../domain/usecases/toggle_ready_usecase.dart';

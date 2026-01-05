@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../../models/enums.dart';
+import '../../../../core/shared/enums.dart';
 import 'game_player_entity.dart';
 import 'game_state_entity.dart';
 

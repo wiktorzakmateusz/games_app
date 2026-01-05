@@ -1,5 +1,5 @@
 import '../../../../core/utils/typedefs.dart';
-import '../../../../models/enums.dart';
+import '../../../../core/shared/enums.dart';
 import '../../domain/entities/game_entity.dart';
 import '../../domain/entities/game_player_entity.dart';
 import '../../domain/entities/game_state_entity.dart';

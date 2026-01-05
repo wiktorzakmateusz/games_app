@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../../models/enums.dart';
+import '../../../../core/shared/enums.dart';
 import 'lobby_player_entity.dart';
 
 class LobbyEntity extends Equatable {
