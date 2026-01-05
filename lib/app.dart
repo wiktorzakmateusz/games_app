@@ -6,6 +6,7 @@ import '../pages/mini_sudoku_game_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'pages/welcome_page.dart';
 import 'pages/tic_tac_toe_game_page.dart';
+import 'pages/connect4_page.dart';
 import 'pages/players_names_page.dart';
 import 'injection_container.dart' as di;
 import 'features/auth/presentation/cubit/auth_cubit.dart';
@@ -97,6 +98,11 @@ class MyApp extends StatelessWidget {
             case '/mini_sudoku':
               return CupertinoPageRoute(
                 builder: (_) => const MiniSudokuPage(),
+                settings: settings,
+              );
+            case '/connect4':
+              return CupertinoPageRoute(
+                builder: (_) => const Connect4Page(),
                 settings: settings,
               );
             default:

@@ -76,6 +76,7 @@ flutter:
   assets:
     - images/tic_tac_toe.png
     - images/mini_sudoku.png
+    - images/connect_4.jpeg
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

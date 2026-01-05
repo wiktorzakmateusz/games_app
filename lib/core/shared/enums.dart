@@ -32,7 +32,8 @@ enum GameStatus {
 }
 
 enum GameType {
-  ticTacToe('TIC_TAC_TOE');
+  ticTacToe('TIC_TAC_TOE'),
+  connect4('CONNECT4');
 
   final String value;
   const GameType(this.value);

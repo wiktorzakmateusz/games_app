@@ -27,9 +27,18 @@ class _PlayerNamesPageState extends State<PlayerNamesPage> {
         ? 'Player 2'
         : playerTwoController.text.trim();
 
+    final String gameType = (ModalRoute.of(context)?.settings.arguments as String?) ?? 'tic_tac_toe';
+    
+    String routeName;
+    if (gameType == 'connect4') {
+      routeName = '/connect4';
+    } else {
+      routeName = '/tic_tac_toe';
+    }
+
     Navigator.pushNamed(
       context,
-      '/tic_tac_toe',
+      routeName,
       arguments: {
         'isTwoPlayerMode': true,
         'isUserFirstPlayer': true,

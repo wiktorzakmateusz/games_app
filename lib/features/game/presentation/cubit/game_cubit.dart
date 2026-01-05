@@ -71,16 +71,29 @@ class GameCubit extends Cubit<GameState> {
     if (!game.isPlayerTurn(_currentUserId!)) return;
 
     final gameState = game.state;
-    if (gameState is! TicTacToeGameStateEntity) return;
-    if (!gameState.isEmpty(position)) return;
-
     final currentPlayer = game.currentPlayer;
     if (currentPlayer == null || currentPlayer.symbol == null) return;
 
-    final optimisticGameState = gameState.makeOptimisticMove(
-      position,
-      currentPlayer.symbol!,
-    );
+    BaseGameStateEntity optimisticGameState;
+
+    // Handle different game types
+    if (gameState is TicTacToeGameStateEntity) {
+      if (!gameState.isEmpty(position)) return;
+      optimisticGameState = gameState.makeOptimisticMove(
+        position,
+        currentPlayer.symbol!,
+      );
+    } else if (gameState is Connect4GameStateEntity) {
+      // For Connect4, position is a column (0-6)
+      if (position < 0 || position >= 7) return;
+      if (gameState.isColumnFull(position)) return;
+      optimisticGameState = gameState.makeOptimisticMove(
+        position,
+        currentPlayer.symbol!,
+      );
+    } else {
+      return; // Unsupported game type
+    }
 
     final nextPlayerId = game.players
         .firstWhere((p) => p.userId != game.currentPlayerId)

@@ -14,7 +14,7 @@ class _DifficultyPageState extends State<DifficultyPage> {
 
   @override
   Widget build(BuildContext context) {
-    final String gameType = (ModalRoute.of(context)?.settings.arguments as String?) ?? 'tic-tac-toe';
+    final String gameType = (ModalRoute.of(context)?.settings.arguments as String?) ?? 'tic_tac_toe';
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
         middle: Text('Choose difficulty'),
@@ -48,7 +48,7 @@ class _DifficultyPageState extends State<DifficultyPage> {
                     ),
                   ),
                 ),
-              if (gameType == 'tic-tac-toe') ...[
+              if (gameType == 'tic_tac_toe' || gameType == 'connect4') ...[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -68,7 +68,15 @@ class _DifficultyPageState extends State<DifficultyPage> {
               GameButton(
                 label: 'PLAY',
                 onTap: () {
-                  String routeName = gameType == 'tic-tac-toe' ? '/tic_tac_toe' : '/mini_sudoku';
+                  String routeName;
+                  if (gameType == 'tic_tac_toe') {
+                    routeName = '/tic_tac_toe';
+                  } else if (gameType == 'connect4') {
+                    routeName = '/connect4';
+                  } else {
+                    routeName = '/mini_sudoku';
+                  }
+                  
                   Navigator.pushNamed(
                     context,
                     routeName,

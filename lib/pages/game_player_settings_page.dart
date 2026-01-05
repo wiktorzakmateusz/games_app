@@ -6,6 +6,8 @@ class GameSettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String gameType = (ModalRoute.of(context)?.settings.arguments as String?) ?? 'tic_tac_toe';
+    
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
         middle: Text('Choose settings'),
@@ -18,12 +20,20 @@ class GameSettingsPage extends StatelessWidget {
             children: [
               GameButton(
                 label: 'Play solo',
-                onTap: () => Navigator.pushNamed(context, '/game_difficulty_settings'),
+                onTap: () => Navigator.pushNamed(
+                  context, 
+                  '/game_difficulty_settings',
+                  arguments: gameType,
+                ),
               ),
               const SizedBox(height: 20),
               GameButton(
                 label: 'Play with a friend',
-                onTap: ()  => Navigator.pushNamed(context, '/player_names'),
+                onTap: () => Navigator.pushNamed(
+                  context, 
+                  '/player_names',
+                  arguments: gameType,
+                ),
               ),
             ],
           ),

@@ -84,8 +84,15 @@ class GameModel {
   }
 
   GameEntity toEntity() {
-
-    final stateEntity = (state as TicTacToeGameStateModel).toEntity();
+    BaseGameStateEntity stateEntity;
+    
+    if (state is TicTacToeGameStateModel) {
+      stateEntity = (state as TicTacToeGameStateModel).toEntity();
+    } else if (state is Connect4GameStateModel) {
+      stateEntity = (state as Connect4GameStateModel).toEntity();
+    } else {
+      throw ArgumentError('Unsupported game state model type');
+    }
     
     return GameEntity(
       id: id,
