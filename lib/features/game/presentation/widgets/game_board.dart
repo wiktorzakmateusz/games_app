@@ -193,10 +193,10 @@ class GameBoard extends StatelessWidget {
                     },
                   ),
                   // Winning line overlay
-                  if (winningPattern != null && winningPattern!.length >= 2)
+                  if (winningPattern != null && winningPattern.length >= 2)
                     _buildConnect4WinningLine(
                       constraints,
-                      winningPattern!,
+                      winningPattern,
                     ),
                 ],
               );
