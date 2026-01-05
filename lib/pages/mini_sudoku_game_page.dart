@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart'; // Used for Colors
 import 'dart:math';
 import '../logic/mini_sudoku_logic.dart';
+import '../widgets/local_games/game_status_text.dart';
+import '../widgets/local_games/game_controls.dart';
+import '../widgets/local_games/mini_sudoku/mini_sudoku_board.dart';
 
 class MiniSudokuPage extends StatefulWidget {
   const MiniSudokuPage({super.key});
@@ -11,16 +13,11 @@ class MiniSudokuPage extends StatefulWidget {
 }
 
 class _MiniSudokuPageState extends State<MiniSudokuPage> {
-
-  
-
-  // Game State
   List<int> board = List.filled(16, 0);
-  List<int> solution = List.filled(16, 0); // Store the correct answer here
+  List<int> solution = List.filled(16, 0);
   List<bool> isFixed = List.filled(16, false); 
   
-  // Validation State
-  Set<int> wrongIndices = {}; // Tracks which cells are incorrect
+  Set<int> wrongIndices = {};
   String statusText = 'Fill the board';
   bool isGameWon = false;
   String difficulty = 'Easy';
@@ -31,7 +28,6 @@ class _MiniSudokuPageState extends State<MiniSudokuPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
-    // Only generate if board is empty
     if (board.every((element) => element == 0)) {
        difficulty = args?['difficulty'] ?? 'Easy';
        _startNewGame();
@@ -149,63 +145,9 @@ class _MiniSudokuPageState extends State<MiniSudokuPage> {
     });
   }
 
-  Widget _buildCell(int index) {
-    final int value = board[index];
-    final bool fixed = isFixed[index];
-    final bool isWrong = wrongIndices.contains(index);
-    
-    // Grid styling
-    final int row = index ~/ 4;
-    final int col = index % 4;
-    final bool rightBorder = (col == 1); 
-    final bool bottomBorder = (row == 1); 
-
-    // Determine Text Color
-    Color textColor;
-    if (isWrong) {
-      textColor = CupertinoColors.systemRed; // Red if wrong
-    } else if (fixed) {
-      textColor = CupertinoColors.black; // Black if fixed
-    } else {
-      textColor = CupertinoColors.activeBlue; // Blue if user entered (and valid/unchecked)
-    }
-
-    return GestureDetector(
-      onTap: () => _handleTap(index),
-      child: Container(
-        decoration: BoxDecoration(
-          color: CupertinoColors.white,
-          border: Border(
-            top: BorderSide(color: CupertinoColors.systemGrey4, width: 0.5),
-            left: BorderSide(color: CupertinoColors.systemGrey4, width: 0.5),
-            right: BorderSide(
-              color: rightBorder ? CupertinoColors.black : CupertinoColors.systemGrey4, 
-              width: rightBorder ? 2.0 : 0.5
-            ),
-            bottom: BorderSide(
-              color: bottomBorder ? CupertinoColors.black : CupertinoColors.systemGrey4, 
-              width: bottomBorder ? 2.0 : 0.5
-            ),
-          ),
-        ),
-        child: Center(
-          child: Text(
-            value == 0 ? '' : '$value',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: fixed ? FontWeight.bold : FontWeight.normal,
-              color: textColor,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    const double boardSize = 320;
-
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: const Text('Mini Sudoku'),
@@ -219,50 +161,21 @@ class _MiniSudokuPageState extends State<MiniSudokuPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                statusText,
-                style: TextStyle(
-                  fontSize: 22, 
-                  fontWeight: FontWeight.w500,
-                  color: CupertinoColors.black,
-                ),
-              ),
-              
+              GameStatusText(text: statusText),
               const SizedBox(height: 20),
-              
-              Container(
-                width: boardSize,
-                height: boardSize,
-                decoration: BoxDecoration(
-                  border: Border.all(color: CupertinoColors.black, width: 2),
-                  color: CupertinoColors.white,
-                  boxShadow: const [
-                     BoxShadow(
-                      color: CupertinoColors.systemGrey4,
-                      blurRadius: 6,
-                      offset: Offset(2, 2),
-                    ),
-                  ],
-                ),
-                child: GridView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: 16,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4, 
-                  ),
-                  itemBuilder: (context, index) => _buildCell(index),
-                ),
+              MiniSudokuBoard(
+                board: board,
+                isFixed: isFixed,
+                wrongIndices: wrongIndices,
+                onCellTap: _handleTap,
               ),
-              
               const SizedBox(height: 30),
-              
-              // Button Logic:
-              // Won -> New Game
-              // Playing/Wrong -> Reset (Clears user input)
-              CupertinoButton.filled(
-                onPressed: isGameWon ? _startNewGame : _resetCurrentBoard,
-                child: Text(isGameWon ? 'New Game' : 'Reset'),
+              GameControls(
+                isGameOver: isGameWon,
+                onReset: _resetCurrentBoard,
+                onNewGame: _startNewGame,
+                resetLabel: 'Reset',
+                newGameLabel: 'New Game',
               ),
             ],
           ),

@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import '../logic/connect4_logic.dart';
+import '../widgets/local_games/game_status_text.dart';
+import '../widgets/local_games/game_controls.dart';
+import '../widgets/local_games/connect4/connect4_board.dart';
 
 class Connect4Page extends StatefulWidget {
   const Connect4Page({super.key});
@@ -152,142 +154,33 @@ class _Connect4PageState extends State<Connect4Page>
 
   // --- UI BUILDERS ---
 
-  Widget _buildCell(int row, int col) {
-    final index = row * Connect4Logic.columns + col;
-    final value = board[index];
-    final isWinningCell = winningPattern?.contains(index) ?? false;
-    
-    // Show ghost piece in the top row of hovered column
-    final showGhostPiece = hoverColumn == col && 
-                          row == 0 && 
-                          winner == null && 
-                          value == '' &&
-                          _gameLogic.getDropRow(board, col) != -1;
-
-    Color cellColor;
-    if (value == 'X') {
-      cellColor = CupertinoColors.systemRed;
-    } else if (value == 'O') {
-      cellColor = CupertinoColors.systemBlue;
-    } else {
-      cellColor = CupertinoColors.white;
-    }
-
-    // Ghost piece color (current player's color, faded)
-    Color ghostColor;
-    if (currentPlayer == 'X') {
-      ghostColor = CupertinoColors.systemRed.withOpacity(0.3);
-    } else {
-      ghostColor = CupertinoColors.systemBlue.withOpacity(0.3);
-    }
-
-    return MouseRegion(
-      onEnter: (_) => setState(() => hoverColumn = col),
-      onExit: (_) => setState(() => hoverColumn = null),
-      child: GestureDetector(
-        onTap: winner == null ? () => _handleColumnTap(col) : null,
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: CupertinoColors.separator, width: 0.8),
-            color: isWinningCell
-                ? CupertinoColors.activeGreen.withOpacity(0.25)
-                : CupertinoColors.white,
-            shape: BoxShape.circle,
-          ),
-          margin: const EdgeInsets.all(2),
-          child: value != ''
-              ? Container(
-                  decoration: BoxDecoration(
-                    color: cellColor,
-                    shape: BoxShape.circle,
-                  ),
-                  margin: const EdgeInsets.all(4),
-                )
-              : showGhostPiece
-                  ? Container(
-                      decoration: BoxDecoration(
-                        color: ghostColor,
-                        shape: BoxShape.circle,
-                      ),
-                      margin: const EdgeInsets.all(4),
-                    )
-                  : null,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWinningLine(BoxConstraints constraints) {
-    if (winningPattern == null || winningPattern!.length < 2) {
-      return const SizedBox.shrink();
-    }
-
-    final cellSize = constraints.maxWidth / Connect4Logic.columns;
-    final rowHeight = constraints.maxHeight / Connect4Logic.rows;
-
-    final startIdx = winningPattern!.first;
-    final endIdx = winningPattern!.last;
-
-    final startRow = startIdx ~/ Connect4Logic.columns;
-    final startCol = startIdx % Connect4Logic.columns;
-    final endRow = endIdx ~/ Connect4Logic.columns;
-    final endCol = endIdx % Connect4Logic.columns;
-
-    final start = Offset(
-      (startCol + 0.5) * cellSize,
-      (startRow + 0.5) * rowHeight,
-    );
-    final end = Offset(
-      (endCol + 0.5) * cellSize,
-      (endRow + 0.5) * rowHeight,
-    );
-
-    return AnimatedBuilder(
-      animation: _lineAnimation,
-      builder: (context, child) {
-        final currentEnd = Offset(
-          start.dx + (end.dx - start.dx) * _lineAnimation.value,
-          start.dy + (end.dy - start.dy) * _lineAnimation.value,
-        );
-        return CustomPaint(
-          painter: _LinePainter(start, currentEnd),
-          size: Size(constraints.maxWidth, constraints.maxHeight),
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    String statusText;
+  String _getStatusText() {
     if (winner == null) {
       if (isTwoPlayerMode) {
-        statusText =
-            '${currentPlayer == 'X' ? playerOneName : playerTwoName}\'s turn ($currentPlayer)';
+        return '${currentPlayer == 'X' ? playerOneName : playerTwoName}\'s turn ($currentPlayer)';
       } else {
         final isUserTurn = (currentPlayer == 'X' && isUserFirstPlayer) ||
             (currentPlayer == 'O' && !isUserFirstPlayer);
-        statusText = isUserTurn
+        return isUserTurn
             ? 'Your turn ($currentPlayer)'
             : 'Computer\'s turn ($currentPlayer)';
       }
     } else if (winner == 'draw') {
-      statusText = 'It\'s a draw!';
+      return 'It\'s a draw!';
     } else {
       if (isTwoPlayerMode) {
-        statusText =
-            '${winner == 'X' ? playerOneName : playerTwoName} wins!';
+        return '${winner == 'X' ? playerOneName : playerTwoName} wins!';
       } else {
-        statusText = ((winner == 'X' && isUserFirstPlayer) ||
+        return ((winner == 'X' && isUserFirstPlayer) ||
                 (winner == 'O' && !isUserFirstPlayer))
             ? 'You won!'
             : 'Computer won!';
       }
     }
+  }
 
-    const double boardWidth = 350;
-    const double boardHeight = 300;
-
+  @override
+  Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text('Connect 4 ($difficulty)'),
@@ -307,62 +200,27 @@ class _Connect4PageState extends State<Connect4Page>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 20),
-                Text(
-                  statusText,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                  ),
+                GameStatusText(text: _getStatusText()),
+                const SizedBox(height: 20),
+                Connect4Board(
+                  board: board,
+                  winningPattern: winningPattern,
+                  lineAnimation: _lineAnimation,
+                  currentPlayer: currentPlayer,
+                  hoverColumn: hoverColumn,
+                  onColumnTap: _handleColumnTap,
+                  onColumnHover: (col) => setState(() => hoverColumn = col),
+                  onColumnHoverExit: () => setState(() => hoverColumn = null),
+                  canDropInColumn: (col) => _gameLogic.getDropRow(board, col) != -1,
+                  isGameOver: winner != null,
+                  rows: Connect4Logic.rows,
+                  columns: Connect4Logic.columns,
                 ),
                 const SizedBox(height: 20),
-                // Game board
-                Container(
-                  width: boardWidth,
-                  height: boardHeight,
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.systemGrey5,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: CupertinoColors.systemGrey4,
-                        blurRadius: 6,
-                        offset: Offset(2, 2),
-                      ),
-                    ],
-                  ),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return Stack(
-                        children: [
-                          GridView.builder(
-                            itemCount: Connect4Logic.totalCells,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: Connect4Logic.columns,
-                            ),
-                            itemBuilder: (context, index) {
-                              final row = index ~/ Connect4Logic.columns;
-                              final col = index % Connect4Logic.columns;
-                              return _buildCell(row, col);
-                            },
-                          ),
-                          _buildWinningLine(constraints),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  height: 50,
-                  child: winner != null
-                      ? CupertinoButton.filled(
-                          onPressed: () =>
-                              _resetBoard(startAsUser: isUserFirstPlayer),
-                          child: const Text('Play Again'),
-                        )
-                      : const SizedBox.shrink(),
+                GameControls(
+                  isGameOver: winner != null,
+                  onReset: () => _resetBoard(startAsUser: isUserFirstPlayer),
+                  newGameLabel: 'Play Again',
                 ),
                 const SizedBox(height: 20),
               ],
@@ -373,25 +231,3 @@ class _Connect4PageState extends State<Connect4Page>
     );
   }
 }
-
-// Custom Painter for the winning line
-class _LinePainter extends CustomPainter {
-  final Offset start;
-  final Offset end;
-
-  _LinePainter(this.start, this.end);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = CupertinoColors.black
-      ..strokeWidth = 5
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(start, end, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _LinePainter oldDelegate) =>
-      oldDelegate.start != start || oldDelegate.end != end;
-}
-

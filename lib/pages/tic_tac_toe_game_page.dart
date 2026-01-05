@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart'; // Needed for Colors and CustomPainter
-import '../logic/tic_tac_toe_logic.dart'; // Import the extracted logic
+import '../logic/tic_tac_toe_logic.dart';
+import '../widgets/local_games/game_status_text.dart';
+import '../widgets/local_games/game_controls.dart';
+import '../widgets/local_games/tic_tac_toe/tic_tac_toe_board.dart';
 
 class TicTacToePage extends StatefulWidget {
   const TicTacToePage({super.key});
@@ -147,99 +149,33 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
 
   // --- UI BUILDERS ---
 
-  Widget _buildCell(int index) {
-    final isWinningCell = winningPattern?.contains(index) ?? false;
-    final value = board[index];
-    final textColor = switch (value) {
-      'X' => CupertinoColors.systemRed,
-      'O' => CupertinoColors.systemBlue,
-      _ => CupertinoColors.black,
-    };
-
-    return GestureDetector(
-      onTap: () => _handleTap(index),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: CupertinoColors.separator, width: 0.8),
-          color: isWinningCell
-              ? CupertinoColors.activeGreen.withOpacity(0.25)
-              : CupertinoColors.white,
-        ),
-        child: Center(
-          child: Text(
-            board[index],
-            style: TextStyle(
-              fontSize: 44,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWinningLine(BoxConstraints constraints) {
-    if (winningPattern == null) return const SizedBox.shrink();
-
-    final width = constraints.maxWidth;
-    final cellSize = width / 3;
-    final p = winningPattern!;
-    final start = _cellCenter(p.first, cellSize);
-    final end = _cellCenter(p.last, cellSize);
-
-    return AnimatedBuilder(
-      animation: _lineAnimation,
-      builder: (context, child) {
-        final currentEnd = Offset(
-          start.dx + (end.dx - start.dx) * _lineAnimation.value,
-          start.dy + (end.dy - start.dy) * _lineAnimation.value,
-        );
-        return CustomPaint(
-          painter: _LinePainter(start, currentEnd),
-          size: Size(width, width),
-        );
-      },
-    );
-  }
-
-  Offset _cellCenter(int index, double cellSize) {
-    final row = index ~/ 3;
-    final col = index % 3;
-    return Offset(
-      (col + 0.5) * cellSize,
-      (row + 0.5) * cellSize,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    String statusText;
+  String _getStatusText() {
     if (winner == null) {
       if (isTwoPlayerMode) {
-        statusText = '${currentPlayer == 'X' ? playerOneName : playerTwoName}\'s turn ($currentPlayer)';
+        return '${currentPlayer == 'X' ? playerOneName : playerTwoName}\'s turn ($currentPlayer)';
       } else {
         final isUserTurn = (currentPlayer == 'X' && isUserFirstPlayer) ||
                           (currentPlayer == 'O' && !isUserFirstPlayer);
-        statusText = isUserTurn
+        return isUserTurn
             ? 'Your turn ($currentPlayer)'
             : 'Computer\'s turn ($currentPlayer)';
       }
     } else if (winner == 'draw') {
-      statusText = 'It\'s a draw!';
+      return 'It\'s a draw!';
     } else {
       if (isTwoPlayerMode) {
-        statusText = '${winner == 'X' ? playerOneName : playerTwoName} wins!';
+        return '${winner == 'X' ? playerOneName : playerTwoName} wins!';
       } else {
-        statusText = ((winner == 'X' && isUserFirstPlayer) ||
+        return ((winner == 'X' && isUserFirstPlayer) ||
                       (winner == 'O' && !isUserFirstPlayer))
             ? 'You won!'
             : 'Computer won!';
       }
     }
+  }
 
-    const double boardSize = 320;
-
+  @override
+  Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text('Tic-Tac-Toe ($difficulty)'),
@@ -254,51 +190,19 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 10),
-              Text(statusText,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500)),
+              GameStatusText(text: _getStatusText()),
               const SizedBox(height: 20),
-              Container(
-                width: boardSize,
-                height: boardSize,
-                decoration: BoxDecoration(
-                  color: CupertinoColors.systemGrey6,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: CupertinoColors.systemGrey4,
-                      blurRadius: 6,
-                      offset: Offset(2, 2),
-                    ),
-                  ],
-                ),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Stack(
-                      children: [
-                        GridView.builder(
-                          itemCount: 9,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                          ),
-                          itemBuilder: (context, index) => _buildCell(index),
-                        ),
-                        _buildWinningLine(constraints),
-                      ],
-                    );
-                  },
-                ),
+              TicTacToeBoard(
+                board: board,
+                winningPattern: winningPattern,
+                lineAnimation: _lineAnimation,
+                onCellTap: _handleTap,
               ),
               const SizedBox(height: 20),
-              SizedBox(
-                height: 50,
-                child: winner != null
-                    ? CupertinoButton.filled(
-                        onPressed: () => _resetBoard(startAsUser: isUserFirstPlayer),
-                        child: const Text('Play Again'),
-                      )
-                    : const SizedBox.shrink(),
+              GameControls(
+                isGameOver: winner != null,
+                onReset: () => _resetBoard(startAsUser: isUserFirstPlayer),
+                newGameLabel: 'Play Again',
               ),
             ],
           ),
@@ -306,24 +210,4 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
       ),
     );
   }
-}
-
-// Custom Painter for the winning line
-class _LinePainter extends CustomPainter {
-  final Offset start;
-  final Offset end;
-  _LinePainter(this.start, this.end);
-  
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = CupertinoColors.black
-      ..strokeWidth = 5
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(start, end, paint);
-  }
-  
-  @override
-  bool shouldRepaint(covariant _LinePainter oldDelegate) =>
-      oldDelegate.start != start || oldDelegate.end != end;
 }

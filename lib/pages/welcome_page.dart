@@ -16,7 +16,7 @@ class WelcomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'Mini Games',
+                'Play Together!',
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
