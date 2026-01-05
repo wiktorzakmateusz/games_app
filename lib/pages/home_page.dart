@@ -64,9 +64,9 @@ class HomePage extends StatelessWidget {
                         child: Column(
                           children: [
                             Image.asset('images/tic_tac_toe.png',
-                                width: 100, height: 100),
+                                width: 150, height: 150),
                             const SizedBox(height: 8),
-                            Text('Tic-Tac-Toe', style: TextStyles.bodyLarge),
+                            Text('Tic-Tac-Toe', style: TextStyles.h5),
                           ],
                         ),
                       ),
@@ -78,9 +78,9 @@ class HomePage extends StatelessWidget {
                         child: Column(
                           children: [
                             Image.asset('images/mini_sudoku.png',
-                                width: 100, height: 100),
+                                width: 150, height: 150),
                             const SizedBox(height: 8),
-                            Text('Mini Sudoku', style: TextStyles.bodyLarge),
+                            Text('Mini Sudoku', style: TextStyles.h5),
                           ],
                         ),
                       ),
@@ -92,9 +92,9 @@ class HomePage extends StatelessWidget {
                         child: Column(
                           children: [
                             Image.asset('images/connect_4.jpeg',
-                                width: 100, height: 100),
+                                width: 150, height: 150),
                             const SizedBox(height: 8),
-                            Text('Connect 4', style: TextStyles.bodyLarge),
+                            Text('Connect 4', style: TextStyles.h5),
                           ],
                         ),
                       ),
