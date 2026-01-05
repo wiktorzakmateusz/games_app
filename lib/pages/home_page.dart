@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import '../core/theme/app_typography.dart';
 // import '../../widgets/game_button.dart';
 
 class HomePage extends StatelessWidget {
@@ -45,12 +46,9 @@ class HomePage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     'Select a game',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyles.h2,
                   ),
                   const SizedBox(height: 20),
                   Wrap(
@@ -68,7 +66,7 @@ class HomePage extends StatelessWidget {
                             Image.asset('images/tic_tac_toe.png',
                                 width: 100, height: 100),
                             const SizedBox(height: 8),
-                            const Text('Tic-Tac-Toe'),
+                            Text('Tic-Tac-Toe', style: TextStyles.bodyLarge),
                           ],
                         ),
                       ),
@@ -82,7 +80,7 @@ class HomePage extends StatelessWidget {
                             Image.asset('images/mini_sudoku.png',
                                 width: 100, height: 100),
                             const SizedBox(height: 8),
-                            const Text('Mini Sudoku'),
+                            Text('Mini Sudoku', style: TextStyles.bodyLarge),
                           ],
                         ),
                       ),
@@ -96,7 +94,7 @@ class HomePage extends StatelessWidget {
                             Image.asset('images/connect_4.jpeg',
                                 width: 100, height: 100),
                             const SizedBox(height: 8),
-                            const Text('Connect 4'),
+                            Text('Connect 4', style: TextStyles.bodyLarge),
                           ],
                         ),
                       ),
