@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import '../logic/connect4_logic.dart';
+import '../core/game_logic/game_logic.dart';
 import '../widgets/local_games/game_status_text.dart';
 import '../widgets/local_games/game_controls.dart';
 import '../widgets/local_games/connect4/connect4_board.dart';
@@ -15,19 +15,16 @@ class _Connect4PageState extends State<Connect4Page>
     with SingleTickerProviderStateMixin {
   final Connect4Logic _gameLogic = Connect4Logic();
 
+  late Connect4State _gameState;
+
   late bool isUserFirstPlayer;
   late bool isTwoPlayerMode;
-  late String difficulty;
+  late GameDifficulty difficulty;
   late String? playerOneName;
   late String? playerTwoName;
 
-  List<String> board = List.filled(42, '');
-  String? winner;
-  List<int>? winningPattern;
-  late String currentPlayer;
   int? hoverColumn;
 
-  // Animation Variables
   late AnimationController _lineController;
   late Animation<double> _lineAnimation;
 
@@ -37,14 +34,15 @@ class _Connect4PageState extends State<Connect4Page>
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
     isUserFirstPlayer = args?['isUserFirstPlayer'] ?? true;
     isTwoPlayerMode = args?['isTwoPlayerMode'] ?? false;
-    difficulty = args?['difficulty'] ?? 'Easy';
+    final difficultyStr = args?['difficulty'] ?? 'Easy';
+    difficulty = GameDifficultyExtension.fromString(difficultyStr);
     playerOneName = args?['playerOneName'] ?? 'Player 1';
     playerTwoName = args?['playerTwoName'] ?? 'Player 2';
 
-    // Initialize turn
-    currentPlayer = 'X';
+    _gameState = _gameLogic.createInitialState(
+      startingPlayer: PlayerSymbol.x,
+    );
 
-    // If Computer starts (and it's not 2-player mode), trigger the first move
     if (!isTwoPlayerMode && !isUserFirstPlayer) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _makeComputerMove();
@@ -70,120 +68,123 @@ class _Connect4PageState extends State<Connect4Page>
     super.dispose();
   }
 
-  // --- INTERACTION HANDLERS ---
 
   void _handleColumnTap(int column) {
-    if (winner != null) return;
+    if (_gameState.isGameOver) return;
 
-    final row = _gameLogic.getDropRow(board, column);
-    if (row == -1) return; // Column is full
+    final move = Connect4Move(column);
+    if (!_gameLogic.isValidMove(_gameState, move)) return;
 
-    final index = row * Connect4Logic.columns + column;
-
-    // Human Move
     setState(() {
-      board[index] = currentPlayer;
-      currentPlayer = currentPlayer == 'X' ? 'O' : 'X';
+      _gameState = _gameLogic.applyMove(_gameState, move);
     });
 
-    _checkGameOver();
+    if (_gameState.isGameOver && _gameState.winningPattern != null) {
+      _lineController.forward(from: 0);
+    }
 
-    // Trigger Computer Move (if applicable)
-    if (!isTwoPlayerMode && winner == null) {
-      final isComputerTurn = (currentPlayer == 'X' && !isUserFirstPlayer) ||
-          (currentPlayer == 'O' && isUserFirstPlayer);
+    if (!isTwoPlayerMode && !_gameState.isGameOver) {
+      final currentSymbol = _gameState.currentPlayerSymbol;
+      if (currentSymbol != null) {
+        final isComputerTurn = (currentSymbol == PlayerSymbol.x && !isUserFirstPlayer) ||
+            (currentSymbol == PlayerSymbol.o && isUserFirstPlayer);
 
-      if (isComputerTurn) {
-        Future.delayed(const Duration(milliseconds: 600), _makeComputerMove);
+        if (isComputerTurn) {
+          Future.delayed(const Duration(milliseconds: 600), _makeComputerMove);
+        }
       }
     }
   }
 
   void _makeComputerMove() {
-    if (winner != null) return;
+    if (_gameState.isGameOver) return;
 
-    final column = _gameLogic.getComputerMove(
-      board: board,
+    final currentSymbol = _gameState.currentPlayerSymbol;
+    if (currentSymbol == null) return;
+
+    final aiSymbol = isUserFirstPlayer ? PlayerSymbol.o : PlayerSymbol.x;
+
+    final move = _gameLogic.getAIMove(
+      state: _gameState,
       difficulty: difficulty,
-      currentPlayer: currentPlayer,
+      aiPlayer: aiSymbol,
     );
 
-    if (column != -1) {
-      final row = _gameLogic.getDropRow(board, column);
-      if (row != -1) {
-        final index = row * Connect4Logic.columns + column;
-        setState(() {
-          board[index] = currentPlayer;
-          currentPlayer = currentPlayer == 'X' ? 'O' : 'X';
-        });
-        _checkGameOver();
-      }
-    }
-  }
+    setState(() {
+      _gameState = _gameLogic.applyMove(_gameState, move);
+    });
 
-  void _checkGameOver() {
-    final result = _gameLogic.checkWinner(board);
-
-    if (result != null) {
-      setState(() {
-        winner = result['winner'];
-        winningPattern = result['pattern'] as List<int>?;
-      });
-      // Start the line animation if someone won
-      if (winningPattern != null) {
-        _lineController.forward(from: 0);
-      }
+    if (_gameState.isGameOver && _gameState.winningPattern != null) {
+      _lineController.forward(from: 0);
     }
   }
 
   void _resetBoard({bool? startAsUser}) {
     setState(() {
-      board = List.filled(42, '');
-      winner = null;
-      winningPattern = null;
-      currentPlayer = 'X';
+      _gameState = _gameLogic.createInitialState(
+        startingPlayer: PlayerSymbol.x,
+      );
 
-      // If computer starts, make the first move
-      if (!isTwoPlayerMode &&
-          ((currentPlayer == 'X' && !isUserFirstPlayer) ||
-              (currentPlayer == 'O' && isUserFirstPlayer))) {
+      if (!isTwoPlayerMode && !isUserFirstPlayer) {
         Future.delayed(const Duration(milliseconds: 600), _makeComputerMove);
       }
     });
   }
 
-  // --- UI BUILDERS ---
 
   String _getStatusText() {
-    if (winner == null) {
+    if (!_gameState.isGameOver) {
+      final currentSymbol = _gameState.currentPlayerSymbol;
+      if (currentSymbol == null) return '';
+
       if (isTwoPlayerMode) {
-        return '${currentPlayer == 'X' ? playerOneName : playerTwoName}\'s turn ($currentPlayer)';
+        final playerName = currentSymbol == PlayerSymbol.x
+            ? playerOneName
+            : playerTwoName;
+        return '$playerName\'s turn (${currentSymbol.symbol})';
       } else {
-        final isUserTurn = (currentPlayer == 'X' && isUserFirstPlayer) ||
-            (currentPlayer == 'O' && !isUserFirstPlayer);
+        final isUserTurn =
+            (currentSymbol == PlayerSymbol.x && isUserFirstPlayer) ||
+                (currentSymbol == PlayerSymbol.o && !isUserFirstPlayer);
         return isUserTurn
-            ? 'Your turn ($currentPlayer)'
-            : 'Computer\'s turn ($currentPlayer)';
+            ? 'Your turn (${currentSymbol.symbol})'
+            : 'Computer\'s turn (${currentSymbol.symbol})';
       }
-    } else if (winner == 'draw') {
+    } else if (_gameState.isDraw) {
       return 'It\'s a draw!';
     } else {
+      final winnerSymbol = _gameState.winnerSymbol;
+      if (winnerSymbol == null) return '';
+
       if (isTwoPlayerMode) {
-        return '${winner == 'X' ? playerOneName : playerTwoName} wins!';
+        final winnerName =
+            winnerSymbol == PlayerSymbol.x ? playerOneName : playerTwoName;
+        return '$winnerName wins!';
       } else {
-        return ((winner == 'X' && isUserFirstPlayer) ||
-                (winner == 'O' && !isUserFirstPlayer))
-            ? 'You won!'
-            : 'Computer won!';
+        final userWon = (winnerSymbol == PlayerSymbol.x && isUserFirstPlayer) ||
+            (winnerSymbol == PlayerSymbol.o && !isUserFirstPlayer);
+        return userWon ? 'You won!' : 'Computer won!';
       }
     }
+  }
+
+  List<String> _getBoardAsStrings() {
+    return _gameState.board.map((symbol) {
+      if (symbol == null) return '';
+      return symbol.symbol;
+    }).toList();
+  }
+
+  String _getCurrentPlayerSymbol() {
+    final symbol = _gameState.currentPlayerSymbol;
+    return symbol?.symbol ?? '';
   }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Connect 4 ($difficulty)'),
+        middle: Text('Connect 4 (${difficulty.displayName})'),
         leading: GestureDetector(
           child: const Icon(
             CupertinoIcons.xmark,
@@ -203,22 +204,22 @@ class _Connect4PageState extends State<Connect4Page>
                 GameStatusText(text: _getStatusText()),
                 const SizedBox(height: 20),
                 Connect4Board(
-                  board: board,
-                  winningPattern: winningPattern,
+                  board: _getBoardAsStrings(),
+                  winningPattern: _gameState.winningPattern,
                   lineAnimation: _lineAnimation,
-                  currentPlayer: currentPlayer,
+                  currentPlayer: _getCurrentPlayerSymbol(),
                   hoverColumn: hoverColumn,
                   onColumnTap: _handleColumnTap,
                   onColumnHover: (col) => setState(() => hoverColumn = col),
                   onColumnHoverExit: () => setState(() => hoverColumn = null),
-                  canDropInColumn: (col) => _gameLogic.getDropRow(board, col) != -1,
-                  isGameOver: winner != null,
-                  rows: Connect4Logic.rows,
-                  columns: Connect4Logic.columns,
+                  canDropInColumn: (col) => !_gameState.isColumnFull(col),
+                  isGameOver: _gameState.isGameOver,
+                  rows: Connect4State.rows,
+                  columns: Connect4State.columns,
                 ),
                 const SizedBox(height: 20),
                 GameControls(
-                  isGameOver: winner != null,
+                  isGameOver: _gameState.isGameOver,
                   onReset: () => _resetBoard(startAsUser: isUserFirstPlayer),
                   newGameLabel: 'Play Again',
                 ),
@@ -231,3 +232,4 @@ class _Connect4PageState extends State<Connect4Page>
     );
   }
 }
+
