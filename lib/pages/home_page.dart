@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../core/theme/app_typography.dart';
-// import '../../widgets/game_button.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -9,32 +9,12 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: const Text('Local Games'),
+        middle: AppText.h3('Local Games'),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           child: const Icon(CupertinoIcons.back),
           onPressed: () {
             Navigator.pushReplacementNamed(context, '/');
-          },
-        ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.info),
-          onPressed: () {
-            showCupertinoDialog(
-              context: context,
-              builder: (context) => CupertinoAlertDialog(
-                title: const Text('Rules of the Games'),
-                content: const Text(
-                    'Here you can explain Tic-Tac-Toe and Mini Sudoku rules.'),
-                actions: [
-                  CupertinoDialogAction(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Close'),
-                  ),
-                ],
-              ),
-            );
           },
         ),
       ),
@@ -46,10 +26,7 @@ class HomePage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Select a game',
-                    style: TextStyles.h2,
-                  ),
+                  AppText.h2('Select a game'),
                   const SizedBox(height: 20),
                   Wrap(
                     alignment: WrapAlignment.center,
@@ -66,7 +43,7 @@ class HomePage extends StatelessWidget {
                             Image.asset('images/tic_tac_toe.png',
                                 width: 150, height: 150),
                             const SizedBox(height: 8),
-                            Text('Tic-Tac-Toe', style: TextStyles.h5),
+                            AppText.h5('Tic-Tac-Toe'),
                           ],
                         ),
                       ),
@@ -80,7 +57,7 @@ class HomePage extends StatelessWidget {
                             Image.asset('images/mini_sudoku.png',
                                 width: 150, height: 150),
                             const SizedBox(height: 8),
-                            Text('Mini Sudoku', style: TextStyles.h5),
+                            AppText.h5('Mini Sudoku'),
                           ],
                         ),
                       ),
@@ -94,7 +71,7 @@ class HomePage extends StatelessWidget {
                             Image.asset('images/connect_4.jpeg',
                                 width: 150, height: 150),
                             const SizedBox(height: 8),
-                            Text('Connect 4', style: TextStyles.h5),
+                            AppText.h5('Connect 4'),
                           ],
                         ),
                       ),

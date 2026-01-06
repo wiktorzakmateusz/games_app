@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../../widgets/game_button.dart';
 
 class GameSettingsPage extends StatelessWidget {
@@ -9,8 +10,8 @@ class GameSettingsPage extends StatelessWidget {
     final String gameType = (ModalRoute.of(context)?.settings.arguments as String?) ?? 'tic_tac_toe';
     
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('Choose settings'),
+      navigationBar: CupertinoNavigationBar(
+        middle: AppText.h3('Choose settings'),
         // automatically shows back button if navigated from another page
       ),
       child: SafeArea(

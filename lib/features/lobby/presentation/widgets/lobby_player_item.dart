@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../../domain/entities/lobby_player_entity.dart';
 
 class LobbyPlayerItem extends StatelessWidget {
@@ -34,20 +35,8 @@ class LobbyPlayerItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  player.displayName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  '@${player.username}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: CupertinoColors.secondaryLabel,
-                  ),
-                ),
+                AppText.bodyMedium(player.displayName),
+                AppText.small('@${player.username}'),
               ],
             ),
           ),
@@ -57,7 +46,7 @@ class LobbyPlayerItem extends StatelessWidget {
               color: CupertinoColors.activeGreen,
             )
           else
-            const Text(
+            AppText(
               'Not ready',
               style: TextStyle(
                 color: CupertinoColors.secondaryLabel,

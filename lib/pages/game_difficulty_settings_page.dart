@@ -18,8 +18,8 @@ class _DifficultyPageState extends State<DifficultyPage> {
   Widget build(BuildContext context) {
     final String gameType = (ModalRoute.of(context)?.settings.arguments as String?) ?? 'tic_tac_toe';
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: AppText('Choose difficulty'),
+      navigationBar: CupertinoNavigationBar(
+        middle: AppText.h3('Choose difficulty'),
       ),
       child: SafeArea(
         child: Center(
@@ -42,10 +42,7 @@ class _DifficultyPageState extends State<DifficultyPage> {
                       onPressed: () {
                         setState(() => selectedDifficulty = level);
                       },
-                      child: AppText(
-                        level,
-                        style: TextStyles.button
-                      ),
+                      child: AppText.button(level),
                     ),
                   ),
                 ),
@@ -53,7 +50,7 @@ class _DifficultyPageState extends State<DifficultyPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('You start ', style: TextStyle(fontSize: 13)),
+                    AppText.bodySmall('You start '),
                     const SizedBox(width: 10),
                     CupertinoSwitch(
                       value: isUserFirstPlayer,

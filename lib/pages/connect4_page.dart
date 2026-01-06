@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../core/game_logic/game_logic.dart';
 import '../widgets/local_games/game_status_text.dart';
 import '../widgets/local_games/game_controls.dart';
@@ -184,7 +185,7 @@ class _Connect4PageState extends State<Connect4Page>
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Connect 4 (${difficulty.displayName})'),
+        middle: AppText.h3('Connect 4 (${difficulty.displayName})'),
         leading: GestureDetector(
           child: const Icon(
             CupertinoIcons.xmark,

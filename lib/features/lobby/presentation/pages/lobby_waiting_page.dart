@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../../../../widgets/game_button.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
@@ -71,17 +72,17 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
     final confirmed = await showCupertinoDialog<bool>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Leave Lobby?'),
-        content: const Text('Are you sure you want to leave this lobby?'),
+        title: AppText.h3('Leave Lobby?'),
+        content: AppText.bodyLarge('Are you sure you want to leave this lobby?'),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: AppText.button('Cancel'),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Leave'),
+            child: AppText.button('Leave'),
           ),
         ],
       ),
@@ -96,12 +97,12 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
+        title: AppText.h3('Error'),
+        content: AppText.bodyLarge(message),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: AppText.bodyLarge('OK'),
           ),
         ],
       ),
@@ -112,11 +113,11 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
   Widget build(BuildContext context) {
     if (_lobbyId == null) {
       return CupertinoPageScaffold(
-        navigationBar: const CupertinoNavigationBar(
-          middle: Text('Lobby'),
+        navigationBar: CupertinoNavigationBar(
+          middle: AppText.h2('Lobby'),
         ),
-        child: const Center(
-          child: Text('Lobby ID not provided'),
+        child: Center(
+          child: AppText.bodyLarge('Lobby ID not provided'),
         ),
       );
     }
@@ -142,7 +143,7 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
       builder: (context, state) {
         return CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
-            middle: const Text('Lobby'),
+            middle: AppText.h2('Lobby'),
             leading: CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: state is LobbyWaitingLoaded && !state.isPerformingAction
@@ -161,20 +162,17 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
 
   Widget _buildBody(LobbyWaitingState state) {
     return switch (state) {
-      LobbyWaitingInitial() => const Center(child: Text('Initializing...')),
+      LobbyWaitingInitial() => Center(child: AppText.bodyLarge('Initializing...')),
       LobbyWaitingLoading() => const Center(child: CupertinoActivityIndicator()),
       LobbyWaitingError() => _buildErrorView(state),
       LobbyWaitingLoaded() => _buildLobbyView(state),
-      GameStarting() => const Center(
+      GameStarting() => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CupertinoActivityIndicator(),
-              SizedBox(height: 16),
-              Text(
-                'Starting game...',
-                style: TextStyle(fontSize: 18),
-              ),
+              const CupertinoActivityIndicator(),
+              const SizedBox(height: 16),
+              AppText.bodyLarge('Starting game...'),
             ],
           ),
         ),
@@ -193,7 +191,7 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
             color: CupertinoColors.destructiveRed,
           ),
           const SizedBox(height: 16),
-          Text(
+          AppText(
             state.message,
             style: const TextStyle(color: CupertinoColors.destructiveRed),
             textAlign: TextAlign.center,
@@ -201,7 +199,7 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
           const SizedBox(height: 24),
           CupertinoButton.filled(
             onPressed: () => context.read<LobbyWaitingCubit>().retry(),
-            child: const Text('Retry'),
+            child: AppText.button('Retry'),
           ),
           const SizedBox(height: 12),
           CupertinoButton(
@@ -212,7 +210,7 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
                 (route) => route.settings.name == '/',
               );
             },
-            child: const Text('Back to Lobbies'),
+            child: AppText.button('Back to Lobbies'),
           ),
         ],
       ),
@@ -240,31 +238,16 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
                   ),
                   child: Column(
                     children: [
-                      Text(
-                        lobby.name,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      AppText.h2(lobby.name),
                       const SizedBox(height: 8),
-                      Text(
+                      AppText.bodyMedium(
                         '${lobby.currentPlayerCount}/${lobby.maxPlayers} Players',
-                        style: const TextStyle(
-                          fontSize: 16,
-                        ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Players',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                AppText.h3('Players'),
                 const SizedBox(height: 12),
                 ...lobby.players.map((player) {
                   final isCurrentPlayer = player.userId == _currentUserId;
@@ -285,16 +268,18 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              GameButton(
-                label: currentPlayer?.isReady == true
-                    ? 'Not Ready'
-                    : 'Ready',
-                onTap: !state.isPerformingAction
-                    ? () {
-                        context.read<LobbyWaitingCubit>().toggleReady();
-                      }
-                    : null,
-              ),
+              if (!isOwner) ...[
+                GameButton(
+                  label: currentPlayer?.isReady == true
+                      ? 'Not Ready'
+                      : 'Ready',
+                  onTap: !state.isPerformingAction
+                      ? () {
+                    context.read<LobbyWaitingCubit>().toggleReady();
+                  }
+                      : null,
+                ),
+              ],
               if (isOwner && lobby.canStartGame) ...[
                 const SizedBox(height: 12),
                 SizedBox(
@@ -309,13 +294,7 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
                     borderRadius: BorderRadius.circular(12),
                     child: state.isPerformingAction
                         ? const CupertinoActivityIndicator()
-                        : const Text(
-                            'Start Game',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                        : AppText.button('Start Game'),
                   ),
                 ),
               ] else if (isOwner && !lobby.allPlayersReady) ...[
@@ -326,7 +305,7 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
                     color: CupertinoColors.systemGrey6,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
+                  child: AppText(
                     'Waiting for all players to be ready...',
                     textAlign: TextAlign.center,
                     style: TextStyle(

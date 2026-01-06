@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:games_app/widgets/app_text.dart';
 
 class GameButton extends StatelessWidget {
   final String label;
@@ -14,13 +15,7 @@ class GameButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14),
         borderRadius: BorderRadius.circular(12),
         onPressed: onTap,
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        child: AppText.button(label),
       ),
     );
   }

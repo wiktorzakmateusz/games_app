@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:games_app/widgets/app_text.dart';
 
 class EmptySlotWidget extends StatelessWidget {
   const EmptySlotWidget({super.key});
@@ -16,19 +17,14 @@ class EmptySlotWidget extends StatelessWidget {
           style: BorderStyle.solid,
         ),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(
+          const Icon(
             CupertinoIcons.person_add,
             color: CupertinoColors.secondaryLabel,
           ),
-          SizedBox(width: 12),
-          Text(
-            'Waiting for player...',
-            style: TextStyle(
-              color: CupertinoColors.secondaryLabel,
-            ),
-          ),
+          const SizedBox(width: 12),
+          AppText.bodyMedium('Waiting for player...'),
         ],
       ),
     );

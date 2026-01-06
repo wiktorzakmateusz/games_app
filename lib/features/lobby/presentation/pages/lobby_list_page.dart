@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../../../../core/shared/enums.dart';
 import '../../../../widgets/game_button.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
@@ -72,15 +73,9 @@ class _LobbyListPageState extends State<LobbyListPage> {
                         Navigator.pop(context);
                         _lobbyNameController.clear();
                       },
-                      child: const Text('Cancel'),
+                      child: AppText.button('Cancel'),
                     ),
-                    const Text(
-                      'Create Lobby',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 17,
-                      ),
-                    ),
+                    AppText.h3('Create Lobby'),
                     CupertinoButton(
                       padding: EdgeInsets.zero,
                       onPressed: () {
@@ -94,10 +89,7 @@ class _LobbyListPageState extends State<LobbyListPage> {
                           _lobbyNameController.clear();
                         }
                       },
-                      child: const Text(
-                        'Create',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
+                      child: AppText.button('Create'),
                     ),
                   ],
                 ),
@@ -109,13 +101,7 @@ class _LobbyListPageState extends State<LobbyListPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Lobby Name',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: CupertinoColors.secondaryLabel,
-                        ),
-                      ),
+                      AppText.bodyMediumSemiBold('Lobby Name'),
                       const SizedBox(height: 8),
                       CupertinoTextField(
                         controller: _lobbyNameController,
@@ -140,12 +126,12 @@ class _LobbyListPageState extends State<LobbyListPage> {
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
+        title: AppText.h3('Error'),
+        content: AppText.bodyLarge(message),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: AppText.bodyLarge('OK'),
           ),
         ],
       ),
@@ -156,12 +142,12 @@ class _LobbyListPageState extends State<LobbyListPage> {
     showCupertinoDialog(
       context: context,
       builder: (dialogContext) => CupertinoAlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: AppText.h3('Logout'),
+        content: AppText.bodyLarge('Are you sure you want to logout?'),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: AppText.button('Cancel'),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
@@ -170,7 +156,7 @@ class _LobbyListPageState extends State<LobbyListPage> {
               context.read<AuthCubit>().signOut();
               Navigator.pushReplacementNamed(context, '/');
             },
-            child: const Text('Logout'),
+            child: AppText.button('Logout'),
           ),
         ],
       ),
@@ -204,7 +190,7 @@ class _LobbyListPageState extends State<LobbyListPage> {
       builder: (context, state) {
         return CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
-            middle: const Text('Lobbies'),
+            middle: AppText.h3('Lobbies'),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -233,7 +219,7 @@ class _LobbyListPageState extends State<LobbyListPage> {
 
   Widget _buildBody(LobbyListState state, String currentUserUid) {
     return switch (state) {
-      LobbyListInitial() => const Center(child: Text('Initializing...')),
+      LobbyListInitial() => Center(child: AppText.bodyMedium('Initializing...')),
       LobbyListLoading() => const Center(child: CupertinoActivityIndicator()),
       LobbyListError() => _buildErrorView(state),
       LobbyListLoaded() => _buildLobbiesView(state, currentUserUid),
@@ -252,7 +238,7 @@ class _LobbyListPageState extends State<LobbyListPage> {
             color: CupertinoColors.destructiveRed,
           ),
           const SizedBox(height: 16),
-          Text(
+          AppText(
             state.message,
             style: const TextStyle(color: CupertinoColors.destructiveRed),
             textAlign: TextAlign.center,
@@ -260,7 +246,7 @@ class _LobbyListPageState extends State<LobbyListPage> {
           const SizedBox(height: 24),
           CupertinoButton.filled(
             onPressed: () => context.read<LobbyListCubit>().retry(),
-            child: const Text('Retry'),
+            child: AppText.button('Retry'),
           ),
         ],
       ),
@@ -273,7 +259,7 @@ class _LobbyListPageState extends State<LobbyListPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
+            AppText(
               'No available lobbies',
               style: TextStyle(
                 fontSize: 18,
@@ -281,7 +267,7 @@ class _LobbyListPageState extends State<LobbyListPage> {
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            AppText(
               'Create one to get started!',
               style: TextStyle(
                 fontSize: 14,

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../../domain/entities/lobby_entity.dart';
 
 class LobbyCard extends StatelessWidget {
@@ -36,15 +37,9 @@ class LobbyCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    lobby.name,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  AppText.h3(lobby.name),
                   const SizedBox(height: 4),
-                  Text(
+                  AppText(
                     '${lobby.currentPlayerCount}/${lobby.maxPlayers} players',
                     style: const TextStyle(
                       fontSize: 14,
@@ -55,7 +50,7 @@ class LobbyCard extends StatelessWidget {
               ),
             ),
             if (isFull)
-              const Text(
+              AppText(
                 'Full',
                 style: TextStyle(
                   color: CupertinoColors.destructiveRed,
@@ -63,7 +58,7 @@ class LobbyCard extends StatelessWidget {
                 ),
               )
             else if (isJoined)
-              const Text(
+              AppText(
                 'Joined',
                 style: TextStyle(
                   color: CupertinoColors.activeGreen,
