@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:games_app/widgets/app_text.dart';
 import '../../widgets/game_button.dart';
-import '../core/theme/app_typography.dart';
 
 class DifficultyPage extends StatefulWidget {
   const DifficultyPage({super.key});

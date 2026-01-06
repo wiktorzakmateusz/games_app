@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:games_app/widgets/app_text.dart';
-import '../core/theme/app_typography.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
