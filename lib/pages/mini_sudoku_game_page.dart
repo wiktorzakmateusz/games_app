@@ -13,19 +13,21 @@ class MiniSudokuPage extends StatefulWidget {
 
 class _MiniSudokuPageState extends State<MiniSudokuPage> {
   final MiniSudokuLogic _gameLogic = MiniSudokuLogic();
-
   late MiniSudokuState _gameState;
-
   late GameDifficulty difficulty;
+  bool _isInitialized = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args = ModalRoute.of(context)!.settings.arguments as Map?;
-    final difficultyStr = args?['difficulty'] ?? 'Easy';
-    difficulty = GameDifficultyExtension.fromString(difficultyStr);
 
-    _gameState = _gameLogic.createPuzzle(difficulty);
+    if (!_isInitialized) {
+      final args = ModalRoute.of(context)!.settings.arguments as Map?;
+      final difficultyStr = args?['difficulty'] ?? 'Easy';
+      difficulty = GameDifficultyExtension.fromString(difficultyStr);
+      _gameState = _gameLogic.createPuzzle(difficulty);
+      _isInitialized = true;
+    }
   }
 
   void _startNewGame() {
