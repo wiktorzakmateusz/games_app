@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../../../../core/shared/enums.dart';
 import '../../domain/entities/game_entity.dart';
 import '../../domain/entities/game_state_entity.dart';
@@ -108,7 +109,7 @@ class GameBoard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Center(
-                    child: Text(
+                    child: AppText(
                       '${col + 1}',
                       style: TextStyle(
                         fontSize: 16,

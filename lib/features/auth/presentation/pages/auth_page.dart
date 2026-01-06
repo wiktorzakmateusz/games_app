@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../widgets/app_text.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 
@@ -52,11 +54,11 @@ class _AuthPageState extends State<AuthPage> {
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
+        title: AppText.bodyMedium('Error'),
+        content: AppText.bodySmall(message),
         actions: [
           CupertinoDialogAction(
-            child: const Text('OK'),
+            child: AppText.bodyMedium('OK'),
             onPressed: () => Navigator.pop(context),
           ),
         ],
@@ -77,7 +79,7 @@ class _AuthPageState extends State<AuthPage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(_isLogin ? 'Sign In' : 'Sign Up'),
+        middle: AppText.h3(_isLogin ? 'Sign In' : 'Sign Up'),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           child: const Icon(CupertinoIcons.back),
@@ -106,13 +108,7 @@ class _AuthPageState extends State<AuthPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const SizedBox(height: 40),
-                      const Text(
-                        'Welcome to Multiplayer',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      AppText.h2('Welcome to Multiplayer'),
                       const SizedBox(height: 40),
                       if (!_isLogin) ...[
                         CupertinoTextField(
@@ -159,19 +155,16 @@ class _AuthPageState extends State<AuthPage> {
                               ? const CupertinoActivityIndicator(
                                   color: CupertinoColors.white,
                                 )
-                              : Text(_isLogin ? 'Sign In' : 'Sign Up'),
+                              : AppText.button(_isLogin ? 'Sign In' : 'Sign Up'),
                         ),
                       ),
                       const SizedBox(height: 16),
                       CupertinoButton(
                         onPressed: isLoading ? null : _toggleMode,
-                        child: Text(
+                        child: AppText.bodyMedium(
                           _isLogin
                               ? 'Don\'t have an account? Sign Up'
-                              : 'Already have an account? Sign In',
-                          style: const TextStyle(
-                            color: CupertinoColors.activeBlue,
-                          ),
+                              : 'Already have an account? Sign In'
                         ),
                       ),
                     ],

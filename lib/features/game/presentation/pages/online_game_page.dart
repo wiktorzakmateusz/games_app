@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../../widgets/game_button.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
@@ -76,17 +77,17 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
     final confirmed = await showCupertinoDialog<bool>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Abandon Game?'),
-        content: const Text('Are you sure you want to abandon this game?'),
+        title: AppText.h3('Abandon Game?'),
+        content: AppText.bodyMedium('Are you sure you want to abandon this game?'),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: AppText.bodyLarge('Cancel'),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Abandon'),
+            child: AppText.bodyLarge('Abandon'),
           ),
         ],
       ),
@@ -118,12 +119,12 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
+        title: AppText.h3('Error'),
+        content: AppText.bodyMedium(message),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: AppText.bodyMedium('OK'),
           ),
         ],
       ),
@@ -134,11 +135,11 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
   Widget build(BuildContext context) {
     if (_gameId == null) {
       return CupertinoPageScaffold(
-        navigationBar: const CupertinoNavigationBar(
-          middle: Text('Game'),
+        navigationBar: CupertinoNavigationBar(
+          middle: AppText.h3('Game'),
         ),
-        child: const Center(
-          child: Text('Game ID not provided'),
+        child: Center(
+          child: AppText.bodyLarge('Game ID not provided'),
         ),
       );
     }
@@ -167,7 +168,7 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
       builder: (context, state) {
         return CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
-            middle: const Text('Tic Tac Toe'),
+            middle: AppText.bodyLarge('Tic Tac Toe'),
             leading: CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: state is GameLoaded && !state.isPerformingAction
@@ -186,11 +187,11 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
 
   Widget _buildBody(GameState state) {
     return switch (state) {
-      GameInitial() => const Center(child: Text('Initializing...')),
+      GameInitial() => Center(child: AppText.bodyMedium('Initializing...')),
       GameLoading() => const Center(child: CupertinoActivityIndicator()),
       GameError() => _buildErrorView(state),
       GameLoaded() => _buildGameView(state),
-      GameAbandoned() => const Center(child: Text('Game abandoned')),
+      GameAbandoned() => Center(child: AppText.bodyMedium('Game abandoned')),
     };
   }
 
@@ -263,13 +264,7 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
                   player: myPlayer,
                   isCurrentTurn: currentPlayer?.userId == myPlayer.userId,
                 ),
-                const Text(
-                  'VS',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                AppText.bodyLargeBold('VS'),
                 PlayerInfoCard(
                   player: opponent,
                   isCurrentTurn: currentPlayer?.userId == opponent.userId,

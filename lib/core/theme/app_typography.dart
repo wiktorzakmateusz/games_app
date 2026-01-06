@@ -2,22 +2,22 @@ import 'package:flutter/cupertino.dart';
 
 class AppTypography {
   static const String fontFamily = 'Bubblegum Sans';
- 
+
   static const double baseFontSize = 18.0;
-  
+
   static const FontWeight regular = FontWeight.w400;
   static const FontWeight medium = FontWeight.w500;
   static const FontWeight semiBold = FontWeight.w600;
   static const FontWeight bold = FontWeight.w700;
-  
+
   static const double lineHeight = 1.6;
-  
+
   static CupertinoTextThemeData createTextTheme({
     Color primaryColor = CupertinoColors.black,
   }) {
     return CupertinoTextThemeData(
       primaryColor: primaryColor,
-      
+
       textStyle: TextStyle(
         fontFamily: fontFamily.isEmpty ? null : fontFamily,
         fontSize: baseFontSize,
@@ -25,21 +25,21 @@ class AppTypography {
         height: lineHeight,
         color: primaryColor,
       ),
-      
+
       actionTextStyle: TextStyle(
         fontFamily: fontFamily.isEmpty ? null : fontFamily,
         fontSize: baseFontSize,
         fontWeight: semiBold,
         color: CupertinoColors.activeBlue,
       ),
-      
+
       navTitleTextStyle: TextStyle(
         fontFamily: fontFamily.isEmpty ? null : fontFamily,
         fontSize: 27.99,
         fontWeight: bold,
         color: primaryColor,
       ),
-      
+
       navLargeTitleTextStyle: TextStyle(
         fontFamily: fontFamily.isEmpty ? null : fontFamily,
         fontSize: 40.31,
@@ -51,94 +51,170 @@ class AppTypography {
 }
 
 class TextStyles {
+  // Headings
   static TextStyle get h1 => TextStyle(
-        fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
-        fontSize: 40.31,
-        fontWeight: AppTypography.bold,
-        height: AppTypography.lineHeight,
-      );
-  
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 40.31,
+    fontWeight: AppTypography.bold,
+    height: AppTypography.lineHeight,
+  );
+
   static TextStyle get h2 => TextStyle(
-        fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
-        fontSize: 33.59,
-        fontWeight: AppTypography.bold,
-        height: AppTypography.lineHeight,
-      );
-  
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 33.59,
+    fontWeight: AppTypography.bold,
+    height: AppTypography.lineHeight,
+  );
+
   static TextStyle get h3 => TextStyle(
-        fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
-        fontSize: 27.99,
-        fontWeight: AppTypography.bold,
-        height: AppTypography.lineHeight,
-      );
-  
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 27.99,
+    fontWeight: AppTypography.bold,
+    height: AppTypography.lineHeight,
+  );
+
   static TextStyle get h4 => TextStyle(
-        fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
-        fontSize: 23.33,
-        fontWeight: AppTypography.bold,
-        height: AppTypography.lineHeight,
-      );
-  
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 23.33,
+    fontWeight: AppTypography.bold,
+    height: AppTypography.lineHeight,
+  );
+
   static TextStyle get h5 => TextStyle(
-        fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
-        fontSize: 19.44,
-        fontWeight: AppTypography.bold,
-        height: AppTypography.lineHeight,
-      );
-  
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 19.44,
+    fontWeight: AppTypography.bold,
+    height: AppTypography.lineHeight,
+  );
+
   static TextStyle get h6 => TextStyle(
-        fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
-        fontSize: 16.20,
-        fontWeight: AppTypography.bold,
-        height: AppTypography.lineHeight,
-      );
-  
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 16.20,
+    fontWeight: AppTypography.bold,
+    height: AppTypography.lineHeight,
+  );
+
+  // Body Text - Regular Weight
   static TextStyle get bodyLarge => TextStyle(
-        fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
-        fontSize: AppTypography.baseFontSize,
-        fontWeight: AppTypography.regular,
-        height: AppTypography.lineHeight,
-      );
-  
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: AppTypography.baseFontSize,
+    fontWeight: AppTypography.regular,
+    height: AppTypography.lineHeight,
+  );
+
   static TextStyle get bodyMedium => TextStyle(
-        fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
-        fontSize: 16.20,
-        fontWeight: AppTypography.regular,
-        height: AppTypography.lineHeight,
-      );
-  
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 16.20,
+    fontWeight: AppTypography.regular,
+    height: AppTypography.lineHeight,
+  );
+
   static TextStyle get bodySmall => TextStyle(
-        fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
-        fontSize: 13.5,
-        fontWeight: AppTypography.regular,
-        height: AppTypography.lineHeight,
-      );
-  
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 13.5,
+    fontWeight: AppTypography.regular,
+    height: AppTypography.lineHeight,
+  );
+
+  // Body Text - Bold Weight
+  static TextStyle get bodyLargeBold => TextStyle(
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: AppTypography.baseFontSize,
+    fontWeight: AppTypography.bold,
+    height: AppTypography.lineHeight,
+  );
+
+  static TextStyle get bodyMediumBold => TextStyle(
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 16.20,
+    fontWeight: AppTypography.bold,
+    height: AppTypography.lineHeight,
+  );
+
+  static TextStyle get bodySmallBold => TextStyle(
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 13.5,
+    fontWeight: AppTypography.bold,
+    height: AppTypography.lineHeight,
+  );
+
+  // Body Text - SemiBold Weight
+  static TextStyle get bodyLargeSemiBold => TextStyle(
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: AppTypography.baseFontSize,
+    fontWeight: AppTypography.semiBold,
+    height: AppTypography.lineHeight,
+  );
+
+  static TextStyle get bodyMediumSemiBold => TextStyle(
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 16.20,
+    fontWeight: AppTypography.semiBold,
+    height: AppTypography.lineHeight,
+  );
+
+  static TextStyle get bodySmallSemiBold => TextStyle(
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 13.5,
+    fontWeight: AppTypography.semiBold,
+    height: AppTypography.lineHeight,
+  );
+
+  // Paragraph and Small
   static TextStyle get paragraph => TextStyle(
-        fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
-        fontSize: 13.5,
-        fontWeight: AppTypography.regular,
-        height: AppTypography.lineHeight,
-      );
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 13.5,
+    fontWeight: AppTypography.regular,
+    height: AppTypography.lineHeight,
+  );
+
+  static TextStyle get paragraphBold => TextStyle(
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 13.5,
+    fontWeight: AppTypography.bold,
+    height: AppTypography.lineHeight,
+  );
 
   static TextStyle get small => TextStyle(
-        fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
-        fontSize: 11.25,
-        fontWeight: AppTypography.regular,
-        height: AppTypography.lineHeight,
-      );
-  
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 11.25,
+    fontWeight: AppTypography.regular,
+    height: AppTypography.lineHeight,
+  );
+
+  static TextStyle get smallBold => TextStyle(
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 11.25,
+    fontWeight: AppTypography.bold,
+    height: AppTypography.lineHeight,
+  );
+
+  // Button and Caption
   static TextStyle get button => TextStyle(
-        fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
-        fontSize: AppTypography.baseFontSize,
-        fontWeight: AppTypography.semiBold,
-        height: 1.0,
-      );
-  
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: AppTypography.baseFontSize,
+    fontWeight: AppTypography.semiBold,
+    height: 1.0,
+  );
+
+  static TextStyle get buttonBold => TextStyle(
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: AppTypography.baseFontSize,
+    fontWeight: AppTypography.bold,
+    height: 1.0,
+  );
+
   static TextStyle get caption => TextStyle(
-        fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
-        fontSize: 9.38,
-        fontWeight: AppTypography.regular,
-        height: 1.4,
-      );
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 9.38,
+    fontWeight: AppTypography.regular,
+    height: 1.4,
+  );
+
+  static TextStyle get captionBold => TextStyle(
+    fontFamily: AppTypography.fontFamily.isEmpty ? null : AppTypography.fontFamily,
+    fontSize: 9.38,
+    fontWeight: AppTypography.bold,
+    height: 1.4,
+  );
 }

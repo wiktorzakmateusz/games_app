@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../../widgets/game_button.dart';
+import '../core/theme/app_typography.dart';
 
 class DifficultyPage extends StatefulWidget {
   const DifficultyPage({super.key});
@@ -17,8 +19,7 @@ class _DifficultyPageState extends State<DifficultyPage> {
     final String gameType = (ModalRoute.of(context)?.settings.arguments as String?) ?? 'tic_tac_toe';
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
-        middle: Text('Choose difficulty'),
-        // automatically adds a back button if navigated from another page
+        middle: AppText('Choose difficulty'),
       ),
       child: SafeArea(
         child: Center(
@@ -41,9 +42,9 @@ class _DifficultyPageState extends State<DifficultyPage> {
                       onPressed: () {
                         setState(() => selectedDifficulty = level);
                       },
-                      child: Text(
+                      child: AppText(
                         level,
-                        style: const TextStyle(fontSize: 18),
+                        style: TextStyles.button
                       ),
                     ),
                   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../../domain/entities/game_entity.dart';
 import '../../domain/entities/game_state_entity.dart';
 
@@ -50,7 +51,7 @@ class GameCell extends StatelessWidget {
               : CupertinoColors.white,
         ),
         child: Center(
-          child: Text(
+          child: AppText(
             cellValue ?? '',
             style: TextStyle(
               fontSize: 44,

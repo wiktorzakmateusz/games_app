@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../../domain/entities/game_entity.dart';
 
 class GameStatusHeader extends StatelessWidget {
@@ -45,7 +46,7 @@ class GameStatusHeader extends StatelessWidget {
       }
     }
 
-    return Text(
+    return AppText(
       statusText,
       style: TextStyle(
         fontSize: 22,

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../../domain/entities/game_player_entity.dart';
 
 class PlayerInfoCard extends StatelessWidget {
@@ -21,7 +22,7 @@ class PlayerInfoCard extends StatelessWidget {
 
     return Column(
       children: [
-        Text(
+        AppText(
           player.displayName,
           style: TextStyle(
             fontSize: 16,
@@ -30,7 +31,7 @@ class PlayerInfoCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
+        AppText(
           player.symbol ?? '',
           style: TextStyle(
             fontSize: 24,
