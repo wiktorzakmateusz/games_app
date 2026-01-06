@@ -30,9 +30,7 @@ GameType sharedToGameType(shared.GameType type) {
       return GameType.ticTacToe;
     case shared.GameType.connect4:
       return GameType.connect4;
-    default:
-      throw ArgumentError('Unsupported game type: $type');
-  }
+    }
 }
 
 TicTacToeGameStateEntity ticTacToeStateToEntity(TicTacToeState state) {
