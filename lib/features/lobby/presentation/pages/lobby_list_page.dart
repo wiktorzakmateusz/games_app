@@ -2,10 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:games_app/widgets/app_text.dart';
 import '../../../../core/shared/enums.dart';
-import '../../../../widgets/game_button.dart';
+import '../../../../core/theme/app_typography.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
+import '../../../user/presentation/widgets/user_avatar.dart';
 import '../cubit/lobby_list_cubit.dart';
 import '../cubit/lobby_list_state.dart';
 import '../widgets/lobby_card.dart';
@@ -160,80 +161,56 @@ class _LobbyListPageState extends State<LobbyListPage> {
     );
   }
 
-  void _handleLogout(BuildContext context) {
-    showCupertinoDialog(
-      context: context,
-      builder: (dialogContext) => CupertinoAlertDialog(
-        title: AppText.h3('Logout'),
-        content: AppText.bodyLarge('Are you sure you want to logout?'),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: AppText.button('Cancel'),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              context.read<AuthCubit>().signOut();
-              Navigator.pushReplacementNamed(context, '/');
-            },
-            child: AppText.button('Logout'),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    // Get current user from AuthCubit (assuming it's provided higher in the tree)
-    final authState = context.watch<AuthCubit>().state;
-    final currentUserUid = authState is Authenticated ? authState.user.firebaseUid : '';
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, authState) {
+        final user = authState is Authenticated ? authState.user : null;
+        final currentUserUid = authState is Authenticated ? authState.user.firebaseUid : '';
 
-    return BlocConsumer<LobbyListCubit, LobbyListState>(
-      listener: (context, state) {
-        if (state is LobbyListError) {
-          _showError(state.message);
-        } else if (state is LobbyCreated) {
-          Navigator.pushReplacementNamed(
-            context,
-            '/lobby_waiting',
-            arguments: {'lobbyId': state.lobby.id},
-          );
-        } else if (state is LobbyJoined) {
-          Navigator.pushReplacementNamed(
-            context,
-            '/lobby_waiting',
-            arguments: {'lobbyId': state.lobbyId},
-          );
-        }
-      },
-      builder: (context, state) {
-        return CupertinoPageScaffold(
-          navigationBar: AppNavBar(
-            title: 'Lobbies',
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: () => _handleLogout(context),
-                  child: const Icon(CupertinoIcons.square_arrow_right),
-                ),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: state is LobbyListLoaded && !state.isPerformingAction
-                      ? _showCreateLobbyDialog
-                      : null,
-                  child: const Icon(CupertinoIcons.add),
-                ),
-              ],
-            ),
-          ),
-          child: SafeArea(
-            child: _buildBody(state, currentUserUid),
-          ),
+        return BlocConsumer<LobbyListCubit, LobbyListState>(
+          listener: (context, state) {
+            if (state is LobbyListError) {
+              _showError(state.message);
+            } else if (state is LobbyCreated) {
+              Navigator.pushReplacementNamed(
+                context,
+                '/lobby_waiting',
+                arguments: {'lobbyId': state.lobby.id},
+              );
+            } else if (state is LobbyJoined) {
+              Navigator.pushReplacementNamed(
+                context,
+                '/lobby_waiting',
+                arguments: {'lobbyId': state.lobbyId},
+              );
+            }
+          },
+          builder: (context, state) {
+            return CupertinoPageScaffold(
+              navigationBar: AppNavBar(
+                title: 'Lobbies',
+                trailing: user != null
+                    ? CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/user_profile');
+                        },
+                        child: ClipOval(
+                          child: UserAvatar(
+                            imageUrl: user.photoURL,
+                            size: 32,
+                          ),
+                        ),
+                      )
+                    : null,
+              ),
+              child: SafeArea(
+                child: _buildBody(state, currentUserUid),
+              ),
+            );
+          },
         );
       },
     );
@@ -276,59 +253,92 @@ class _LobbyListPageState extends State<LobbyListPage> {
   }
 
   Widget _buildLobbiesView(LobbyListLoaded state, String currentUserUid) {
-    if (state.lobbies.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AppText(
-              'No available lobbies',
-              style: TextStyle(
-                fontSize: 18,
-                color: CupertinoColors.secondaryLabel,
-              ),
-            ),
-            const SizedBox(height: 12),
-            AppText(
-              'Create one to get started!',
-              style: TextStyle(
-                fontSize: 14,
-                color: CupertinoColors.secondaryLabel,
-              ),
-            ),
-            const SizedBox(height: 24),
-            GameButton(
-              label: 'Create Lobby',
-              onTap: state.isPerformingAction ? null : _showCreateLobbyDialog,
-            ),
-          ],
-        ),
-      );
-    }
-
     return Column(
       children: [
-        Expanded(
-          child: ListView.builder(
-            itemCount: state.lobbies.length,
-            padding: const EdgeInsets.all(16),
-            itemBuilder: (context, index) {
-              final lobby = state.lobbies[index];
-              final isJoined = lobby.hasPlayer(currentUserUid);
-
-              return LobbyCard(
-                lobby: lobby,
-                isFull: lobby.isFull,
-                isJoined: isJoined,
-                onTap: (!state.isPerformingAction && !lobby.isFull && !isJoined)
-                    ? () {
-                        context.read<LobbyListCubit>().joinLobby(lobby.id);
-                      }
-                    : null,
-              );
-            },
+        // Create lobby button at top right
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: !state.isPerformingAction ? _showCreateLobbyDialog : null,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.systemBlue,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        CupertinoIcons.add,
+                        color: CupertinoColors.white,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 6),
+                      AppText(
+                        'Create Lobby',
+                        style: TextStyles.button.copyWith(
+                          color: CupertinoColors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
+        if (state.lobbies.isEmpty)
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AppText(
+                    'No available lobbies',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: CupertinoColors.secondaryLabel,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  AppText(
+                    'Create one to get started!',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: CupertinoColors.secondaryLabel,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          Expanded(
+            child: ListView.builder(
+              itemCount: state.lobbies.length,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemBuilder: (context, index) {
+                final lobby = state.lobbies[index];
+                final isJoined = lobby.hasPlayer(currentUserUid);
+
+                return LobbyCard(
+                  lobby: lobby,
+                  isFull: lobby.isFull,
+                  isJoined: isJoined,
+                  onTap: (!state.isPerformingAction && !lobby.isFull && !isJoined)
+                      ? () {
+                          context.read<LobbyListCubit>().joinLobby(lobby.id);
+                        }
+                      : null,
+                );
+              },
+            ),
+          ),
         if (state.isPerformingAction)
           const Padding(
             padding: EdgeInsets.all(16),

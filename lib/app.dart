@@ -17,6 +17,7 @@ import 'features/lobby/presentation/cubit/lobby_list_cubit.dart';
 import 'features/lobby/presentation/cubit/lobby_waiting_cubit.dart';
 import 'features/lobby/presentation/pages/lobby_list_page.dart';
 import 'features/lobby/presentation/pages/lobby_waiting_page.dart';
+import 'features/user/presentation/pages/user_profile_page.dart';
 import 'core/theme/app_typography.dart';
 
 class MyApp extends StatelessWidget {
@@ -107,6 +108,11 @@ class MyApp extends StatelessWidget {
             case '/connect4':
               return CupertinoPageRoute(
                 builder: (_) => const Connect4Page(),
+                settings: settings,
+              );
+            case '/user_profile':
+              return CupertinoPageRoute(
+                builder: (_) => const UserProfilePage(),
                 settings: settings,
               );
             default:
