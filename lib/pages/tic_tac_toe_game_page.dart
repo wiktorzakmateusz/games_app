@@ -27,6 +27,8 @@ class _TicTacToePageState extends State<TicTacToePage>
   late AnimationController _lineController;
   late Animation<double> _lineAnimation;
 
+  bool _isProcessingMove = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -71,9 +73,23 @@ class _TicTacToePageState extends State<TicTacToePage>
 
   void _handleTap(int index) {
     if (_gameState.isGameOver) return;
+    if (_isProcessingMove) return;
+
+    // Check if it's the user's turn (only in single-player mode)
+    if (!isTwoPlayerMode) {
+      final currentSymbol = _gameState.currentPlayerSymbol;
+      if (currentSymbol == null) return;
+      
+      final isUserTurn = (currentSymbol == PlayerSymbol.x && isUserFirstPlayer) ||
+          (currentSymbol == PlayerSymbol.o && !isUserFirstPlayer);
+      
+      if (!isUserTurn) return; // It's computer's turn, ignore user input
+    }
 
     final move = TicTacToeMove(index);
     if (!_gameLogic.isValidMove(_gameState, move)) return;
+
+    _isProcessingMove = true;
 
     setState(() {
       _gameState = _gameLogic.applyMove(_gameState, move);
@@ -81,6 +97,8 @@ class _TicTacToePageState extends State<TicTacToePage>
 
     if (_gameState.isGameOver && _gameState.winningPattern != null) {
       _lineController.forward(from: 0);
+      _isProcessingMove = false;
+      return;
     }
 
     if (!isTwoPlayerMode && !_gameState.isGameOver) {
@@ -91,16 +109,28 @@ class _TicTacToePageState extends State<TicTacToePage>
 
         if (isComputerTurn) {
           Future.delayed(const Duration(milliseconds: 600), _makeComputerMove);
+        } else {
+          _isProcessingMove = false;
         }
+      } else {
+        _isProcessingMove = false;
       }
+    } else {
+      _isProcessingMove = false;
     }
   }
 
   void _makeComputerMove() {
-    if (_gameState.isGameOver) return;
+    if (_gameState.isGameOver) {
+      _isProcessingMove = false;
+      return;
+    }
 
     final currentSymbol = _gameState.currentPlayerSymbol;
-    if (currentSymbol == null) return;
+    if (currentSymbol == null) {
+      _isProcessingMove = false;
+      return;
+    }
 
     final aiSymbol = isUserFirstPlayer ? PlayerSymbol.o : PlayerSymbol.x;
 
@@ -117,9 +147,12 @@ class _TicTacToePageState extends State<TicTacToePage>
     if (_gameState.isGameOver && _gameState.winningPattern != null) {
       _lineController.forward(from: 0);
     }
+    
+    _isProcessingMove = false;
   }
 
   void _resetBoard({bool? startAsUser}) {
+    _isProcessingMove = false;
     setState(() {
       _gameState = _gameLogic.createInitialState(
         startingPlayer: PlayerSymbol.x,

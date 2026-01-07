@@ -29,6 +29,8 @@ class _Connect4PageState extends State<Connect4Page>
   late AnimationController _lineController;
   late Animation<double> _lineAnimation;
 
+  bool _isProcessingMove = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -72,9 +74,22 @@ class _Connect4PageState extends State<Connect4Page>
 
   void _handleColumnTap(int column) {
     if (_gameState.isGameOver) return;
+    if (_isProcessingMove) return;
+
+    if (!isTwoPlayerMode) {
+      final currentSymbol = _gameState.currentPlayerSymbol;
+      if (currentSymbol == null) return;
+      
+      final isUserTurn = (currentSymbol == PlayerSymbol.x && isUserFirstPlayer) ||
+          (currentSymbol == PlayerSymbol.o && !isUserFirstPlayer);
+      
+      if (!isUserTurn) return;
+    }
 
     final move = Connect4Move(column);
     if (!_gameLogic.isValidMove(_gameState, move)) return;
+
+    _isProcessingMove = true;
 
     setState(() {
       _gameState = _gameLogic.applyMove(_gameState, move);
@@ -82,6 +97,8 @@ class _Connect4PageState extends State<Connect4Page>
 
     if (_gameState.isGameOver && _gameState.winningPattern != null) {
       _lineController.forward(from: 0);
+      _isProcessingMove = false;
+      return;
     }
 
     if (!isTwoPlayerMode && !_gameState.isGameOver) {
@@ -92,16 +109,28 @@ class _Connect4PageState extends State<Connect4Page>
 
         if (isComputerTurn) {
           Future.delayed(const Duration(milliseconds: 600), _makeComputerMove);
+        } else {
+          _isProcessingMove = false;
         }
+      } else {
+        _isProcessingMove = false;
       }
+    } else {
+      _isProcessingMove = false;
     }
   }
 
   void _makeComputerMove() {
-    if (_gameState.isGameOver) return;
+    if (_gameState.isGameOver) {
+      _isProcessingMove = false;
+      return;
+    }
 
     final currentSymbol = _gameState.currentPlayerSymbol;
-    if (currentSymbol == null) return;
+    if (currentSymbol == null) {
+      _isProcessingMove = false;
+      return;
+    }
 
     final aiSymbol = isUserFirstPlayer ? PlayerSymbol.o : PlayerSymbol.x;
 
@@ -118,9 +147,12 @@ class _Connect4PageState extends State<Connect4Page>
     if (_gameState.isGameOver && _gameState.winningPattern != null) {
       _lineController.forward(from: 0);
     }
+    
+    _isProcessingMove = false;
   }
 
   void _resetBoard({bool? startAsUser}) {
+    _isProcessingMove = false;
     setState(() {
       _gameState = _gameLogic.createInitialState(
         startingPlayer: PlayerSymbol.x,
