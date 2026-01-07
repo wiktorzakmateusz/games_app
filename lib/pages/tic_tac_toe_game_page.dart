@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import '../core/game_logic/game_logic.dart';
-import '../widgets/local_games/game_status_text.dart';
 import '../widgets/local_games/game_controls.dart';
 import '../widgets/local_games/tic_tac_toe/tic_tac_toe_board.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
+import 'package:games_app/widgets/game_header.dart';
 
 class TicTacToePage extends StatefulWidget {
   const TicTacToePage({super.key});
@@ -164,39 +164,38 @@ class _TicTacToePageState extends State<TicTacToePage>
     });
   }
 
-  String _getStatusText() {
-    if (!_gameState.isGameOver) {
-      final currentSymbol = _gameState.currentPlayerSymbol;
-      if (currentSymbol == null) return '';
+  bool _isPlayer1Turn() {
+    final currentSymbol = _gameState.currentPlayerSymbol;
+    if (currentSymbol == null) return false;
+    return currentSymbol == PlayerSymbol.x;
+  }
 
-      if (isTwoPlayerMode) {
-        final playerName = currentSymbol == PlayerSymbol.x
-            ? playerOneName
-            : playerTwoName;
-        return '$playerName\'s turn (${currentSymbol.symbol})';
-      } else {
-        final isUserTurn =
-            (currentSymbol == PlayerSymbol.x && isUserFirstPlayer) ||
-                (currentSymbol == PlayerSymbol.o && !isUserFirstPlayer);
-        return isUserTurn
-            ? 'Your turn (${currentSymbol.symbol})'
-            : 'Computer\'s turn (${currentSymbol.symbol})';
-      }
-    } else if (_gameState.isDraw) {
-      return 'It\'s a draw!';
-    } else {
-      final winnerSymbol = _gameState.winnerSymbol;
-      if (winnerSymbol == null) return '';
+  bool _shouldRunTimer() {
+    if (isTwoPlayerMode) return true; // Always run timer in two-player mode
+    
+    // In single-player mode, only run timer when it's the human player's turn
+    final currentSymbol = _gameState.currentPlayerSymbol;
+    if (currentSymbol == null) return false;
+    
+    final isUserTurn = (currentSymbol == PlayerSymbol.x && isUserFirstPlayer) ||
+        (currentSymbol == PlayerSymbol.o && !isUserFirstPlayer);
+    return isUserTurn;
+  }
 
-      if (isTwoPlayerMode) {
-        final winnerName =
-            winnerSymbol == PlayerSymbol.x ? playerOneName : playerTwoName;
-        return '$winnerName wins!';
-      } else {
-        final userWon = (winnerSymbol == PlayerSymbol.x && isUserFirstPlayer) ||
-            (winnerSymbol == PlayerSymbol.o && !isUserFirstPlayer);
-        return userWon ? 'You won!' : 'Computer won!';
+  void _handleTimeout() {
+    if (_gameState.isGameOver || _isProcessingMove) return;
+
+    // Make a random valid move
+    final validMoves = <int>[];
+    for (int i = 0; i < 9; i++) {
+      if (_gameLogic.isValidMove(_gameState, TicTacToeMove(i))) {
+        validMoves.add(i);
       }
+    }
+
+    if (validMoves.isNotEmpty) {
+      final randomMove = validMoves[validMoves.length ~/ 2]; // Simple middle move
+      _handleTap(randomMove);
     }
   }
 
@@ -220,7 +219,19 @@ class _TicTacToePageState extends State<TicTacToePage>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 10),
-              GameStatusText(text: _getStatusText()),
+              GameHeader(
+                player1Name: isTwoPlayerMode ? playerOneName : (isUserFirstPlayer ? playerOneName : 'Computer'),
+                player1IsBot: !isTwoPlayerMode && !isUserFirstPlayer,
+                player1BorderColor: CupertinoColors.systemRed,
+                player2Name: isTwoPlayerMode ? playerTwoName : (isUserFirstPlayer ? 'Computer' : playerTwoName),
+                player2IsBot: !isTwoPlayerMode && isUserFirstPlayer,
+                player2BorderColor: CupertinoColors.systemBlue,
+                isPlayer1Turn: _isPlayer1Turn(),
+                isGameOver: _gameState.isGameOver,
+                shouldRunTimer: _shouldRunTimer(),
+                timerDuration: const Duration(seconds: 60),
+                onTimeout: _handleTimeout,
+              ),
               const SizedBox(height: 20),
               TicTacToeBoard(
                 board: _getBoardAsStrings(),

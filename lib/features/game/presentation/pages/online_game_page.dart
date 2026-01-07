@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:games_app/widgets/app_text.dart';
+import 'package:games_app/widgets/game_header.dart';
+import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../../widgets/game_button.dart';
-import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../lobby/domain/usecases/leave_lobby_usecase.dart';
@@ -11,7 +12,6 @@ import '../cubit/game_cubit.dart';
 import '../cubit/game_state.dart';
 import '../widgets/game_board.dart';
 import '../widgets/game_status_header.dart';
-import '../widgets/player_info_card.dart';
 
 class OnlineGamePage extends StatefulWidget {
   const OnlineGamePage({super.key});
@@ -165,9 +165,13 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
         }
       },
       builder: (context, state) {
+        final gameTitle = state is GameLoaded 
+            ? state.game.gameType.displayName 
+            : 'Game';
+        
         return CupertinoPageScaffold(
           navigationBar: AppNavBar(
-            title: 'Tic Tac Toe',
+            title: gameTitle,
             leading: CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: state is GameLoaded && !state.isPerformingAction
@@ -248,56 +252,67 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
       orElse: () => game.players.last,
     );
     final currentPlayer = game.currentPlayer;
+    
+    // Determine border colors based on symbols
+    final player1BorderColor = myPlayer.symbol == 'X' 
+        ? CupertinoColors.systemRed 
+        : CupertinoColors.systemBlue;
+    final player2BorderColor = opponent.symbol == 'X' 
+        ? CupertinoColors.systemRed 
+        : CupertinoColors.systemBlue;
+    
+    final isPlayer1Turn = currentPlayer?.userId == myPlayer.userId;
 
     return Center(
       child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            // Player info
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                PlayerInfoCard(
-                  player: myPlayer,
-                  isCurrentTurn: currentPlayer?.userId == myPlayer.userId,
-                ),
-                AppText.bodyLargeBold('VS'),
-                PlayerInfoCard(
-                  player: opponent,
-                  isCurrentTurn: currentPlayer?.userId == opponent.userId,
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            // Status
-            GameStatusHeader(
-              game: game,
-              currentUserId: _currentUserId,
-            ),
-            const SizedBox(height: 24),
-            // Game board
-            GameBoard(
-              game: game,
-              currentUserId: _currentUserId,
-              isPerformingAction: state.isPerformingAction,
-              onCellTap: (position) {
-                context.read<GameCubit>().makeMove(position);
-              },
-            ),
-            const SizedBox(height: 24),
-            // Actions
-            if (game.isOver) ...[
-              GameButton(
-                label: 'Back to Lobbies',
-                onTap: () {
-                  _leaveLobbyAndNavigateBack(game.lobbyId);
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+              GameHeader(
+                player1Name: myPlayer.displayName,
+                player1IsBot: false,
+                player1BorderColor: player1BorderColor,
+                player2Name: opponent.displayName,
+                player2IsBot: false,
+                player2BorderColor: player2BorderColor,
+                isPlayer1Turn: isPlayer1Turn,
+                isGameOver: game.isOver,
+                shouldRunTimer: !game.isOver,
+                timerDuration: const Duration(seconds: 60),
+                onTimeout: () {
+                  // Handle timeout - could show a message or make a move
                 },
               ),
+              const SizedBox(height: 24),
+              GameStatusHeader(
+                game: game,
+                currentUserId: _currentUserId,
+              ),
+              const SizedBox(height: 24),
+              GameBoard(
+                game: game,
+                currentUserId: _currentUserId,
+                isPerformingAction: state.isPerformingAction,
+                onCellTap: (position) {
+                  context.read<GameCubit>().makeMove(position);
+                },
+              ),
+              const SizedBox(height: 24),
+              // Actions
+              if (game.isOver) ...[
+                GameButton(
+                  label: 'Back to Lobbies',
+                  onTap: () {
+                    _leaveLobbyAndNavigateBack(game.lobbyId);
+                  },
+                ),
+              ],
+              const SizedBox(height: 20),
             ],
-            const SizedBox(height: 20),
-          ],
+          ),
         ),
       ),
     );

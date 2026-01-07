@@ -5,6 +5,7 @@ import '../../domain/entities/game_state_entity.dart';
 import '../../domain/usecases/abandon_game_usecase.dart';
 import '../../domain/usecases/make_move_usecase.dart';
 import '../../domain/usecases/watch_game_usecase.dart';
+import '../../../../core/game_logic/converters/multiplayer_converters.dart';
 import 'game_state.dart';
 
 /// Cubit for managing game state with optimistic updates
@@ -76,20 +77,22 @@ class GameCubit extends Cubit<GameState> {
 
     BaseGameStateEntity optimisticGameState;
 
-    // Handle different game types
+    // Handle different game types using converters (unified logic)
     if (gameState is TicTacToeGameStateEntity) {
       if (!gameState.isEmpty(position)) return;
-      optimisticGameState = gameState.makeOptimisticMove(
-        position,
-        currentPlayer.symbol!,
+      optimisticGameState = applyTicTacToeMoveOptimistically(
+        currentEntity: gameState,
+        position: position,
+        playerSymbol: currentPlayer.symbol!,
       );
     } else if (gameState is Connect4GameStateEntity) {
       // For Connect4, position is a column (0-6)
       if (position < 0 || position >= 7) return;
       if (gameState.isColumnFull(position)) return;
-      optimisticGameState = gameState.makeOptimisticMove(
-        position,
-        currentPlayer.symbol!,
+      optimisticGameState = applyConnect4MoveOptimistically(
+        currentEntity: gameState,
+        column: position,
+        playerSymbol: currentPlayer.symbol!,
       );
     } else {
       return; // Unsupported game type

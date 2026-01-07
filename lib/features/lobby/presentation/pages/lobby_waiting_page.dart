@@ -242,6 +242,8 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
                       AppText.bodyMedium(
                         '${lobby.currentPlayerCount}/${lobby.maxPlayers} Players',
                       ),
+                      const SizedBox(height: 4),
+                      AppText.bodyMedium(lobby.gameType.displayName),
                     ],
                   ),
                 ),

@@ -38,6 +38,15 @@ enum GameType {
   final String value;
   const GameType(this.value);
 
+  String get displayName {
+    switch (this) {
+      case GameType.ticTacToe:
+        return 'Tic Tac Toe';
+      case GameType.connect4:
+        return 'Connect 4';
+    }
+  }
+
   static GameType fromString(String value) {
     return GameType.values.firstWhere(
       (e) => e.value == value,

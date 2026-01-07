@@ -46,6 +46,15 @@ class LobbyCard extends StatelessWidget {
                       color: CupertinoColors.secondaryLabel,
                     ),
                   ),
+                  const SizedBox(height: 2),
+                  AppText(
+                    lobby.gameType.displayName,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: CupertinoColors.secondaryLabel.withOpacity(0.8),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ],
               ),
             ),
