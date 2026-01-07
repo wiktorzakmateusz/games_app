@@ -28,7 +28,10 @@ class _LobbyListPageState extends State<LobbyListPage> {
     super.didChangeDependencies();
     if (!_hasInitialized) {
       _hasInitialized = true;
-      context.read<LobbyListCubit>().watchLobbies();
+      final authState = context.read<AuthCubit>().state;
+      if (authState is Authenticated) {
+        context.read<LobbyListCubit>().watchLobbies();
+      }
     }
   }
 
@@ -39,7 +42,6 @@ class _LobbyListPageState extends State<LobbyListPage> {
   }
 
   void _showCreateLobbyDialog() {
-    // Save the correct context before showing dialog
     final cubit = context.read<LobbyListCubit>();
     
     showCupertinoModalPopup(
@@ -56,7 +58,6 @@ class _LobbyListPageState extends State<LobbyListPage> {
             top: false,
             child: Column(
               children: [
-                // Header
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   height: 44,
@@ -98,7 +99,6 @@ class _LobbyListPageState extends State<LobbyListPage> {
                     ],
                   ),
                 ),
-                // Content
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -164,15 +164,38 @@ class _LobbyListPageState extends State<LobbyListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthCubit, AuthState>(
+    return BlocConsumer<AuthCubit, AuthState>(
+      listener: (context, authState) {
+        if (authState is Unauthenticated) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/',
+            (route) => false,
+          );
+        }
+      },
       builder: (context, authState) {
         final user = authState is Authenticated ? authState.user : null;
         final currentUserUid = authState is Authenticated ? authState.user.firebaseUid : '';
 
+        if (authState is! Authenticated) {
+          return CupertinoPageScaffold(
+            navigationBar: const AppNavBar(title: 'Lobbies'),
+            child: SafeArea(
+              child: Center(
+                child: AppText.bodyMedium('Not authenticated'),
+              ),
+            ),
+          );
+        }
+
         return BlocConsumer<LobbyListCubit, LobbyListState>(
           listener: (context, state) {
             if (state is LobbyListError) {
-              _showError(state.message);
+              final currentAuthState = context.read<AuthCubit>().state;
+              if (currentAuthState is Authenticated) {
+                _showError(state.message);
+              }
             } else if (state is LobbyCreated) {
               Navigator.pushReplacementNamed(
                 context,
@@ -255,7 +278,6 @@ class _LobbyListPageState extends State<LobbyListPage> {
   Widget _buildLobbiesView(LobbyListLoaded state, String currentUserUid) {
     return Column(
       children: [
-        // Create lobby button at top right
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
