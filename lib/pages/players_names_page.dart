@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:games_app/widgets/app_text.dart';
 
 class PlayerNamesPage extends StatefulWidget {
   const PlayerNamesPage({super.key});
@@ -51,8 +51,8 @@ class _PlayerNamesPageState extends State<PlayerNamesPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('Enter Player Names'),
+      navigationBar: CupertinoNavigationBar(
+        middle: AppText.h3('Enter Player Names'),
       ),
       child: SafeArea(
         child: Center(

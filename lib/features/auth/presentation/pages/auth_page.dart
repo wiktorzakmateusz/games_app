@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../widgets/app_text.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:games_app/widgets/app_text.dart';
 import '../core/game_logic/game_logic.dart';
 import '../widgets/local_games/game_status_text.dart';
 import '../widgets/local_games/game_controls.dart';
@@ -177,7 +178,7 @@ class _TicTacToePageState extends State<TicTacToePage>
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Tic-Tac-Toe (${difficulty.displayName})'),
+        middle: AppText.h3('Tic-Tac-Toe (${difficulty.displayName})'),
         leading: GestureDetector(
           child: const Icon(CupertinoIcons.xmark,
               color: CupertinoColors.activeBlue),
