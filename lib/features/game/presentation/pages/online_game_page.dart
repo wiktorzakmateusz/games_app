@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:games_app/widgets/app_text.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../../widgets/game_button.dart';
+import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../lobby/domain/usecases/leave_lobby_usecase.dart';
@@ -135,9 +136,7 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
   Widget build(BuildContext context) {
     if (_gameId == null) {
       return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: AppText.h3('Game'),
-        ),
+        navigationBar: const AppNavBar(title: 'Game'),
         child: Center(
           child: AppText.bodyLarge('Game ID not provided'),
         ),
@@ -167,8 +166,8 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
       },
       builder: (context, state) {
         return CupertinoPageScaffold(
-          navigationBar: CupertinoNavigationBar(
-            middle: AppText.bodyLarge('Tic Tac Toe'),
+          navigationBar: AppNavBar(
+            title: 'Tic Tac Toe',
             leading: CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: state is GameLoaded && !state.isPerformingAction

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:games_app/widgets/app_text.dart';
+import 'package:games_app/widgets/navigation/navigation_bars.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -7,15 +8,11 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: AppText.h3('Local Games'),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.back),
-          onPressed: () {
-            Navigator.pushReplacementNamed(context, '/');
-          },
-        ),
+      navigationBar: AppMenuNavBar(
+        title: 'Local Games',
+        onBackPressed: () {
+          Navigator.pushReplacementNamed(context, '/');
+        },
       ),
       child: SafeArea(
         child: SingleChildScrollView(

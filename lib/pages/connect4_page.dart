@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:games_app/widgets/app_text.dart';
 import '../core/game_logic/game_logic.dart';
 import '../widgets/local_games/game_status_text.dart';
 import '../widgets/local_games/game_controls.dart';
 import '../widgets/local_games/connect4/connect4_board.dart';
+import 'package:games_app/widgets/navigation/navigation_bars.dart';
 
 class Connect4Page extends StatefulWidget {
   const Connect4Page({super.key});
@@ -216,16 +216,9 @@ class _Connect4PageState extends State<Connect4Page>
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: AppText.h3('Connect 4 (${difficulty.displayName})'),
-        leading: GestureDetector(
-          child: const Icon(
-            CupertinoIcons.xmark,
-            color: CupertinoColors.activeBlue,
-          ),
-          onTap: () =>
-              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false),
-        ),
+      navigationBar: AppGameNavBar(
+        gameName: 'Connect 4',
+        difficulty: difficulty,
       ),
       child: SafeArea(
         child: Center(

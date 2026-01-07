@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:games_app/widgets/app_text.dart';
 import '../../../../core/shared/enums.dart';
 import '../../../../widgets/game_button.dart';
+import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../cubit/lobby_list_cubit.dart';
@@ -189,8 +190,8 @@ class _LobbyListPageState extends State<LobbyListPage> {
       },
       builder: (context, state) {
         return CupertinoPageScaffold(
-          navigationBar: CupertinoNavigationBar(
-            middle: AppText.h3('Lobbies'),
+          navigationBar: AppNavBar(
+            title: 'Lobbies',
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

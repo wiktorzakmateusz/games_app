@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:games_app/widgets/app_text.dart';
+import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 
@@ -77,13 +78,9 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: AppText.h3(_isLogin ? 'Sign In' : 'Sign Up'),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.back),
-          onPressed: () => Navigator.pop(context),
-        ),
+      navigationBar: AppMenuNavBar(
+        title: _isLogin ? 'Sign In' : 'Sign Up',
+        onBackPressed: () => Navigator.pop(context),
       ),
       child: SafeArea(
         child: BlocConsumer<AuthCubit, AuthState>(

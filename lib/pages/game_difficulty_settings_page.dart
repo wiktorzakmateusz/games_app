@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:games_app/widgets/app_text.dart';
 import '../../widgets/game_button.dart';
+import 'package:games_app/widgets/navigation/navigation_bars.dart';
 
 class DifficultyPage extends StatefulWidget {
   const DifficultyPage({super.key});
@@ -17,9 +18,7 @@ class _DifficultyPageState extends State<DifficultyPage> {
   Widget build(BuildContext context) {
     final String gameType = (ModalRoute.of(context)?.settings.arguments as String?) ?? 'tic_tac_toe';
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: AppText.h3('Choose difficulty'),
-      ),
+      navigationBar: const AppMenuNavBar(title: 'Choose difficulty'),
       child: SafeArea(
         child: Center(
           child: Column(

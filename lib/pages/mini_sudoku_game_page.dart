@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:games_app/widgets/app_text.dart';
 import '../core/game_logic/game_logic.dart';
 import '../widgets/local_games/game_status_text.dart';
 import '../widgets/local_games/game_controls.dart';
 import '../widgets/local_games/mini_sudoku/mini_sudoku_board.dart';
+import 'package:games_app/widgets/navigation/navigation_bars.dart';
 
 class MiniSudokuPage extends StatefulWidget {
   const MiniSudokuPage({super.key});
@@ -132,14 +132,9 @@ class _MiniSudokuPageState extends State<MiniSudokuPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: AppText.h3('Mini Sudoku (${difficulty.displayName})'),
-        leading: GestureDetector(
-          child: const Icon(CupertinoIcons.xmark,
-              color: CupertinoColors.activeBlue),
-          onTap: () =>
-              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false),
-        ),
+      navigationBar: AppGameNavBar(
+        gameName: 'Mini Sudoku',
+        difficulty: difficulty,
       ),
       child: SafeArea(
         child: Center(

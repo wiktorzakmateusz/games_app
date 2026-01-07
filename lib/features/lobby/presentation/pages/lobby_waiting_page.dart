@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:games_app/widgets/app_text.dart';
 import '../../../../widgets/game_button.dart';
+import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../cubit/lobby_waiting_cubit.dart';
@@ -113,9 +114,7 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
   Widget build(BuildContext context) {
     if (_lobbyId == null) {
       return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: AppText.h2('Lobby'),
-        ),
+        navigationBar: const AppNavBar(title: 'Lobby'),
         child: Center(
           child: AppText.bodyLarge('Lobby ID not provided'),
         ),
@@ -142,8 +141,8 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
       },
       builder: (context, state) {
         return CupertinoPageScaffold(
-          navigationBar: CupertinoNavigationBar(
-            middle: AppText.h2('Lobby'),
+          navigationBar: AppNavBar(
+            title: 'Lobby',
             leading: CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: state is LobbyWaitingLoaded && !state.isPerformingAction

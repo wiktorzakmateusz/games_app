@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:games_app/widgets/app_text.dart';
 import '../core/game_logic/game_logic.dart';
 import '../widgets/local_games/game_status_text.dart';
 import '../widgets/local_games/game_controls.dart';
 import '../widgets/local_games/tic_tac_toe/tic_tac_toe_board.dart';
+import 'package:games_app/widgets/navigation/navigation_bars.dart';
 
 class TicTacToePage extends StatefulWidget {
   const TicTacToePage({super.key});
@@ -210,14 +210,9 @@ class _TicTacToePageState extends State<TicTacToePage>
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: AppText.h3('Tic-Tac-Toe (${difficulty.displayName})'),
-        leading: GestureDetector(
-          child: const Icon(CupertinoIcons.xmark,
-              color: CupertinoColors.activeBlue),
-          onTap: () =>
-              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false),
-        ),
+      navigationBar: AppGameNavBar(
+        gameName: 'Tic-Tac-Toe',
+        difficulty: difficulty,
       ),
       child: SafeArea(
         child: Center(
