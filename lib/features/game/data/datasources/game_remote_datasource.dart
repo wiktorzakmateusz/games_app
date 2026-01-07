@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/utils/typedefs.dart';
+import '../../../../core/utils/error_parser.dart';
 import '../../../auth/data/datasources/auth_firebase_datasource.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -46,7 +47,7 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
         return data['game'] as JsonMap;
       } else {
         throw ServerException(
-          'Failed to start game: ${response.body}',
+          ErrorParser.parseErrorMessage(response),
           response.statusCode,
         );
       }
@@ -73,7 +74,7 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw ServerException(
-          'Failed to make move: ${response.body}',
+          ErrorParser.parseErrorMessage(response),
           response.statusCode,
         );
       }
@@ -94,7 +95,7 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw ServerException(
-          'Failed to abandon game: ${response.body}',
+          ErrorParser.parseErrorMessage(response),
           response.statusCode,
         );
       }
@@ -118,7 +119,7 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
         return data['game'] as JsonMap;
       } else {
         throw ServerException(
-          'Failed to get game: ${response.body}',
+          ErrorParser.parseErrorMessage(response),
           response.statusCode,
         );
       }

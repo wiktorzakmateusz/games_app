@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:games_app/core/error/exceptions.dart';
+import 'package:games_app/core/utils/error_parser.dart';
 import '../models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
@@ -19,6 +20,7 @@ abstract class AuthRemoteDataSource {
 
   Future<UserModel> updateUser({
     required String id,
+    String? username,
     String? displayName,
     String? photoURL,
   });
@@ -44,6 +46,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'Authorization': 'Bearer $token',
     };
   }
+
 
   @override
   Future<UserModel> createUser({
@@ -73,8 +76,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         final jsonData = json.decode(response.body) as Map<String, dynamic>;
         return UserModel.fromJson(jsonData);
       } else {
+        final errorMessage = ErrorParser.parseErrorMessage(response);
         throw ServerException(
-          'Failed to create user: ${response.statusCode} - ${response.body}',
+          errorMessage,
+          response.statusCode,
         );
       }
     } catch (e) {
@@ -98,8 +103,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       } else if (response.statusCode == 404) {
         throw CacheException('User not found');
       } else {
+        final errorMessage = ErrorParser.parseErrorMessage(response);
         throw ServerException(
-          'Failed to get user: ${response.statusCode} - ${response.body}',
+          errorMessage,
+          response.statusCode,
         );
       }
     } catch (e) {
@@ -121,8 +128,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         final jsonData = json.decode(response.body) as Map<String, dynamic>;
         return UserModel.fromJson(jsonData);
       } else {
+        final errorMessage = ErrorParser.parseErrorMessage(response);
         throw ServerException(
-          'Failed to get current user: ${response.statusCode} - ${response.body}',
+          errorMessage,
+          response.statusCode,
         );
       }
     } catch (e) {
@@ -134,12 +143,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> updateUser({
     required String id,
+    String? username,
     String? displayName,
     String? photoURL,
   }) async {
     try {
       final headers = await _getHeaders();
       final body = <String, dynamic>{};
+      if (username != null) body['username'] = username;
       if (displayName != null) body['displayName'] = displayName;
       if (photoURL != null) body['photoURL'] = photoURL;
 
@@ -153,8 +164,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         final jsonData = json.decode(response.body) as Map<String, dynamic>;
         return UserModel.fromJson(jsonData);
       } else {
+        final errorMessage = ErrorParser.parseErrorMessage(response);
         throw ServerException(
-          'Failed to update user: ${response.statusCode} - ${response.body}',
+          errorMessage,
+          response.statusCode,
         );
       }
     } catch (e) {

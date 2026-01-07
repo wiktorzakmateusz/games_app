@@ -11,6 +11,7 @@ import 'features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'features/auth/domain/usecases/sign_in_usecase.dart';
 import 'features/auth/domain/usecases/sign_out_usecase.dart';
 import 'features/auth/domain/usecases/sign_up_usecase.dart';
+import 'features/auth/domain/usecases/update_user_usecase.dart';
 import 'features/auth/domain/usecases/watch_auth_state_usecase.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 
@@ -72,6 +73,7 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => SignOutUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
   sl.registerLazySingleton(() => WatchAuthStateUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateUserUseCase(sl()));
 
   sl.registerFactory(
     () => AuthCubit(
@@ -80,6 +82,7 @@ Future<void> initializeDependencies() async {
       signOutUseCase: sl(),
       getCurrentUserUseCase: sl(),
       watchAuthStateUseCase: sl(),
+      updateUserUseCase: sl(),
     ),
   );
   

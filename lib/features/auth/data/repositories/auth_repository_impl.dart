@@ -152,5 +152,27 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure('Failed to get ID token: ${e.toString()}'));
     }
   }
+
+  @override
+  Future<Result<UserEntity>> updateUser({
+    required String id,
+    String? username,
+    String? displayName,
+    String? photoURL,
+  }) async {
+    try {
+      final user = await remoteDataSource.updateUser(
+        id: id,
+        username: username,
+        displayName: displayName,
+        photoURL: photoURL,
+      );
+      return Right(user.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Failed to update user: ${e.toString()}'));
+    }
+  }
 }
 

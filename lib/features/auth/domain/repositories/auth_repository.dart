@@ -20,5 +20,12 @@ abstract class AuthRepository {
   Stream<UserEntity?> watchAuthState();
 
   Future<Result<String>> getIdToken({bool forceRefresh = false});
+
+  Future<Result<UserEntity>> updateUser({
+    required String id,
+    String? username,
+    String? displayName,
+    String? photoURL,
+  });
 }
 

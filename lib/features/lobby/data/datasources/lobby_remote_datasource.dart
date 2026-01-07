@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/utils/typedefs.dart';
+import '../../../../core/utils/error_parser.dart';
 import '../../../../core/shared/enums.dart';
 import '../../../auth/data/datasources/auth_firebase_datasource.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -64,7 +65,7 @@ class LobbyRemoteDataSourceImpl implements LobbyRemoteDataSource {
         return data['lobby'] as JsonMap;
       } else {
         throw ServerException(
-          'Failed to create lobby: ${response.body}',
+          ErrorParser.parseErrorMessage(response),
           response.statusCode,
         );
       }
@@ -85,7 +86,7 @@ class LobbyRemoteDataSourceImpl implements LobbyRemoteDataSource {
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw ServerException(
-          'Failed to join lobby: ${response.body}',
+          ErrorParser.parseErrorMessage(response),
           response.statusCode,
         );
       }
@@ -106,7 +107,7 @@ class LobbyRemoteDataSourceImpl implements LobbyRemoteDataSource {
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw ServerException(
-          'Failed to leave lobby: ${response.body}',
+          ErrorParser.parseErrorMessage(response),
           response.statusCode,
         );
       }
@@ -127,7 +128,7 @@ class LobbyRemoteDataSourceImpl implements LobbyRemoteDataSource {
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw ServerException(
-          'Failed to toggle ready: ${response.body}',
+          ErrorParser.parseErrorMessage(response),
           response.statusCode,
         );
       }
@@ -151,7 +152,7 @@ class LobbyRemoteDataSourceImpl implements LobbyRemoteDataSource {
         return data['lobby'] as JsonMap;
       } else {
         throw ServerException(
-          'Failed to get lobby: ${response.body}',
+          ErrorParser.parseErrorMessage(response),
           response.statusCode,
         );
       }
@@ -176,7 +177,7 @@ class LobbyRemoteDataSourceImpl implements LobbyRemoteDataSource {
         return lobbiesData.map((l) => l as JsonMap).toList();
       } else {
         throw ServerException(
-          'Failed to get lobbies: ${response.body}',
+          ErrorParser.parseErrorMessage(response),
           response.statusCode,
         );
       }
@@ -200,7 +201,7 @@ class LobbyRemoteDataSourceImpl implements LobbyRemoteDataSource {
         return data['lobby'] as JsonMap?;
       } else {
         throw ServerException(
-          'Failed to get current user lobby: ${response.body}',
+          ErrorParser.parseErrorMessage(response),
           response.statusCode,
         );
       }

@@ -7,6 +7,7 @@ import '../widgets/user_avatar.dart';
 import '../widgets/user_display_name.dart';
 import '../widgets/user_username.dart';
 import '../widgets/user_logout_button.dart';
+import 'edit_profile_page.dart';
 
 class UserProfilePage extends StatelessWidget {
   const UserProfilePage({super.key});
@@ -19,8 +20,20 @@ class UserProfilePage extends StatelessWidget {
           final user = state.user;
           
           return CupertinoPageScaffold(
-            navigationBar: const AppNavBar(
+            navigationBar: AppNavBar(
               title: 'Profile',
+              trailing: CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: const Icon(CupertinoIcons.pencil),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (_) => const EditProfilePage(),
+                    ),
+                  );
+                },
+              ),
             ),
             child: SafeArea(
               child: Center(

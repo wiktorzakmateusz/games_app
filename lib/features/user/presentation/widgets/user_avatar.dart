@@ -23,17 +23,11 @@ class UserAvatar extends StatelessWidget {
 
   Widget _buildImage() {
     if (imageUrl != null && imageUrl!.isNotEmpty) {
-      return Image.network(
+      return Image.asset(
         imageUrl!,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
           return _buildPlaceholder();
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return const Center(
-            child: CupertinoActivityIndicator(),
-          );
         },
       );
     } else {
