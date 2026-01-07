@@ -19,8 +19,8 @@ class AppMenuNavBar extends StatelessWidget implements ObstructingPreferredSizeW
       leading: onBackPressed != null
           ? CupertinoButton(
               padding: EdgeInsets.zero,
-              child: const Icon(CupertinoIcons.back),
               onPressed: onBackPressed,
+              child: const Icon(CupertinoIcons.back),
             )
           : null,
     );

@@ -194,8 +194,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 : hasChanges
                     ? CupertinoButton(
                         padding: EdgeInsets.zero,
-                        child: const Text('Save'),
                         onPressed: _handleSave,
+                        child: const Text('Save'),
                       )
                     : null,
           ),

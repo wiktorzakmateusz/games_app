@@ -38,6 +38,14 @@ import 'features/lobby/domain/usecases/watch_lobby_usecase.dart';
 import 'features/lobby/presentation/cubit/lobby_list_cubit.dart';
 import 'features/lobby/presentation/cubit/lobby_waiting_cubit.dart';
 
+import 'features/stats/data/datasources/stats_remote_datasource.dart';
+import 'features/stats/data/repositories/stats_repository_impl.dart';
+import 'features/stats/domain/repositories/stats_repository.dart';
+import 'features/stats/domain/usecases/get_user_stats_usecase.dart';
+import 'features/stats/domain/usecases/get_aggregate_stats_usecase.dart';
+import 'features/stats/domain/usecases/get_stats_by_game_type_usecase.dart';
+import 'features/stats/presentation/cubit/stats_cubit.dart';
+
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -161,6 +169,35 @@ Future<void> initializeDependencies() async {
       leaveLobbyUseCase: sl(),
       toggleReadyUseCase: sl(),
       startGameUseCase: sl(),
+    ),
+  );
+
+  // Stats
+  sl.registerLazySingleton<StatsRemoteDataSource>(
+    () => StatsRemoteDataSourceImpl(
+      client: sl(),
+      getIdToken: () async {
+        final firebaseDataSource = sl<AuthFirebaseDataSource>();
+        return await firebaseDataSource.getIdToken();
+      },
+    ),
+  );
+
+  sl.registerLazySingleton<StatsRepository>(
+    () => StatsRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton(() => GetUserStatsUseCase(sl()));
+  sl.registerLazySingleton(() => GetAggregateStatsUseCase(sl()));
+  sl.registerLazySingleton(() => GetStatsByGameTypeUseCase(sl()));
+
+  sl.registerFactory(
+    () => StatsCubit(
+      getUserStatsUseCase: sl(),
+      getAggregateStatsUseCase: sl(),
+      getStatsByGameTypeUseCase: sl(),
     ),
   );
 }

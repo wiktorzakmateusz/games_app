@@ -30,6 +30,7 @@ class ErrorParser {
         }
       }
     } catch (e) {
+      // Ignore parsing errors and fall back to default message
     }
     
     return response.body.isNotEmpty ? response.body : 'Unknown error occurred';
