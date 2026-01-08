@@ -36,7 +36,6 @@ class LobbyHeaderWidget extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 16),
           _buildPreviewImage(),
         ],
       ),
@@ -46,28 +45,42 @@ class LobbyHeaderWidget extends StatelessWidget {
   Widget _buildPreviewImage() {
     final imagePath = GameImageHelper.getPreviewImagePath(lobby.gameType);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: Image.asset(
-        imagePath,
-        width: 120,
-        height: 120,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: CupertinoColors.systemGrey5,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              CupertinoIcons.photo,
-              size: 48,
-              color: CupertinoColors.systemGrey,
-            ),
-          );
-        },
+    return Container(
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: CupertinoColors.black.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.asset(
+          imagePath,
+          width: 120,
+          height: 120,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: CupertinoColors.systemGrey5,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                CupertinoIcons.photo,
+                size: 48,
+                color: CupertinoColors.systemGrey,
+              ),
+            );
+          },
+        ),
       ),
     );
   }
