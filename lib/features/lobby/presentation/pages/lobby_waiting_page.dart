@@ -20,10 +20,37 @@ class LobbyWaitingPage extends StatefulWidget {
   State<LobbyWaitingPage> createState() => _LobbyWaitingPageState();
 }
 
-class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
+class _LobbyWaitingPageState extends State<LobbyWaitingPage> with WidgetsBindingObserver {
   String? _lobbyId;
   String? _currentUserId;
   bool _isLoadingUserId = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    if (state == AppLifecycleState.paused || 
+        state == AppLifecycleState.detached) {
+      if (mounted && _lobbyId != null) {
+        final lobbyState = context.read<LobbyWaitingCubit>().state;
+        if (lobbyState is LobbyWaitingLoaded) {
+          context.read<LobbyWaitingCubit>().leaveLobby();
+        }
+      }
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -155,23 +182,34 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
         }
       },
       builder: (context, state) {
-        return CupertinoPageScaffold(
-          navigationBar: AppNavBar(
-            title: 'Lobby',
-            leading: CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: state is LobbyWaitingLoaded && !state.isPerformingAction
-                  ? _leaveLobby
-                  : null,
-              child: const Icon(
-                CupertinoIcons.back,
-                color: CupertinoColors.activeBlue,
-                size: 26.0,
+        final canShowLeaveDialog = state is LobbyWaitingLoaded && !state.isPerformingAction;
+        
+        return PopScope(
+          canPop: false,
+          onPopInvoked: (didPop) async {
+            if (didPop) return;
+            if (canShowLeaveDialog) {
+              await _leaveLobby();
+            }
+          },
+          child: CupertinoPageScaffold(
+            navigationBar: AppNavBar(
+              title: 'Lobby',
+              leading: CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: canShowLeaveDialog
+                    ? _leaveLobby
+                    : null,
+                child: const Icon(
+                  CupertinoIcons.back,
+                  color: CupertinoColors.activeBlue,
+                  size: 26.0,
+                ),
               ),
             ),
-          ),
-          child: SafeArea(
-            child: _buildBody(state),
+            child: SafeArea(
+              child: _buildBody(state),
+            ),
           ),
         );
       },

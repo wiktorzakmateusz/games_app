@@ -19,6 +19,7 @@ class LobbyWaitingCubit extends Cubit<LobbyWaitingState> {
   String? _currentLobbyId;
   String? _currentUserId;
   bool _isLeaving = false;
+  LobbyStatus? _previousLobbyStatus;
 
   LobbyWaitingCubit({
     required this.watchLobbyUseCase,
@@ -39,26 +40,34 @@ class LobbyWaitingCubit extends Cubit<LobbyWaitingState> {
 
     _currentLobbyId = lobbyId;
     emit(const LobbyWaitingLoading());
+    _previousLobbyStatus = null;
 
     _lobbySubscription?.cancel();
       _lobbySubscription = watchLobbyUseCase(lobbyId).listen(
           (lobby) {
+          
+            final statusChangedToInGame = _previousLobbyStatus == LobbyStatus.waiting && 
+                                         lobby.status == LobbyStatus.inGame;
+            
             if (lobby.status == LobbyStatus.inGame && lobby.gameId != null) {
-              // Game started, navigate immediately with gameId from lobby
-              emit(GameStarted(lobby.gameId!));
-              return;
+              if (statusChangedToInGame) {
+                _previousLobbyStatus = lobby.status;
+                emit(GameStarted(lobby.gameId!));
+                return;
+              }
             }
             
-            // Show starting state if status is IN_GAME but gameId not yet available
             if (lobby.status == LobbyStatus.inGame && lobby.gameId == null) {
+              _previousLobbyStatus = lobby.status;
               emit(const GameStarting());
               return;
             }
-
+            
+            _previousLobbyStatus = lobby.status;
+            
           // Always update the lobby from Firestore
           if (state is LobbyWaitingLoaded && (state as LobbyWaitingLoaded).isPerformingAction) {
             final previousLobby = (state as LobbyWaitingLoaded).lobby;
-            // If gameType changed, reset loading
             if (previousLobby.gameType != lobby.gameType) {
               emit(LobbyWaitingLoaded(lobby, isPerformingAction: false));
             } else {
@@ -69,7 +78,6 @@ class LobbyWaitingCubit extends Cubit<LobbyWaitingState> {
           }
         },
       onError: (error) {
-        // Don't emit error if we're leaving (stream was cancelled)
         if (!_isLeaving) {
           emit(LobbyWaitingError(
             'Failed to load lobby: $error',
@@ -197,7 +205,6 @@ class LobbyWaitingCubit extends Cubit<LobbyWaitingState> {
 
     result.fold(
       (failure) {
-        // On error, reset loading state and show error
         emit(LobbyWaitingLoaded(lobby, isPerformingAction: false));
         emit(LobbyWaitingError(
           failure.message,
@@ -210,8 +217,6 @@ class LobbyWaitingCubit extends Cubit<LobbyWaitingState> {
         });
       },
       (_) {
-        // On success, set a flag to reset loading when we see the expected gameType
-        // The Firestore stream will emit the updated lobby soon
       },
     );
   }

@@ -20,11 +20,42 @@ class OnlineGamePage extends StatefulWidget {
   State<OnlineGamePage> createState() => _OnlineGamePageState();
 }
 
-class _OnlineGamePageState extends State<OnlineGamePage> {
+class _OnlineGamePageState extends State<OnlineGamePage> with WidgetsBindingObserver {
   String? _gameId;
   String? _lobbyId;
   String? _currentUserId;
   bool _isLoadingUserId = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    if (state == AppLifecycleState.paused || 
+        state == AppLifecycleState.detached) {
+      if (mounted && _gameId != null) {
+        final gameState = context.read<GameCubit>().state;
+        if (gameState is GameLoaded) {
+          context.read<GameCubit>().abandonGame();
+        }
+
+        if (_lobbyId != null) {
+          _leaveLobbySilently(_lobbyId!);
+        }
+      }
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -116,6 +147,25 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
     }
   }
 
+  Future<void> _leaveLobbySilently(String lobbyId) async {
+    try {
+      final leaveLobbyUseCase = di.sl<LeaveLobbyUseCase>();
+      await leaveLobbyUseCase(lobbyId);
+    } catch (e) {
+      // Silently fail - app is closing anyway
+    }
+  }
+
+  void _navigateToWaitingLobby(String lobbyId) {
+    if (mounted) {
+      Navigator.pushReplacementNamed(
+        context,
+        '/lobby_waiting',
+        arguments: {'lobbyId': lobbyId},
+      );
+    }
+  }
+
   void _showError(String message) {
     showCupertinoDialog(
       context: context,
@@ -169,23 +219,34 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
             ? state.game.gameType.displayName 
             : 'Game';
         
-        return CupertinoPageScaffold(
-          navigationBar: AppNavBar(
-            title: gameTitle,
-            leading: CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: state is GameLoaded && !state.isPerformingAction
-                  ? _abandonGame
-                  : null,
-              child: const Icon(
-                CupertinoIcons.back,
-                color: CupertinoColors.activeBlue,
-                size: 26.0,
+        final canShowAbandonDialog = state is GameLoaded && !state.isPerformingAction;
+        
+        return PopScope(
+          canPop: false,
+          onPopInvoked: (didPop) async {
+            if (didPop) return;
+            if (canShowAbandonDialog) {
+              await _abandonGame();
+            }
+          },
+          child: CupertinoPageScaffold(
+            navigationBar: AppNavBar(
+              title: gameTitle,
+              leading: CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: canShowAbandonDialog
+                    ? _abandonGame
+                    : null,
+                child: const Icon(
+                  CupertinoIcons.back,
+                  color: CupertinoColors.activeBlue,
+                  size: 26.0,
+                ),
               ),
             ),
-          ),
-          child: SafeArea(
-            child: _buildBody(state),
+            child: SafeArea(
+              child: _buildBody(state),
+            ),
           ),
         );
       },
@@ -229,7 +290,7 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
           CupertinoButton(
             onPressed: () {
               if (_lobbyId != null) {
-                _leaveLobbyAndNavigateBack(_lobbyId!);
+                _navigateToWaitingLobby(_lobbyId!);
               } else {
                 Navigator.pushNamedAndRemoveUntil(
                   context,
@@ -238,7 +299,7 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
                 );
               }
             },
-            child: const Text('Back to Lobbies'),
+            child: const Text('Back to Lobby'),
           ),
         ],
       ),
@@ -308,9 +369,9 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
               // Actions
               if (game.isOver) ...[
                 GameButton(
-                  label: 'Back to Lobbies',
+                  label: 'Back to Lobby',
                   onTap: () {
-                    _leaveLobbyAndNavigateBack(game.lobbyId);
+                    _navigateToWaitingLobby(game.lobbyId);
                   },
                 ),
               ],
