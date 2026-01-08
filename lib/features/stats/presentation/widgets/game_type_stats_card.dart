@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import '../../../../core/shared/enums.dart';
 import '../../domain/entities/stats_entity.dart';
 import 'stat_element.dart';
+import 'game_type_selector.dart';
 
 class GameTypeStatsCard extends StatefulWidget {
   final List<StatsEntity> stats;
@@ -40,6 +41,7 @@ class _GameTypeStatsCardState extends State<GameTypeStatsCard> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     final stats = _selectedStats;
@@ -49,25 +51,24 @@ class _GameTypeStatsCardState extends State<GameTypeStatsCard> {
       decoration: BoxDecoration(
         color: CupertinoColors.systemGrey6,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: CupertinoColors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CupertinoPicker(
-            itemExtent: 32.0,
-            scrollController: FixedExtentScrollController(
-              initialItem: GameType.values.indexOf(_selectedGameType),
-            ),
-            onSelectedItemChanged: (int index) {
+          GameTypeSelector(
+            selectedGameType: _selectedGameType,
+            onGameTypeSelected: (gameType) {
               setState(() {
-                _selectedGameType = GameType.values[index];
+                _selectedGameType = gameType;
               });
             },
-            children: GameType.values.map((gameType) {
-              return Center(
-                child: Text(gameType.displayName),
-              );
-            }).toList(),
           ),
           const SizedBox(height: 20),
           Row(
