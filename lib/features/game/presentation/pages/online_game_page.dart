@@ -177,7 +177,11 @@ class _OnlineGamePageState extends State<OnlineGamePage> {
               onPressed: state is GameLoaded && !state.isPerformingAction
                   ? _abandonGame
                   : null,
-              child: const Icon(CupertinoIcons.back),
+              child: const Icon(
+                CupertinoIcons.back,
+                color: CupertinoColors.activeBlue,
+                size: 26.0,
+              ),
             ),
           ),
           child: SafeArea(

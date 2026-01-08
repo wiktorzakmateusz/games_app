@@ -28,15 +28,17 @@ class AppGameNavBar extends StatelessWidget implements ObstructingPreferredSizeW
 
     return CupertinoNavigationBar(
       middle: AppText.h3(displayText),
-      leading: GestureDetector(
-        child: const Icon(
-          CupertinoIcons.xmark,
-          color: CupertinoColors.activeBlue,
-        ),
-        onTap: () => Navigator.pushNamedAndRemoveUntil(
+      leading: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: () => Navigator.pushNamedAndRemoveUntil(
           context,
           '/',
           (route) => false,
+        ),
+        child: const Icon(
+          CupertinoIcons.back,
+          color: CupertinoColors.activeBlue,
+          size: 26.0,
         ),
       ),
     );

@@ -14,13 +14,19 @@ class AppMenuNavBar extends StatelessWidget implements ObstructingPreferredSizeW
 
   @override
   Widget build(BuildContext context) {
+    final bool shouldShowBackButton = onBackPressed != null || Navigator.canPop(context);
+    
     return CupertinoNavigationBar(
       middle: AppText.h3(title),
-      leading: onBackPressed != null
+      leading: shouldShowBackButton
           ? CupertinoButton(
               padding: EdgeInsets.zero,
-              onPressed: onBackPressed,
-              child: const Icon(CupertinoIcons.back),
+              onPressed: onBackPressed ?? () => Navigator.pop(context),
+              child: const Icon(
+                CupertinoIcons.back,
+                color: CupertinoColors.activeBlue,
+                size: 26.0,
+              ),
             )
           : null,
     );

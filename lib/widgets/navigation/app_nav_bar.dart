@@ -19,7 +19,18 @@ class AppNavBar extends StatelessWidget implements ObstructingPreferredSizeWidge
   @override
   Widget build(BuildContext context) {
     return CupertinoNavigationBar(
-      leading: leading,
+      leading: leading ??
+          (Navigator.canPop(context)
+              ? CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () => Navigator.pop(context),
+                  child: const Icon(
+                    CupertinoIcons.back,
+                    color: CupertinoColors.activeBlue,
+                    size: 26.0,
+                  ),
+                )
+              : null),
       middle: middle ?? (title != null ? AppText.h3(title!) : null),
       trailing: trailing,
     );

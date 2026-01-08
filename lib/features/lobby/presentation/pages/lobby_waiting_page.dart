@@ -148,7 +148,11 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
               onPressed: state is LobbyWaitingLoaded && !state.isPerformingAction
                   ? _leaveLobby
                   : null,
-              child: const Icon(CupertinoIcons.back),
+              child: const Icon(
+                CupertinoIcons.back,
+                color: CupertinoColors.activeBlue,
+                size: 26.0,
+              ),
             ),
           ),
           child: SafeArea(

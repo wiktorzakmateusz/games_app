@@ -186,8 +186,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
             title: 'Edit Profile',
             leading: CupertinoButton(
               padding: EdgeInsets.zero,
-              child: const Icon(CupertinoIcons.back),
               onPressed: () => Navigator.pop(context),
+              child: const Icon(
+                CupertinoIcons.back,
+                color: CupertinoColors.activeBlue,
+                size: 26.0,
+              ),
             ),
             trailing: _isLoading
                 ? const CupertinoActivityIndicator()
