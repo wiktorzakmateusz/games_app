@@ -33,7 +33,7 @@ class _DifficultyPageState extends State<DifficultyPage> {
                       color: selectedDifficulty == level
                           ? CupertinoTheme.of(context)
                             .primaryColor
-                            .withOpacity(0.2)
+                            .withValues(alpha: 0.2)
                           : null,
                       borderRadius: BorderRadius.circular(8),
                       padding: const EdgeInsets.symmetric(vertical: 16),

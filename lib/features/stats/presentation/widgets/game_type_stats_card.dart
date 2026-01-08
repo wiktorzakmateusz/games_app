@@ -53,7 +53,7 @@ class _GameTypeStatsCardState extends State<GameTypeStatsCard> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: CupertinoColors.black.withOpacity(0.1),
+            color: CupertinoColors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
