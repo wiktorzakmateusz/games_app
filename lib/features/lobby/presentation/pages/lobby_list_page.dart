@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:games_app/widgets/app_text.dart';
-import '../../../../core/shared/enums.dart';
 import '../../../../core/theme/app_typography.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
@@ -10,6 +9,7 @@ import '../../../user/presentation/widgets/user_avatar.dart';
 import '../cubit/lobby_list_cubit.dart';
 import '../cubit/lobby_list_state.dart';
 import '../widgets/lobby_card.dart';
+import '../widgets/create_lobby_dialog.dart';
 
 class LobbyListPage extends StatefulWidget {
   const LobbyListPage({super.key});
@@ -19,9 +19,8 @@ class LobbyListPage extends StatefulWidget {
 }
 
 class _LobbyListPageState extends State<LobbyListPage> {
-  final _lobbyNameController = TextEditingController();
-  GameType _selectedGameType = GameType.ticTacToe;
   bool _hasInitialized = false;
+  bool _isCreatingLobby = false;
 
   @override
   void didChangeDependencies() {
@@ -35,112 +34,16 @@ class _LobbyListPageState extends State<LobbyListPage> {
     }
   }
 
-  @override
-  void dispose() {
-    _lobbyNameController.dispose();
-    super.dispose();
-  }
-
   void _showCreateLobbyDialog() {
-    final cubit = context.read<LobbyListCubit>();
-    
     showCupertinoModalPopup(
       context: context,
-      builder: (BuildContext context) => StatefulBuilder(
-        builder: (context, setState) => Container(
-          height: 400,
-          padding: const EdgeInsets.only(top: 6.0),
-          margin: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          color: CupertinoColors.systemBackground.resolveFrom(context),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  height: 44,
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: CupertinoColors.separator.resolveFrom(context),
-                        width: 0.5,
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _lobbyNameController.clear();
-                        },
-                        child: AppText.button('Cancel'),
-                      ),
-                      AppText.h3('Create Lobby'),
-                      CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          if (_lobbyNameController.text.trim().isNotEmpty) {
-                            Navigator.pop(context);
-                            cubit.createLobby(
-                              name: _lobbyNameController.text.trim(),
-                              gameType: _selectedGameType,
-                              maxPlayers: 2,
-                            );
-                            _lobbyNameController.clear();
-                          }
-                        },
-                        child: AppText.button('Create'),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppText.bodyMediumSemiBold('Lobby Name'),
-                        const SizedBox(height: 8),
-                        CupertinoTextField(
-                          controller: _lobbyNameController,
-                          placeholder: 'Enter lobby name',
-                          padding: const EdgeInsets.all(12),
-                          autofocus: true,
-                          textCapitalization: TextCapitalization.words,
-                          clearButtonMode: OverlayVisibilityMode.editing,
-                        ),
-                        const SizedBox(height: 24),
-                        AppText.bodyMediumSemiBold('Game Type'),
-                        const SizedBox(height: 8),
-                        CupertinoSegmentedControl<GameType>(
-                          children: {
-                            for (var gameType in GameType.values)
-                              gameType: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                child: AppText.bodyMedium(gameType.displayName),
-                              ),
-                          },
-                          groupValue: _selectedGameType,
-                          onValueChanged: (GameType value) {
-                            setState(() {
-                              _selectedGameType = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+      builder: (BuildContext context) => CreateLobbyDialog(
+        pageContext: this.context,
+        onCreatingStateChanged: (isCreating) {
+          setState(() {
+            _isCreatingLobby = isCreating;
+          });
+        },
       ),
     );
   }
@@ -192,22 +95,25 @@ class _LobbyListPageState extends State<LobbyListPage> {
         return BlocConsumer<LobbyListCubit, LobbyListState>(
           listener: (context, state) {
             if (state is LobbyListError) {
-              final currentAuthState = context.read<AuthCubit>().state;
-              if (currentAuthState is Authenticated) {
-                _showError(state.message);
+              // Don't show error dialog if we're creating a lobby (modal handles it)
+              if (!_isCreatingLobby) {
+                final currentAuthState = context.read<AuthCubit>().state;
+                if (currentAuthState is Authenticated) {
+                  _showError(state.message);
+                }
+              } else {
+                // Reset flag when error occurs during creation
+                _isCreatingLobby = false;
               }
-            } else if (state is LobbyCreated) {
-              Navigator.pushReplacementNamed(
-                context,
-                '/lobby_waiting',
-                arguments: {'lobbyId': state.lobby.id},
-              );
             } else if (state is LobbyJoined) {
               Navigator.pushReplacementNamed(
                 context,
                 '/lobby_waiting',
                 arguments: {'lobbyId': state.lobbyId},
               );
+            } else if (state is LobbyListLoaded && !state.isPerformingAction) {
+              // Reset flag when action completes
+              _isCreatingLobby = false;
             }
           },
           builder: (context, state) {
@@ -223,7 +129,7 @@ class _LobbyListPageState extends State<LobbyListPage> {
                         child: ClipOval(
                           child: UserAvatar(
                             imageUrl: user.photoURL,
-                            size: 32,
+                            size: 40,
                           ),
                         ),
                       )

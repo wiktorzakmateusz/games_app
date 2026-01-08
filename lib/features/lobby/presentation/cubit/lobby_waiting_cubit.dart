@@ -16,6 +16,7 @@ class LobbyWaitingCubit extends Cubit<LobbyWaitingState> {
   StreamSubscription? _lobbySubscription;
   String? _currentLobbyId;
   String? _currentUserId;
+  bool _isLeaving = false;
 
   LobbyWaitingCubit({
     required this.watchLobbyUseCase,
@@ -59,12 +60,15 @@ class LobbyWaitingCubit extends Cubit<LobbyWaitingState> {
           }
         },
       onError: (error) {
-        emit(LobbyWaitingError(
-          'Failed to load lobby: $error',
-          previousLobby: state is LobbyWaitingLoaded
-              ? (state as LobbyWaitingLoaded).lobby
-              : null,
-        ));
+        // Don't emit error if we're leaving (stream was cancelled)
+        if (!_isLeaving) {
+          emit(LobbyWaitingError(
+            'Failed to load lobby: $error',
+            previousLobby: state is LobbyWaitingLoaded
+                ? (state as LobbyWaitingLoaded).lobby
+                : null,
+          ));
+        }
       },
     );
   }
@@ -110,12 +114,20 @@ class LobbyWaitingCubit extends Cubit<LobbyWaitingState> {
 
     final lobby = currentState.lobby;
 
+    _isLeaving = true;
+    _lobbySubscription?.cancel();
+    _lobbySubscription = null;
+
     emit(LobbyWaitingLoaded(lobby, isPerformingAction: true));
 
     final result = await leaveLobbyUseCase(_currentLobbyId!);
 
     result.fold(
       (failure) {
+        _isLeaving = false;
+        if (_currentLobbyId != null) {
+          watchLobby(_currentLobbyId!);
+        }
         emit(LobbyWaitingLoaded(lobby, isPerformingAction: false));
         emit(LobbyWaitingError(
           failure.message,
