@@ -4,6 +4,7 @@ import 'package:games_app/widgets/app_text.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import '../../../../core/utils/responsive_layout.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -95,75 +96,79 @@ class _AuthPageState extends State<AuthPage> {
           builder: (context, state) {
             final isLoading = state is AuthLoading;
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 400),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 40),
-                      AppText.h2('Welcome to Multiplayer'),
-                      const SizedBox(height: 40),
-                      if (!_isLogin) ...[
+            return ResponsiveLayout.constrainWidth(
+              context,
+              SingleChildScrollView(
+                padding: ResponsiveLayout.getPadding(context),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: ResponsiveLayout.getMaxContentWidth(context).clamp(300, 500)),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(height: ResponsiveLayout.getLargeSpacing(context)),
+                        AppText.h2('Welcome to Multiplayer'),
+                        SizedBox(height: ResponsiveLayout.getLargeSpacing(context)),
+                        if (!_isLogin) ...[
+                          CupertinoTextField(
+                            controller: _usernameController,
+                            placeholder: 'Username',
+                            enabled: !isLoading,
+                            padding: EdgeInsets.all(ResponsiveLayout.getSpacing(context)),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: CupertinoColors.separator),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          SizedBox(height: ResponsiveLayout.getSpacing(context)),
+                        ],
                         CupertinoTextField(
-                          controller: _usernameController,
-                          placeholder: 'Username',
+                          controller: _emailController,
+                          placeholder: 'Email',
+                          keyboardType: TextInputType.emailAddress,
                           enabled: !isLoading,
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.all(ResponsiveLayout.getSpacing(context)),
                           decoration: BoxDecoration(
                             border: Border.all(color: CupertinoColors.separator),
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: ResponsiveLayout.getSpacing(context)),
+                        CupertinoTextField(
+                          controller: _passwordController,
+                          placeholder: 'Password',
+                          obscureText: true,
+                          enabled: !isLoading,
+                          padding: EdgeInsets.all(ResponsiveLayout.getSpacing(context)),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: CupertinoColors.separator),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.5),
+                        SizedBox(
+                          width: double.infinity,
+                          child: CupertinoButton.filled(
+                            onPressed: isLoading ? null : _handleAuth,
+                            child: isLoading
+                                ? const CupertinoActivityIndicator(
+                                    color: CupertinoColors.white,
+                                  )
+                                : AppText.button(_isLogin ? 'Sign In' : 'Sign Up'),
+                          ),
+                        ),
+                        SizedBox(height: ResponsiveLayout.getSpacing(context)),
+                        CupertinoButton(
+                          onPressed: isLoading ? null : _toggleMode,
+                          child: AppText.bodyMedium(
+                            _isLogin
+                                ? 'Don\'t have an account? Sign Up'
+                                : 'Already have an account? Sign In'
+                          ),
+                        ),
+                        SizedBox(height: ResponsiveLayout.getLargeSpacing(context)),
                       ],
-                      CupertinoTextField(
-                        controller: _emailController,
-                        placeholder: 'Email',
-                        keyboardType: TextInputType.emailAddress,
-                        enabled: !isLoading,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: CupertinoColors.separator),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      CupertinoTextField(
-                        controller: _passwordController,
-                        placeholder: 'Password',
-                        obscureText: true,
-                        enabled: !isLoading,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: CupertinoColors.separator),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: CupertinoButton.filled(
-                          onPressed: isLoading ? null : _handleAuth,
-                          child: isLoading
-                              ? const CupertinoActivityIndicator(
-                                  color: CupertinoColors.white,
-                                )
-                              : AppText.button(_isLogin ? 'Sign In' : 'Sign Up'),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      CupertinoButton(
-                        onPressed: isLoading ? null : _toggleMode,
-                        child: AppText.bodyMedium(
-                          _isLogin
-                              ? 'Don\'t have an account? Sign Up'
-                              : 'Already have an account? Sign In'
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),

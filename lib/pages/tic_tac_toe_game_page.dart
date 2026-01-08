@@ -4,6 +4,7 @@ import '../widgets/local_games/game_controls.dart';
 import '../widgets/local_games/tic_tac_toe/tic_tac_toe_board.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import 'package:games_app/widgets/game_header.dart';
+import '../core/utils/responsive_layout.dart';
 
 class TicTacToePage extends StatefulWidget {
   const TicTacToePage({super.key});
@@ -218,38 +219,48 @@ class _TicTacToePageState extends State<TicTacToePage>
         difficulty: difficulty,
       ),
       child: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 10),
-              GameHeader(
-                player1Name: isTwoPlayerMode ? playerOneName : (isUserFirstPlayer ? playerOneName : 'Computer'),
-                player1IsBot: !isTwoPlayerMode && !isUserFirstPlayer,
-                player1BorderColor: CupertinoColors.systemRed,
-                player2Name: isTwoPlayerMode ? playerTwoName : (isUserFirstPlayer ? 'Computer' : playerTwoName),
-                player2IsBot: !isTwoPlayerMode && isUserFirstPlayer,
-                player2BorderColor: CupertinoColors.systemBlue,
-                isPlayer1Turn: _isPlayer1Turn(),
-                isGameOver: _gameState.isGameOver,
-                shouldRunTimer: _shouldRunTimer(),
-                timerDuration: const Duration(seconds: 60),
-                onTimeout: _handleTimeout,
+        child: ResponsiveLayout.constrainWidth(
+          context,
+          SingleChildScrollView(
+            child: Padding(
+              padding: ResponsiveLayout.getPadding(context),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 0.625),
+                    GameHeader(
+                      player1Name: isTwoPlayerMode ? playerOneName : (isUserFirstPlayer ? playerOneName : 'Computer'),
+                      player1IsBot: !isTwoPlayerMode && !isUserFirstPlayer,
+                      player1BorderColor: CupertinoColors.systemRed,
+                      player2Name: isTwoPlayerMode ? playerTwoName : (isUserFirstPlayer ? 'Computer' : playerTwoName),
+                      player2IsBot: !isTwoPlayerMode && isUserFirstPlayer,
+                      player2BorderColor: CupertinoColors.systemBlue,
+                      isPlayer1Turn: _isPlayer1Turn(),
+                      isGameOver: _gameState.isGameOver,
+                      shouldRunTimer: _shouldRunTimer(),
+                      timerDuration: const Duration(seconds: 60),
+                      onTimeout: _handleTimeout,
+                    ),
+                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                    TicTacToeBoard(
+                      board: _getBoardAsStrings(),
+                      winningPattern: _gameState.winningPattern,
+                      lineAnimation: _lineAnimation,
+                      onCellTap: _handleTap,
+                    ),
+                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                    GameControls(
+                      isGameOver: _gameState.isGameOver,
+                      onReset: () => _resetBoard(startAsUser: isUserFirstPlayer),
+                      newGameLabel: 'Play Again',
+                    ),
+                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                  ],
+                ),
               ),
-              const SizedBox(height: 20),
-              TicTacToeBoard(
-                board: _getBoardAsStrings(),
-                winningPattern: _gameState.winningPattern,
-                lineAnimation: _lineAnimation,
-                onCellTap: _handleTap,
-              ),
-              const SizedBox(height: 20),
-              GameControls(
-                isGameOver: _gameState.isGameOver,
-                onReset: () => _resetBoard(startAsUser: isUserFirstPlayer),
-                newGameLabel: 'Play Again',
-              ),
-            ],
+            ),
           ),
         ),
       ),

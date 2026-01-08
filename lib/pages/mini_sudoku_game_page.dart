@@ -4,6 +4,7 @@ import '../widgets/local_games/game_status_text.dart';
 import '../widgets/local_games/game_controls.dart';
 import '../widgets/local_games/mini_sudoku/mini_sudoku_board.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
+import '../core/utils/responsive_layout.dart';
 
 class MiniSudokuPage extends StatefulWidget {
   const MiniSudokuPage({super.key});
@@ -137,30 +138,40 @@ class _MiniSudokuPageState extends State<MiniSudokuPage> {
         difficulty: difficulty,
       ),
       child: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              GameStatusText(text: _getStatusText()),
-              const SizedBox(height: 20),
-              MiniSudokuBoard(
-                board: _gameState.board,
-                isFixed: List.generate(
-                  MiniSudokuState.totalCells,
-                  (i) => _gameState.isLocked(i),
+        child: ResponsiveLayout.constrainWidth(
+          context,
+          SingleChildScrollView(
+            child: Padding(
+              padding: ResponsiveLayout.getPadding(context),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GameStatusText(text: _getStatusText()),
+                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                    MiniSudokuBoard(
+                      board: _gameState.board,
+                      isFixed: List.generate(
+                        MiniSudokuState.totalCells,
+                        (i) => _gameState.isLocked(i),
+                      ),
+                      wrongIndices: _gameState.errorCells,
+                      onCellTap: _handleTap,
+                    ),
+                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.875),
+                    GameControls(
+                      isGameOver: _gameState.isGameOver,
+                      onReset: _resetCurrentBoard,
+                      onNewGame: _startNewGame,
+                      resetLabel: 'Reset',
+                      newGameLabel: 'New Game',
+                    ),
+                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                  ],
                 ),
-                wrongIndices: _gameState.errorCells,
-                onCellTap: _handleTap,
               ),
-              const SizedBox(height: 30),
-              GameControls(
-                isGameOver: _gameState.isGameOver,
-                onReset: _resetCurrentBoard,
-                onNewGame: _startNewGame,
-                resetLabel: 'Reset',
-                newGameLabel: 'New Game',
-              ),
-            ],
+            ),
           ),
         ),
       ),

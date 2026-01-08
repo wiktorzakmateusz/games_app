@@ -4,6 +4,7 @@ import '../widgets/local_games/game_controls.dart';
 import '../widgets/local_games/connect4/connect4_board.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import 'package:games_app/widgets/game_header.dart';
+import '../core/utils/responsive_layout.dart';
 
 class Connect4Page extends StatefulWidget {
   const Connect4Page({super.key});
@@ -223,48 +224,55 @@ class _Connect4PageState extends State<Connect4Page>
         difficulty: difficulty,
       ),
       child: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 20),
-                GameHeader(
-                  player1Name: isTwoPlayerMode ? playerOneName : (isUserFirstPlayer ? playerOneName : 'Computer'),
-                  player1IsBot: !isTwoPlayerMode && !isUserFirstPlayer,
-                  player1BorderColor: CupertinoColors.systemRed,
-                  player2Name: isTwoPlayerMode ? playerTwoName : (isUserFirstPlayer ? 'Computer' : playerTwoName),
-                  player2IsBot: !isTwoPlayerMode && isUserFirstPlayer,
-                  player2BorderColor: CupertinoColors.systemBlue,
-                  isPlayer1Turn: _isPlayer1Turn(),
-                  isGameOver: _gameState.isGameOver,
-                  shouldRunTimer: _shouldRunTimer(),
-                  timerDuration: const Duration(seconds: 60),
-                  onTimeout: _handleTimeout,
+        child: ResponsiveLayout.constrainWidth(
+          context,
+          SingleChildScrollView(
+            child: Padding(
+              padding: ResponsiveLayout.getPadding(context),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                    GameHeader(
+                      player1Name: isTwoPlayerMode ? playerOneName : (isUserFirstPlayer ? playerOneName : 'Computer'),
+                      player1IsBot: !isTwoPlayerMode && !isUserFirstPlayer,
+                      player1BorderColor: CupertinoColors.systemRed,
+                      player2Name: isTwoPlayerMode ? playerTwoName : (isUserFirstPlayer ? 'Computer' : playerTwoName),
+                      player2IsBot: !isTwoPlayerMode && isUserFirstPlayer,
+                      player2BorderColor: CupertinoColors.systemBlue,
+                      isPlayer1Turn: _isPlayer1Turn(),
+                      isGameOver: _gameState.isGameOver,
+                      shouldRunTimer: _shouldRunTimer(),
+                      timerDuration: const Duration(seconds: 60),
+                      onTimeout: _handleTimeout,
+                    ),
+                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                    Connect4Board(
+                      board: _getBoardAsStrings(),
+                      winningPattern: _gameState.winningPattern,
+                      lineAnimation: _lineAnimation,
+                      currentPlayer: _getCurrentPlayerSymbol(),
+                      hoverColumn: hoverColumn,
+                      onColumnTap: _handleColumnTap,
+                      onColumnHover: (col) => setState(() => hoverColumn = col),
+                      onColumnHoverExit: () => setState(() => hoverColumn = null),
+                      canDropInColumn: (col) => !_gameState.isColumnFull(col),
+                      isGameOver: _gameState.isGameOver,
+                      rows: Connect4State.rows,
+                      columns: Connect4State.columns,
+                    ),
+                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                    GameControls(
+                      isGameOver: _gameState.isGameOver,
+                      onReset: () => _resetBoard(startAsUser: isUserFirstPlayer),
+                      newGameLabel: 'Play Again',
+                    ),
+                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                  ],
                 ),
-                const SizedBox(height: 20),
-                Connect4Board(
-                  board: _getBoardAsStrings(),
-                  winningPattern: _gameState.winningPattern,
-                  lineAnimation: _lineAnimation,
-                  currentPlayer: _getCurrentPlayerSymbol(),
-                  hoverColumn: hoverColumn,
-                  onColumnTap: _handleColumnTap,
-                  onColumnHover: (col) => setState(() => hoverColumn = col),
-                  onColumnHoverExit: () => setState(() => hoverColumn = null),
-                  canDropInColumn: (col) => !_gameState.isColumnFull(col),
-                  isGameOver: _gameState.isGameOver,
-                  rows: Connect4State.rows,
-                  columns: Connect4State.columns,
-                ),
-                const SizedBox(height: 20),
-                GameControls(
-                  isGameOver: _gameState.isGameOver,
-                  onReset: () => _resetBoard(startAsUser: isUserFirstPlayer),
-                  newGameLabel: 'Play Again',
-                ),
-                const SizedBox(height: 20),
-              ],
+              ),
             ),
           ),
         ),

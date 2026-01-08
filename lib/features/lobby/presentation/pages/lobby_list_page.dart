@@ -10,6 +10,7 @@ import '../cubit/lobby_list_cubit.dart';
 import '../cubit/lobby_list_state.dart';
 import '../widgets/lobby_card.dart';
 import '../widgets/create_lobby_dialog.dart';
+import '../../../../core/utils/responsive_layout.dart';
 
 class LobbyListPage extends StatefulWidget {
   const LobbyListPage({super.key});
@@ -156,27 +157,33 @@ class _LobbyListPageState extends State<LobbyListPage> {
   }
 
   Widget _buildErrorView(LobbyListError state) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            CupertinoIcons.exclamationmark_triangle,
-            size: 64,
-            color: CupertinoColors.destructiveRed,
+    return ResponsiveLayout.constrainWidth(
+      context,
+      Padding(
+        padding: ResponsiveLayout.getPadding(context),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                CupertinoIcons.exclamationmark_triangle,
+                size: ResponsiveLayout.getIconSize(context, phoneSize: 64, tabletSize: 80, desktopSize: 96),
+                color: CupertinoColors.destructiveRed,
+              ),
+              SizedBox(height: ResponsiveLayout.getSpacing(context)),
+              AppText(
+                state.message,
+                style: const TextStyle(color: CupertinoColors.destructiveRed),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.5),
+              CupertinoButton.filled(
+                onPressed: () => context.read<LobbyListCubit>().retry(),
+                child: AppText.button('Retry'),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          AppText(
-            state.message,
-            style: const TextStyle(color: CupertinoColors.destructiveRed),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          CupertinoButton.filled(
-            onPressed: () => context.read<LobbyListCubit>().retry(),
-            child: AppText.button('Retry'),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -184,93 +191,114 @@ class _LobbyListPageState extends State<LobbyListPage> {
   Widget _buildLobbiesView(LobbyListLoaded state, String currentUserUid) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              CupertinoButton(
-                padding: EdgeInsets.zero,
-                onPressed: !state.isPerformingAction ? _showCreateLobbyDialog : null,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.systemBlue,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        CupertinoIcons.add,
-                        color: CupertinoColors.white,
-                        size: 18,
+        ResponsiveLayout.constrainWidth(
+          context,
+          Padding(
+            padding: ResponsiveLayout.getHorizontalPadding(context),
+            child: Padding(
+              padding: ResponsiveLayout.getVerticalPadding(context),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: !state.isPerformingAction ? _showCreateLobbyDialog : null,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveLayout.getSpacing(context),
+                        vertical: ResponsiveLayout.getSpacing(context) * 0.5,
                       ),
-                      const SizedBox(width: 6),
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.systemBlue,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            CupertinoIcons.add,
+                            color: CupertinoColors.white,
+                            size: ResponsiveLayout.getIconSize(context, phoneSize: 18, tabletSize: 20, desktopSize: 22),
+                          ),
+                          SizedBox(width: ResponsiveLayout.getSpacing(context) * 0.375),
+                          AppText(
+                            'Create Lobby',
+                            style: TextStyles.button.copyWith(
+                              color: CupertinoColors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (state.lobbies.isEmpty)
+          Expanded(
+            child: ResponsiveLayout.constrainWidth(
+              context,
+              Padding(
+                padding: ResponsiveLayout.getPadding(context),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                       AppText(
-                        'Create Lobby',
-                        style: TextStyles.button.copyWith(
-                          color: CupertinoColors.white,
+                        'No available lobbies',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: CupertinoColors.secondaryLabel,
+                        ),
+                      ),
+                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 0.75),
+                      AppText(
+                        'Create one to get started!',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: CupertinoColors.secondaryLabel,
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
-        if (state.lobbies.isEmpty)
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AppText(
-                    'No available lobbies',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: CupertinoColors.secondaryLabel,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  AppText(
-                    'Create one to get started!',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: CupertinoColors.secondaryLabel,
-                    ),
-                  ),
-                ],
-              ),
             ),
           )
         else
           Expanded(
-            child: ListView.builder(
-              itemCount: state.lobbies.length,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemBuilder: (context, index) {
-                final lobby = state.lobbies[index];
-                final isJoined = lobby.hasPlayer(currentUserUid);
+            child: ResponsiveLayout.constrainWidth(
+              context,
+              ListView.builder(
+                itemCount: state.lobbies.length,
+                padding: ResponsiveLayout.getHorizontalPadding(context),
+                itemBuilder: (context, index) {
+                  final lobby = state.lobbies[index];
+                  final isJoined = lobby.hasPlayer(currentUserUid);
 
-                return LobbyCard(
-                  lobby: lobby,
-                  isFull: lobby.isFull,
-                  isJoined: isJoined,
-                  onTap: (!state.isPerformingAction && !lobby.isFull && !isJoined)
-                      ? () {
-                          context.read<LobbyListCubit>().joinLobby(lobby.id);
-                        }
-                      : null,
-                );
-              },
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: ResponsiveLayout.getSpacing(context) * 0.5),
+                    child: LobbyCard(
+                      lobby: lobby,
+                      isFull: lobby.isFull,
+                      isJoined: isJoined,
+                      onTap: (!state.isPerformingAction && !lobby.isFull && !isJoined)
+                          ? () {
+                              context.read<LobbyListCubit>().joinLobby(lobby.id);
+                            }
+                          : null,
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         if (state.isPerformingAction)
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: CupertinoActivityIndicator(),
+          Padding(
+            padding: ResponsiveLayout.getPadding(context),
+            child: const CupertinoActivityIndicator(),
           ),
       ],
     );

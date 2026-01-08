@@ -13,6 +13,8 @@ import '../widgets/user_username.dart';
 import '../widgets/user_logout_button.dart';
 import 'edit_profile_page.dart';
 import '../../../../injection_container.dart' as di;
+import '../../../../core/utils/responsive_layout.dart';
+import '../../../../core/utils/device_type.dart';
 
 class UserProfilePage extends StatelessWidget {
   const UserProfilePage({super.key});
@@ -45,74 +47,119 @@ class UserProfilePage extends StatelessWidget {
               ),
               child: SafeArea(
                 child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 40),
-                        UserAvatar(
-                          imageUrl: user.photoURL,
-                          size: 150,
-                        ),
-                        const SizedBox(height: 32),
-                        UserDisplayName(displayName: user.displayName),
-                        const SizedBox(height: 12),
-                        UserUsername(username: user.username),
-                        const SizedBox(height: 48),
-                        BlocBuilder<StatsCubit, StatsState>(
-                          builder: (context, statsState) {
-                            if (statsState is StatsLoaded) {
-                              return Column(
-                                children: [
-                                  if (statsState.aggregateStats != null)
-                                    AggregateStatsCardProfile(
-                                      aggregateStats: statsState.aggregateStats!,
-                                    ),
-                                  if (statsState.aggregateStats != null)
-                                    const SizedBox(height: 24),
-                                  GameTypeStatsCard(
-                                    stats: statsState.stats,
-                                    userId: user.id,
-                                  ),
-                                ],
-                              );
-                            }
-                            if (statsState is StatsLoading) {
-                              return Column(
-                                children: [
-                                  const AggregateStatsCardProfileSkeleton(),
-                                  const SizedBox(height: 24),
-                                  const GameTypeStatsCardSkeleton(),
-                                ],
-                              );
-                            }
-                            if (statsState is StatsError) {
-                              return Padding(
-                                padding: const EdgeInsets.all(32.0),
-                                child: Column(
-                                  children: [
-                                    const Icon(
-                                      CupertinoIcons.exclamationmark_triangle,
-                                      color: CupertinoColors.systemRed,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      statsState.message,
-                                      style: const TextStyle(
+                  child: ResponsiveLayout.constrainWidth(
+                    context,
+                    Padding(
+                      padding: ResponsiveLayout.getPadding(context),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(height: ResponsiveLayout.getLargeSpacing(context)),
+                          UserAvatar(
+                            imageUrl: user.photoURL,
+                            size: 150,
+                          ),
+                          SizedBox(height: ResponsiveLayout.getSpacing(context) * 2),
+                          UserDisplayName(displayName: user.displayName),
+                          SizedBox(height: ResponsiveLayout.getSpacing(context) * 0.75),
+                          UserUsername(username: user.username),
+                          SizedBox(height: ResponsiveLayout.getLargeSpacing(context)),
+                          BlocBuilder<StatsCubit, StatsState>(
+                            builder: (context, statsState) {
+                              final isTabletOrDesktop = DeviceTypeHelper.isTablet(context) || DeviceTypeHelper.isDesktop(context);
+                              
+                              if (statsState is StatsLoaded) {
+                                if (isTabletOrDesktop && statsState.aggregateStats != null) {
+                                  // Side by side layout for tablets/desktops
+                                  return Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: AggregateStatsCardProfile(
+                                          aggregateStats: statsState.aggregateStats!,
+                                        ),
+                                      ),
+                                      SizedBox(width: ResponsiveLayout.getSpacing(context)),
+                                      Expanded(
+                                        child: GameTypeStatsCard(
+                                          stats: statsState.stats,
+                                          userId: user.id,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  // Stacked layout for phones
+                                  return Column(
+                                    children: [
+                                      if (statsState.aggregateStats != null)
+                                        AggregateStatsCardProfile(
+                                          aggregateStats: statsState.aggregateStats!,
+                                        ),
+                                      if (statsState.aggregateStats != null)
+                                        SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.5),
+                                      GameTypeStatsCard(
+                                        stats: statsState.stats,
+                                        userId: user.id,
+                                      ),
+                                    ],
+                                  );
+                                }
+                              }
+                              if (statsState is StatsLoading) {
+                                if (isTabletOrDesktop) {
+                                  // Side by side skeletons for tablets/desktops
+                                  return Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Expanded(
+                                        child: AggregateStatsCardProfileSkeleton(),
+                                      ),
+                                      SizedBox(width: ResponsiveLayout.getSpacing(context)),
+                                      const Expanded(
+                                        child: GameTypeStatsCardSkeleton(),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  // Stacked skeletons for phones
+                                  return Column(
+                                    children: [
+                                      const AggregateStatsCardProfileSkeleton(),
+                                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.5),
+                                      const GameTypeStatsCardSkeleton(),
+                                    ],
+                                  );
+                                }
+                              }
+                              if (statsState is StatsError) {
+                                return Padding(
+                                  padding: ResponsiveLayout.getPadding(context),
+                                  child: Column(
+                                    children: [
+                                      const Icon(
+                                        CupertinoIcons.exclamationmark_triangle,
                                         color: CupertinoColors.systemRed,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                        const SizedBox(height: 48),
-                        const UserLogoutButton(),
-                        const SizedBox(height: 40),
-                      ],
+                                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 0.5),
+                                      Text(
+                                        statsState.message,
+                                        style: const TextStyle(
+                                          color: CupertinoColors.systemRed,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                          SizedBox(height: ResponsiveLayout.getLargeSpacing(context)),
+                          const UserLogoutButton(),
+                          SizedBox(height: ResponsiveLayout.getLargeSpacing(context)),
+                        ],
+                      ),
                     ),
                   ),
                 ),

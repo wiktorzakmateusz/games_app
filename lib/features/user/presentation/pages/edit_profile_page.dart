@@ -7,6 +7,7 @@ import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../widgets/user_avatar.dart';
+import '../../../../core/utils/responsive_layout.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -227,8 +228,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: ResponsiveLayout.getGridCrossAxisCount(
+                          context,
+                          phoneCount: 4,
+                          tabletCount: 8,
+                          desktopCount: 12,
+                        ),
                         crossAxisSpacing: 12,
                         mainAxisSpacing: 12,
                         childAspectRatio: 1,
