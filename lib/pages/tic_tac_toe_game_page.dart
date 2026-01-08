@@ -20,7 +20,7 @@ class _TicTacToePageState extends State<TicTacToePage>
 
   late bool isUserFirstPlayer;
   late bool isTwoPlayerMode;
-  late GameDifficulty difficulty;
+  late GameDifficulty? difficulty;
   late String? playerOneName;
   late String? playerTwoName;
 
@@ -35,8 +35,12 @@ class _TicTacToePageState extends State<TicTacToePage>
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
     isUserFirstPlayer = args?['isUserFirstPlayer'] ?? true;
     isTwoPlayerMode = args?['isTwoPlayerMode'] ?? false;
-    final difficultyStr = args?['difficulty'] ?? 'Easy';
-    difficulty = GameDifficultyExtension.fromString(difficultyStr);
+    if (isTwoPlayerMode) {
+      difficulty = null;
+    } else {
+      final difficultyStr = args?['difficulty'] ?? 'Easy';
+      difficulty = GameDifficultyExtension.fromString(difficultyStr);
+    }
     playerOneName = args?['playerOneName'] ?? 'Player 1';
     playerTwoName = args?['playerTwoName'] ?? 'Player 2';
 
@@ -136,7 +140,7 @@ class _TicTacToePageState extends State<TicTacToePage>
 
     final move = _gameLogic.getAIMove(
       state: _gameState,
-      difficulty: difficulty,
+      difficulty: difficulty!,
       aiPlayer: aiSymbol,
     );
 
