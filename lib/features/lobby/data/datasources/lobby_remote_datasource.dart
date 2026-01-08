@@ -16,6 +16,7 @@ abstract class LobbyRemoteDataSource {
   Future<void> joinLobby(String lobbyId);
   Future<void> leaveLobby(String lobbyId);
   Future<void> toggleReady(String lobbyId);
+  Future<void> updateGameType(String lobbyId, GameType gameType);
   Future<JsonMap> getLobby(String lobbyId);
   Future<List<JsonMap>> getAvailableLobbies();
   Future<JsonMap?> getCurrentUserLobby();
@@ -135,6 +136,32 @@ class LobbyRemoteDataSourceImpl implements LobbyRemoteDataSource {
     } catch (e) {
       if (e is ServerException) rethrow;
       throw ServerException('Failed to toggle ready: $e');
+    }
+  }
+
+  @override
+  Future<void> updateGameType(String lobbyId, GameType gameType) async {
+    try {
+      final headers = await _getHeaders();
+      final body = json.encode({
+        'gameType': gameType.value,
+      });
+
+      final response = await client.patch(
+        Uri.parse('$baseUrl/lobbies/$lobbyId/game-type'),
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw ServerException(
+          ErrorParser.parseErrorMessage(response),
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ServerException) rethrow;
+      throw ServerException('Failed to update game type: $e');
     }
   }
 

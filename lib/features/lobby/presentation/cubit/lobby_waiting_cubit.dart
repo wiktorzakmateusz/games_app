@@ -4,6 +4,7 @@ import '../../../../core/shared/enums.dart';
 import '../../../game/domain/usecases/start_game_usecase.dart';
 import '../../domain/usecases/leave_lobby_usecase.dart';
 import '../../domain/usecases/toggle_ready_usecase.dart';
+import '../../domain/usecases/update_game_type_usecase.dart';
 import '../../domain/usecases/watch_lobby_usecase.dart';
 import 'lobby_waiting_state.dart';
 
@@ -11,6 +12,7 @@ class LobbyWaitingCubit extends Cubit<LobbyWaitingState> {
   final WatchLobbyUseCase watchLobbyUseCase;
   final LeaveLobbyUseCase leaveLobbyUseCase;
   final ToggleReadyUseCase toggleReadyUseCase;
+  final UpdateGameTypeUseCase updateGameTypeUseCase;
   final StartGameUseCase startGameUseCase;
 
   StreamSubscription? _lobbySubscription;
@@ -22,6 +24,7 @@ class LobbyWaitingCubit extends Cubit<LobbyWaitingState> {
     required this.watchLobbyUseCase,
     required this.leaveLobbyUseCase,
     required this.toggleReadyUseCase,
+    required this.updateGameTypeUseCase,
     required this.startGameUseCase,
   }) : super(const LobbyWaitingInitial());
 
@@ -52,11 +55,17 @@ class LobbyWaitingCubit extends Cubit<LobbyWaitingState> {
               return;
             }
 
-          if (state is! LobbyWaitingLoaded ||
-              !(state as LobbyWaitingLoaded).isPerformingAction) {
-            emit(LobbyWaitingLoaded(lobby));
+          // Always update the lobby from Firestore
+          if (state is LobbyWaitingLoaded && (state as LobbyWaitingLoaded).isPerformingAction) {
+            final previousLobby = (state as LobbyWaitingLoaded).lobby;
+            // If gameType changed, reset loading
+            if (previousLobby.gameType != lobby.gameType) {
+              emit(LobbyWaitingLoaded(lobby, isPerformingAction: false));
+            } else {
+              emit(LobbyWaitingLoaded(lobby, isPerformingAction: true));
+            }
           } else {
-            emit(LobbyWaitingLoaded(lobby, isPerformingAction: true));
+            emit(LobbyWaitingLoaded(lobby));
           }
         },
       onError: (error) {
@@ -175,6 +184,37 @@ class LobbyWaitingCubit extends Cubit<LobbyWaitingState> {
     );
   }
 
+  Future<void> updateGameType(GameType gameType) async {
+    final currentState = state;
+    if (currentState is! LobbyWaitingLoaded) return;
+    if (_currentLobbyId == null) return;
+
+    final lobby = currentState.lobby;
+
+    emit(LobbyWaitingLoaded(lobby, isPerformingAction: true));
+
+    final result = await updateGameTypeUseCase(_currentLobbyId!, gameType);
+
+    result.fold(
+      (failure) {
+        // On error, reset loading state and show error
+        emit(LobbyWaitingLoaded(lobby, isPerformingAction: false));
+        emit(LobbyWaitingError(
+          failure.message,
+          previousLobby: lobby,
+        ));
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (state is LobbyWaitingError) {
+            emit(LobbyWaitingLoaded(lobby));
+          }
+        });
+      },
+      (_) {
+        // On success, set a flag to reset loading when we see the expected gameType
+        // The Firestore stream will emit the updated lobby soon
+      },
+    );
+  }
 
   void retry() {
     if (_currentLobbyId != null) {

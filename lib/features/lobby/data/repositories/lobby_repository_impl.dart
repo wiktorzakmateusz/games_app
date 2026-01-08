@@ -110,6 +110,20 @@ class LobbyRepositoryImpl implements LobbyRepository {
   }
 
   @override
+  Future<Result<void>> updateGameType(String lobbyId, GameType gameType) async {
+    try {
+      await remoteDataSource.updateGameType(lobbyId, gameType);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnexpectedFailure('Failed to update game type: $e'));
+    }
+  }
+
+  @override
   Future<Result<LobbyEntity>> getLobby(String lobbyId) async {
     try {
       final json = await remoteDataSource.getLobby(lobbyId);

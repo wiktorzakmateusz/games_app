@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:games_app/widgets/app_text.dart';
 import '../../../../widgets/game_button.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
+import '../../../../core/shared/enums.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../cubit/lobby_waiting_cubit.dart';
@@ -10,6 +11,7 @@ import '../cubit/lobby_waiting_state.dart';
 import '../widgets/empty_slot_widget.dart';
 import '../widgets/lobby_player_item.dart';
 import '../widgets/lobby_header_widget.dart';
+import '../widgets/select_game_dialog.dart';
 
 class LobbyWaitingPage extends StatefulWidget {
   const LobbyWaitingPage({super.key});
@@ -107,6 +109,18 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
             child: AppText.bodyLarge('OK'),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showSelectGameDialog(GameType currentGameType) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (dialogContext) => BlocProvider.value(
+        value: context.read<LobbyWaitingCubit>(),
+        child: SelectGameDialog(
+          currentGameType: currentGameType,
+        ),
       ),
     );
   }
@@ -234,7 +248,13 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                LobbyHeaderWidget(lobby: lobby),
+                LobbyHeaderWidget(
+                  lobby: lobby,
+                  isOwner: isOwner,
+                  onImageTap: isOwner && lobby.isWaiting
+                      ? () => _showSelectGameDialog(lobby.gameType)
+                      : null,
+                ),
                 const SizedBox(height: 24),
                 AppText.h3('Players'),
                 const SizedBox(height: 12),

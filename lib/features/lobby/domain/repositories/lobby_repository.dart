@@ -19,6 +19,8 @@ abstract class LobbyRepository {
 
   Future<Result<void>> toggleReady(String lobbyId);
 
+  Future<Result<void>> updateGameType(String lobbyId, GameType gameType);
+
   Future<Result<LobbyEntity>> getLobby(String lobbyId);
 
   Future<Result<LobbyEntity?>> getCurrentUserLobby();

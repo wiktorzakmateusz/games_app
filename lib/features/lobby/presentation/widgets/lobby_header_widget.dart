@@ -5,10 +5,14 @@ import '../../domain/entities/lobby_entity.dart';
 
 class LobbyHeaderWidget extends StatelessWidget {
   final LobbyEntity lobby;
+  final bool isOwner;
+  final VoidCallback? onImageTap;
 
   const LobbyHeaderWidget({
     super.key,
     required this.lobby,
+    this.isOwner = false,
+    this.onImageTap,
   });
 
   @override
@@ -45,7 +49,7 @@ class LobbyHeaderWidget extends StatelessWidget {
   Widget _buildPreviewImage() {
     final imagePath = GameImageHelper.getPreviewImagePath(lobby.gameType);
 
-    return Container(
+    Widget imageWidget = Container(
       width: 120,
       height: 120,
       decoration: BoxDecoration(
@@ -83,6 +87,35 @@ class LobbyHeaderWidget extends StatelessWidget {
         ),
       ),
     );
+
+    if (isOwner && onImageTap != null) {
+      return GestureDetector(
+        onTap: onImageTap,
+        child: Stack(
+          children: [
+            imageWidget,
+            Positioned(
+              top: 4,
+              right: 4,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: CupertinoColors.activeBlue,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  CupertinoIcons.pencil,
+                  size: 12,
+                  color: CupertinoColors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return imageWidget;
   }
 }
 

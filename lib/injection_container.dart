@@ -33,6 +33,7 @@ import 'features/lobby/domain/usecases/create_lobby_usecase.dart';
 import 'features/lobby/domain/usecases/join_lobby_usecase.dart';
 import 'features/lobby/domain/usecases/leave_lobby_usecase.dart';
 import 'features/lobby/domain/usecases/toggle_ready_usecase.dart';
+import 'features/lobby/domain/usecases/update_game_type_usecase.dart';
 import 'features/lobby/domain/usecases/watch_available_lobbies_usecase.dart';
 import 'features/lobby/domain/usecases/watch_lobby_usecase.dart';
 import 'features/lobby/presentation/cubit/lobby_list_cubit.dart';
@@ -154,6 +155,7 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => JoinLobbyUseCase(sl()));
   sl.registerLazySingleton(() => LeaveLobbyUseCase(sl()));
   sl.registerLazySingleton(() => ToggleReadyUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateGameTypeUseCase(sl()));
 
   sl.registerFactory(
     () => LobbyListCubit(
@@ -168,6 +170,7 @@ Future<void> initializeDependencies() async {
       watchLobbyUseCase: sl(),
       leaveLobbyUseCase: sl(),
       toggleReadyUseCase: sl(),
+      updateGameTypeUseCase: sl(),
       startGameUseCase: sl(),
     ),
   );

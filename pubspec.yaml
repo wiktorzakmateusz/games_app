@@ -78,6 +78,7 @@ flutter:
     - images/
     - images/avatars/
     - images/tic_tac_toe/
+    - images/connect4/
     - .env
 
   # Custom fonts
