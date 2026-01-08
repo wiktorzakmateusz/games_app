@@ -9,6 +9,7 @@ import '../cubit/lobby_waiting_cubit.dart';
 import '../cubit/lobby_waiting_state.dart';
 import '../widgets/empty_slot_widget.dart';
 import '../widgets/lobby_player_item.dart';
+import '../widgets/lobby_header_widget.dart';
 
 class LobbyWaitingPage extends StatefulWidget {
   const LobbyWaitingPage({super.key});
@@ -233,32 +234,17 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.systemGrey6,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children: [
-                      AppText.h2(lobby.name),
-                      const SizedBox(height: 8),
-                      AppText.bodyMedium(
-                        '${lobby.currentPlayerCount}/${lobby.maxPlayers} Players',
-                      ),
-                      const SizedBox(height: 4),
-                      AppText.bodyMedium(lobby.gameType.displayName),
-                    ],
-                  ),
-                ),
+                LobbyHeaderWidget(lobby: lobby),
                 const SizedBox(height: 24),
                 AppText.h3('Players'),
                 const SizedBox(height: 12),
                 ...lobby.players.map((player) {
                   final isCurrentPlayer = player.userId == _currentUserId;
+                  final isPlayerOwner = lobby.isOwner(player.userId);
                   return LobbyPlayerItem(
                     player: player,
                     isCurrentPlayer: isCurrentPlayer,
+                    isOwner: isPlayerOwner,
                   );
                 }),
                 ...List.generate(
@@ -302,7 +288,7 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> {
                         : AppText.button('Start Game'),
                   ),
                 ),
-              ] else if (isOwner && !lobby.allPlayersReady) ...[
+              ] else if (isOwner && (!lobby.allPlayersReady || !lobby.isFull)) ...[
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(12),

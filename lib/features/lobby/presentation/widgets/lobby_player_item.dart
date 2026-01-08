@@ -5,11 +5,13 @@ import '../../domain/entities/lobby_player_entity.dart';
 class LobbyPlayerItem extends StatelessWidget {
   final LobbyPlayerEntity player;
   final bool isCurrentPlayer;
+  final bool isOwner;
 
   const LobbyPlayerItem({
     super.key,
     required this.player,
     this.isCurrentPlayer = false,
+    this.isOwner = false,
   });
 
   @override
@@ -32,11 +34,26 @@ class LobbyPlayerItem extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                AppText.bodyMedium(player.displayName),
-                AppText.small('@${player.username}'),
+                if (isOwner)
+                  const Padding(
+                    padding: EdgeInsets.only(right: 8),
+                    child: Icon(
+                      CupertinoIcons.star_fill,
+                      color: CupertinoColors.systemYellow,
+                      size: 24,
+                    ),
+                  ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppText.bodyLarge(player.displayName),
+                      AppText.bodySmall('@${player.username}'),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
