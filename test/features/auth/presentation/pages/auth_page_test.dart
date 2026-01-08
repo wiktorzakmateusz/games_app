@@ -5,7 +5,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:games_app/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:games_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:games_app/features/auth/presentation/pages/auth_page.dart';
-import 'package:games_app/features/auth/domain/entities/user_entity.dart';
 
 class MockAuthCubit extends Mock implements AuthCubit {}
 
