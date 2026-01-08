@@ -186,7 +186,7 @@ class _LobbyWaitingPageState extends State<LobbyWaitingPage> with WidgetsBinding
         
         return PopScope(
           canPop: false,
-          onPopInvoked: (didPop) async {
+          onPopInvokedWithResult: (didPop, result) async {
             if (didPop) return;
             if (canShowLeaveDialog) {
               await _leaveLobby();

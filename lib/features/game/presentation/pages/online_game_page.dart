@@ -223,7 +223,7 @@ class _OnlineGamePageState extends State<OnlineGamePage> with WidgetsBindingObse
         
         return PopScope(
           canPop: false,
-          onPopInvoked: (didPop) async {
+          onPopInvokedWithResult: (didPop, result) async {
             if (didPop) return;
             if (canShowAbandonDialog) {
               await _abandonGame();
