@@ -70,18 +70,20 @@ class UserProfilePage extends StatelessWidget {
                                     ),
                                   if (statsState.aggregateStats != null)
                                     const SizedBox(height: 24),
-                                  if (statsState.stats.isNotEmpty)
-                                    GameTypeStatsCard(
-                                      stats: statsState.stats,
-                                      userId: user.id,
-                                    ),
+                                  GameTypeStatsCard(
+                                    stats: statsState.stats,
+                                    userId: user.id,
+                                  ),
                                 ],
                               );
                             }
                             if (statsState is StatsLoading) {
-                              return const Padding(
-                                padding: EdgeInsets.all(32.0),
-                                child: CupertinoActivityIndicator(),
+                              return Column(
+                                children: [
+                                  const AggregateStatsCardProfileSkeleton(),
+                                  const SizedBox(height: 24),
+                                  const GameTypeStatsCardSkeleton(),
+                                ],
                               );
                             }
                             if (statsState is StatsError) {

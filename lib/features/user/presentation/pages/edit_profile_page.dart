@@ -173,10 +173,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
         }
 
         if (!_isInitialized) {
-          _usernameController.text = state.user.username;
-          _displayNameController.text = state.user.displayName;
-          _selectedAvatar = state.user.photoURL;
           _isInitialized = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              _usernameController.text = state.user.username;
+              _displayNameController.text = state.user.displayName;
+              _selectedAvatar = state.user.photoURL;
+            }
+          });
         }
 
         final hasChanges = _hasChanges(state.user);
