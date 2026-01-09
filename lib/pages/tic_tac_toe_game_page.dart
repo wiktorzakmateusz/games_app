@@ -213,52 +213,63 @@ class _TicTacToePageState extends State<TicTacToePage>
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: AppGameNavBar(
-        gameName: 'Tic-Tac-Toe',
-        difficulty: difficulty,
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          child: ResponsiveLayout.constrainWidth(
-            context,
-            Padding(
-              padding: ResponsiveLayout.getPadding(context),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 0.625),
-                    GameHeader(
-                      player1Name: isTwoPlayerMode ? playerOneName : (isUserFirstPlayer ? playerOneName : 'Computer'),
-                      player1IsBot: !isTwoPlayerMode && !isUserFirstPlayer,
-                      player1BorderColor: CupertinoColors.systemRed,
-                      player2Name: isTwoPlayerMode ? playerTwoName : (isUserFirstPlayer ? 'Computer' : playerTwoName),
-                      player2IsBot: !isTwoPlayerMode && isUserFirstPlayer,
-                      player2BorderColor: CupertinoColors.systemBlue,
-                      isPlayer1Turn: _isPlayer1Turn(),
-                      isGameOver: _gameState.isGameOver,
-                      shouldRunTimer: _shouldRunTimer(),
-                      timerDuration: const Duration(seconds: 60),
-                      onTimeout: _handleTimeout,
-                    ),
-                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
-                    TicTacToeBoard(
-                      board: _getBoardAsStrings(),
-                      winningPattern: _gameState.winningPattern,
-                      lineAnimation: _lineAnimation,
-                      onCellTap: _handleTap,
-                      size: ResponsiveLayout.getBoardSize(context),
-                    ),
-                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
-                    GameControls(
-                      isGameOver: _gameState.isGameOver,
-                      onReset: () => _resetBoard(startAsUser: isUserFirstPlayer),
-                      newGameLabel: 'Play Again',
-                    ),
-                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
-                  ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/home',
+          (route) => false,
+        );
+      },
+      child: CupertinoPageScaffold(
+        navigationBar: AppGameNavBar(
+          gameName: 'Tic-Tac-Toe',
+          difficulty: difficulty,
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: ResponsiveLayout.constrainWidth(
+              context,
+              Padding(
+                padding: ResponsiveLayout.getPadding(context),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 0.625),
+                      GameHeader(
+                        player1Name: isTwoPlayerMode ? playerOneName : (isUserFirstPlayer ? playerOneName : 'Computer'),
+                        player1IsBot: !isTwoPlayerMode && !isUserFirstPlayer,
+                        player1BorderColor: CupertinoColors.systemRed,
+                        player2Name: isTwoPlayerMode ? playerTwoName : (isUserFirstPlayer ? 'Computer' : playerTwoName),
+                        player2IsBot: !isTwoPlayerMode && isUserFirstPlayer,
+                        player2BorderColor: CupertinoColors.systemBlue,
+                        isPlayer1Turn: _isPlayer1Turn(),
+                        isGameOver: _gameState.isGameOver,
+                        shouldRunTimer: _shouldRunTimer(),
+                        timerDuration: const Duration(seconds: 60),
+                        onTimeout: _handleTimeout,
+                      ),
+                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                      TicTacToeBoard(
+                        board: _getBoardAsStrings(),
+                        winningPattern: _gameState.winningPattern,
+                        lineAnimation: _lineAnimation,
+                        onCellTap: _handleTap,
+                        size: ResponsiveLayout.getBoardSize(context),
+                      ),
+                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                      GameControls(
+                        isGameOver: _gameState.isGameOver,
+                        onReset: () => _resetBoard(startAsUser: isUserFirstPlayer),
+                        newGameLabel: 'Play Again',
+                      ),
+                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                    ],
+                  ),
                 ),
               ),
             ),

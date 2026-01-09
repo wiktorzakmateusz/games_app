@@ -218,61 +218,72 @@ class _Connect4PageState extends State<Connect4Page>
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: AppGameNavBar(
-        gameName: 'Connect 4',
-        difficulty: difficulty,
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          child: ResponsiveLayout.constrainWidth(
-            context,
-            Padding(
-              padding: ResponsiveLayout.getPadding(context),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
-                    GameHeader(
-                      player1Name: isTwoPlayerMode ? playerOneName : (isUserFirstPlayer ? playerOneName : 'Computer'),
-                      player1IsBot: !isTwoPlayerMode && !isUserFirstPlayer,
-                      player1BorderColor: CupertinoColors.systemRed,
-                      player2Name: isTwoPlayerMode ? playerTwoName : (isUserFirstPlayer ? 'Computer' : playerTwoName),
-                      player2IsBot: !isTwoPlayerMode && isUserFirstPlayer,
-                      player2BorderColor: CupertinoColors.systemBlue,
-                      isPlayer1Turn: _isPlayer1Turn(),
-                      isGameOver: _gameState.isGameOver,
-                      shouldRunTimer: _shouldRunTimer(),
-                      timerDuration: const Duration(seconds: 60),
-                      onTimeout: _handleTimeout,
-                    ),
-                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
-                    Connect4Board(
-                      board: _getBoardAsStrings(),
-                      winningPattern: _gameState.winningPattern,
-                      lineAnimation: _lineAnimation,
-                      currentPlayer: _getCurrentPlayerSymbol(),
-                      hoverColumn: hoverColumn,
-                      onColumnTap: _handleColumnTap,
-                      onColumnHover: (col) => setState(() => hoverColumn = col),
-                      onColumnHoverExit: () => setState(() => hoverColumn = null),
-                      canDropInColumn: (col) => !_gameState.isColumnFull(col),
-                      isGameOver: _gameState.isGameOver,
-                      rows: Connect4State.rows,
-                      columns: Connect4State.columns,
-                      width: ResponsiveLayout.getBoardSize(context),
-                      height: ResponsiveLayout.getBoardSize(context) * (6 / 7), // Maintain 7:6 aspect ratio
-                    ),
-                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
-                    GameControls(
-                      isGameOver: _gameState.isGameOver,
-                      onReset: () => _resetBoard(startAsUser: isUserFirstPlayer),
-                      newGameLabel: 'Play Again',
-                    ),
-                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
-                  ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/home',
+          (route) => false,
+        );
+      },
+      child: CupertinoPageScaffold(
+        navigationBar: AppGameNavBar(
+          gameName: 'Connect 4',
+          difficulty: difficulty,
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: ResponsiveLayout.constrainWidth(
+              context,
+              Padding(
+                padding: ResponsiveLayout.getPadding(context),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                      GameHeader(
+                        player1Name: isTwoPlayerMode ? playerOneName : (isUserFirstPlayer ? playerOneName : 'Computer'),
+                        player1IsBot: !isTwoPlayerMode && !isUserFirstPlayer,
+                        player1BorderColor: CupertinoColors.systemRed,
+                        player2Name: isTwoPlayerMode ? playerTwoName : (isUserFirstPlayer ? 'Computer' : playerTwoName),
+                        player2IsBot: !isTwoPlayerMode && isUserFirstPlayer,
+                        player2BorderColor: CupertinoColors.systemBlue,
+                        isPlayer1Turn: _isPlayer1Turn(),
+                        isGameOver: _gameState.isGameOver,
+                        shouldRunTimer: _shouldRunTimer(),
+                        timerDuration: const Duration(seconds: 60),
+                        onTimeout: _handleTimeout,
+                      ),
+                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                      Connect4Board(
+                        board: _getBoardAsStrings(),
+                        winningPattern: _gameState.winningPattern,
+                        lineAnimation: _lineAnimation,
+                        currentPlayer: _getCurrentPlayerSymbol(),
+                        hoverColumn: hoverColumn,
+                        onColumnTap: _handleColumnTap,
+                        onColumnHover: (col) => setState(() => hoverColumn = col),
+                        onColumnHoverExit: () => setState(() => hoverColumn = null),
+                        canDropInColumn: (col) => !_gameState.isColumnFull(col),
+                        isGameOver: _gameState.isGameOver,
+                        rows: Connect4State.rows,
+                        columns: Connect4State.columns,
+                        width: ResponsiveLayout.getBoardSize(context),
+                        height: ResponsiveLayout.getBoardSize(context) * (6 / 7), // Maintain 7:6 aspect ratio
+                      ),
+                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                      GameControls(
+                        isGameOver: _gameState.isGameOver,
+                        onReset: () => _resetBoard(startAsUser: isUserFirstPlayer),
+                        newGameLabel: 'Play Again',
+                      ),
+                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                    ],
+                 ),
                 ),
               ),
             ),

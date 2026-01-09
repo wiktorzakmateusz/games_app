@@ -132,44 +132,55 @@ class _MiniSudokuPageState extends State<MiniSudokuPage> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: AppGameNavBar(
-        gameName: 'Mini Sudoku',
-        difficulty: difficulty,
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          child: ResponsiveLayout.constrainWidth(
-            context,
-            Padding(
-              padding: ResponsiveLayout.getPadding(context),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    GameStatusText(text: _getStatusText()),
-                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
-                    MiniSudokuBoard(
-                      board: _gameState.board,
-                      isFixed: List.generate(
-                        MiniSudokuState.totalCells,
-                        (i) => _gameState.isLocked(i),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/home',
+          (route) => false,
+        );
+      },
+      child: CupertinoPageScaffold(
+        navigationBar: AppGameNavBar(
+          gameName: 'Mini Sudoku',
+          difficulty: difficulty,
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: ResponsiveLayout.constrainWidth(
+              context,
+              Padding(
+                padding: ResponsiveLayout.getPadding(context),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      GameStatusText(text: _getStatusText()),
+                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                      MiniSudokuBoard(
+                        board: _gameState.board,
+                        isFixed: List.generate(
+                          MiniSudokuState.totalCells,
+                          (i) => _gameState.isLocked(i),
+                        ),
+                        wrongIndices: _gameState.errorCells,
+                        onCellTap: _handleTap,
+                        size: ResponsiveLayout.getBoardSize(context),
                       ),
-                      wrongIndices: _gameState.errorCells,
-                      onCellTap: _handleTap,
-                      size: ResponsiveLayout.getBoardSize(context),
-                    ),
-                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.875),
-                    GameControls(
-                      isGameOver: _gameState.isGameOver,
-                      onReset: _resetCurrentBoard,
-                      onNewGame: _startNewGame,
-                      resetLabel: 'Reset',
-                      newGameLabel: 'New Game',
-                    ),
-                    SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
-                  ],
+                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.875),
+                      GameControls(
+                        isGameOver: _gameState.isGameOver,
+                        onReset: _resetCurrentBoard,
+                        onNewGame: _startNewGame,
+                        resetLabel: 'Reset',
+                        newGameLabel: 'New Game',
+                      ),
+                      SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
+                    ],
+                  ),
                 ),
               ),
             ),
