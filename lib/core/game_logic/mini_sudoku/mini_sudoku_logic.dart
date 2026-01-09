@@ -222,12 +222,18 @@ class MiniSudokuLogic extends GameLogic<MiniSudokuState, MiniSudokuMove> {
     final wrongIndices = <int>{};
     bool isCorrect = true;
 
+    // Check if board is complete (no empty cells)
+    final isComplete = !currentBoard.contains(0);
+
     for (int i = 0; i < MiniSudokuState.totalCells; i++) {
-      if (currentBoard[i] != solution[i]) {
+      if (currentBoard[i] != 0 && currentBoard[i] != solution[i]) {
         wrongIndices.add(i);
         isCorrect = false;
       }
     }
+
+    // Board is only correct if it's complete AND has no wrong cells
+    isCorrect = isCorrect && isComplete;
 
     return {
       'isCorrect': isCorrect,
