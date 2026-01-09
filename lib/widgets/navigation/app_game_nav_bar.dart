@@ -43,5 +43,11 @@ class AppGameNavBar extends StatelessWidget implements ObstructingPreferredSizeW
       ),
     );
   }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kMinInteractiveDimension);
+
+  @override
+  bool shouldFullyObstruct(BuildContext context) => false;
 }
 
