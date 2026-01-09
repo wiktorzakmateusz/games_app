@@ -26,7 +26,7 @@ class WelcomePage extends StatelessWidget {
                   GameButton(
                     label: 'Play',
                     onTap: () {
-                      Navigator.pushReplacementNamed(context, '/home');
+                      Navigator.pushNamed(context, '/home');
                     },
                   ),
                   SizedBox(height: ResponsiveLayout.getSpacing(context)),

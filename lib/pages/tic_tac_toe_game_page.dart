@@ -220,7 +220,7 @@ class _TicTacToePageState extends State<TicTacToePage>
         Navigator.pushNamedAndRemoveUntil(
           context,
           '/home',
-          (route) => false,
+          (route) => route.settings.name == '/',
         );
       },
       child: CupertinoPageScaffold(

@@ -225,7 +225,7 @@ class _Connect4PageState extends State<Connect4Page>
         Navigator.pushNamedAndRemoveUntil(
           context,
           '/home',
-          (route) => false,
+          (route) => route.settings.name == '/',
         );
       },
       child: CupertinoPageScaffold(

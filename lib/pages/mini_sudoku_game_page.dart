@@ -139,7 +139,7 @@ class _MiniSudokuPageState extends State<MiniSudokuPage> {
         Navigator.pushNamedAndRemoveUntil(
           context,
           '/home',
-          (route) => false,
+          (route) => route.settings.name == '/',
         );
       },
       child: CupertinoPageScaffold(

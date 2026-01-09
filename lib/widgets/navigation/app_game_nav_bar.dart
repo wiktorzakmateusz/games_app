@@ -33,7 +33,7 @@ class AppGameNavBar extends StatelessWidget implements ObstructingPreferredSizeW
         onPressed: () => Navigator.pushNamedAndRemoveUntil(
           context,
           '/home',
-          (route) => false,
+          (route) => route.settings.name == '/',
         ),
         child: const Icon(
           CupertinoIcons.back,
