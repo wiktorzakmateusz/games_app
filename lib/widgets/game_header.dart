@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:games_app/widgets/player_info_card.dart';
 import 'package:games_app/widgets/game_timer.dart';
+import 'package:games_app/core/utils/responsive_layout.dart';
 
 class GameHeader extends StatelessWidget {
   // Player 1 info
@@ -46,10 +47,18 @@ class GameHeader extends StatelessWidget {
     // Timer should run whenever it's anyone's turn (not just the current player's view)
     // Both players should see the timer counting down
     final timerIsActive = !isGameOver && shouldRunTimer;
+    final horizontalPadding = ResponsiveLayout.getHorizontalPadding(context);
+    final verticalPadding = ResponsiveLayout.getVerticalPadding(context);
+    final spacing = ResponsiveLayout.getSpacing(context);
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.only(
+          left: horizontalPadding.left / 2,
+          right: horizontalPadding.right / 2,
+          top: verticalPadding.top / 2,
+          bottom: verticalPadding.bottom / 2,
+        ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
           child: Row(
@@ -66,14 +75,14 @@ class GameHeader extends StatelessWidget {
                   borderColor: player1BorderColor,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: spacing / 2),
               GameTimer(
                 key: ValueKey(isPlayer1Turn),
                 duration: timerDuration,
                 isActive: timerIsActive,
                 onTimeout: onTimeout,
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: spacing / 2),
               Expanded(
                 child: PlayerInfoCard(
                   name: player2Name,

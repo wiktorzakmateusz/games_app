@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:games_app/widgets/app_text.dart';
 import 'package:games_app/core/theme/app_typography.dart';
+import 'package:games_app/core/utils/device_type.dart';
+import 'package:games_app/core/utils/responsive_layout.dart';
 
 class GameTimer extends StatefulWidget {
   final Duration duration;
@@ -135,8 +137,14 @@ class _GameTimerState extends State<GameTimer> {
             ? CupertinoColors.systemOrange
             : CupertinoColors.label;
 
+    final isPhone = DeviceTypeHelper.isPhone(context);
+    final appPadding = ResponsiveLayout.getPadding(context);
+    final horizontalPadding = appPadding.left * 0.75;
+    final verticalPadding = appPadding.top / 2;
+    final timerWidth = isPhone ? 50.0 : 60.0;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
       decoration: BoxDecoration(
         color: CupertinoColors.systemBackground,
         borderRadius: BorderRadius.circular(12),
@@ -155,7 +163,7 @@ class _GameTimerState extends State<GameTimer> {
         ],
       ),
       child: SizedBox(
-        width: 60,
+        width: timerWidth,
         child: AppText(
           timeString,
           textAlign: TextAlign.center,

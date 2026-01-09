@@ -32,7 +32,7 @@ class AppGameNavBar extends StatelessWidget implements ObstructingPreferredSizeW
         padding: EdgeInsets.zero,
         onPressed: () => Navigator.pushNamedAndRemoveUntil(
           context,
-          '/',
+          '/home',
           (route) => false,
         ),
         child: const Icon(

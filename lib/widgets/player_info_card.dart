@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:games_app/widgets/app_text.dart';
+import 'package:games_app/core/utils/device_type.dart';
+import 'package:games_app/core/utils/responsive_layout.dart';
 
 class PlayerInfoCard extends StatelessWidget {
   final String? imageUrl;
@@ -20,19 +22,24 @@ class PlayerInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayName = name ?? 'Bot';
-    final avatarSize = 80.0;
+    final isPhone = DeviceTypeHelper.isPhone(context);
+    final avatarSize = isPhone ? 50.0 : 80.0;
+    final appPadding = ResponsiveLayout.getPadding(context);
+    final padding = appPadding.left / 2;
+    final borderWidth = isPhone ? 2.0 : 3.0;
+    final spacing = ResponsiveLayout.getSpacing(context) / 2;
     final defaultBorderColor = CupertinoColors.activeBlue;
 
     return Container(
-      constraints: const BoxConstraints(maxWidth: 140),
-      padding: const EdgeInsets.all(16),
+      constraints: isPhone ? null : const BoxConstraints(maxWidth: 140),
+      padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
         color: CupertinoColors.systemBackground,
         borderRadius: BorderRadius.circular(12),
         border: isCurrentTurn
             ? Border.all(
                 color: borderColor ?? defaultBorderColor,
-                width: 3,
+                width: borderWidth,
               )
             : null,
         boxShadow: [
@@ -53,7 +60,7 @@ class PlayerInfoCard extends StatelessWidget {
               child: _buildAvatar(),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: spacing),
           AppText.bodyLarge(
             displayName,
             textAlign: TextAlign.center,
