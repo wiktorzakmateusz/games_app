@@ -1,72 +1,69 @@
-import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:games_app/core/error/exceptions.dart';
 import 'package:games_app/core/error/failures.dart';
 import 'package:games_app/features/auth/data/datasources/auth_firebase_datasource.dart';
 import 'package:games_app/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:games_app/features/auth/data/models/user_model.dart';
 import 'package:games_app/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:games_app/features/auth/domain/entities/user_entity.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
-// Mock classes
-class MockAuthFirebaseDataSource extends Mock
-    implements AuthFirebaseDataSource {}
+import 'auth_repository_impl_test.mocks.dart';
 
-class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
-
-class MockFirebaseUser extends Mock implements firebase_auth.User {}
-
+@GenerateMocks([
+  AuthFirebaseDataSource,
+  AuthRemoteDataSource,
+  firebase_auth.User,
+])
 void main() {
   late AuthRepositoryImpl repository;
   late MockAuthFirebaseDataSource mockFirebaseDataSource;
   late MockAuthRemoteDataSource mockRemoteDataSource;
-
-  // Test data
-  final mockFirebaseUser = MockFirebaseUser();
-  const testEmail = 'test@example.com';
-  const testPassword = 'password123';
-  const testUsername = 'testuser';
-  const testFirebaseUid = 'firebase123';
-
-  final testUserModel = UserModel(
-    id: '1',
-    firebaseUid: testFirebaseUid,
-    email: testEmail,
-    username: testUsername,
-    displayName: 'Test User',
-    photoURL: null,
-    createdAt: DateTime(2024, 1, 1),
-    updatedAt: DateTime(2024, 1, 1),
-  );
+  late MockUser mockFirebaseUser;
 
   setUp(() {
     mockFirebaseDataSource = MockAuthFirebaseDataSource();
     mockRemoteDataSource = MockAuthRemoteDataSource();
-
+    mockFirebaseUser = MockUser();
     repository = AuthRepositoryImpl(
       firebaseDataSource: mockFirebaseDataSource,
       remoteDataSource: mockRemoteDataSource,
     );
-
-    // Setup common mock firebase user properties
-    when(() => mockFirebaseUser.uid).thenReturn(testFirebaseUid);
-    when(() => mockFirebaseUser.email).thenReturn(testEmail);
-    when(() => mockFirebaseUser.displayName).thenReturn('Test User');
-    when(() => mockFirebaseUser.photoURL).thenReturn(null);
   });
 
-  group('signInWithEmailAndPassword', () {
-    test('returns UserEntity when sign in is successful and user exists in backend',
-        () async {
-      // Arrange
-      when(() => mockFirebaseDataSource.signInWithEmailAndPassword(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          )).thenAnswer((_) async => mockFirebaseUser);
+  final testUserJson = {
+    'id': 'user1',
+    'firebaseUid': 'firebase_uid_123',
+    'email': 'test@example.com',
+    'username': 'testuser',
+    'displayName': 'Test User',
+    'photoURL': 'https://example.com/photo.jpg',
+    'createdAt': '2024-01-01T10:00:00Z',
+    'updatedAt': '2024-01-01T10:00:00Z',
+  };
 
-      when(() => mockRemoteDataSource.getUserByFirebaseUid(any()))
+  final testUserModel = UserModel.fromJson(testUserJson);
+
+  group('signInWithEmailAndPassword', () {
+    const testEmail = 'test@example.com';
+    const testPassword = 'password123';
+
+    setUp(() {
+      when(mockFirebaseUser.uid).thenReturn('firebase_uid_123');
+      when(mockFirebaseUser.email).thenReturn(testEmail);
+      when(mockFirebaseUser.displayName).thenReturn('Test User');
+      when(mockFirebaseUser.photoURL).thenReturn(null);
+    });
+
+    test('should return UserEntity when user exists in backend', () async {
+      // Arrange
+      when(mockFirebaseDataSource.signInWithEmailAndPassword(
+        email: anyNamed('email'),
+        password: anyNamed('password'),
+      )).thenAnswer((_) async => mockFirebaseUser);
+
+      when(mockRemoteDataSource.getUserByFirebaseUid(any))
           .thenAnswer((_) async => testUserModel);
 
       // Act
@@ -76,37 +73,35 @@ void main() {
       );
 
       // Assert
-      expect(result, isA<Right<Failure, UserEntity>>());
-      expect(result.fold((l) => null, (r) => r), isA<UserEntity>());
-      expect(result.fold((l) => null, (r) => r.id), testUserModel.id);
-
-      verify(() => mockFirebaseDataSource.signInWithEmailAndPassword(
-            email: testEmail,
-            password: testPassword,
-          )).called(1);
-      verify(() => mockRemoteDataSource.getUserByFirebaseUid(testFirebaseUid))
+      expect(result.isRight(), true);
+      final user = result.getOrElse(() => throw Exception());
+      expect(user.email, testEmail);
+      expect(user.firebaseUid, 'firebase_uid_123');
+      verify(mockFirebaseDataSource.signInWithEmailAndPassword(
+        email: testEmail,
+        password: testPassword,
+      )).called(1);
+      verify(mockRemoteDataSource.getUserByFirebaseUid('firebase_uid_123'))
           .called(1);
     });
 
-    test(
-        'creates user in backend when sign in succeeds but user does not exist',
-        () async {
+    test('should create user in backend when CacheException occurs', () async {
       // Arrange
-      when(() => mockFirebaseDataSource.signInWithEmailAndPassword(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          )).thenAnswer((_) async => mockFirebaseUser);
+      when(mockFirebaseDataSource.signInWithEmailAndPassword(
+        email: anyNamed('email'),
+        password: anyNamed('password'),
+      )).thenAnswer((_) async => mockFirebaseUser);
 
-      when(() => mockRemoteDataSource.getUserByFirebaseUid(any()))
+      when(mockRemoteDataSource.getUserByFirebaseUid(any))
           .thenThrow(CacheException('User not found'));
 
-      when(() => mockRemoteDataSource.createUser(
-            firebaseUid: any(named: 'firebaseUid'),
-            email: any(named: 'email'),
-            username: any(named: 'username'),
-            displayName: any(named: 'displayName'),
-            photoURL: any(named: 'photoURL'),
-          )).thenAnswer((_) async => testUserModel);
+      when(mockRemoteDataSource.createUser(
+        firebaseUid: anyNamed('firebaseUid'),
+        email: anyNamed('email'),
+        username: anyNamed('username'),
+        displayName: anyNamed('displayName'),
+        photoURL: anyNamed('photoURL'),
+      )).thenAnswer((_) async => testUserModel);
 
       // Act
       final result = await repository.signInWithEmailAndPassword(
@@ -115,23 +110,22 @@ void main() {
       );
 
       // Assert
-      expect(result, isA<Right<Failure, UserEntity>>());
-
-      verify(() => mockRemoteDataSource.createUser(
-            firebaseUid: testFirebaseUid,
-            email: testEmail,
-            username: any(named: 'username'),
-            displayName: any(named: 'displayName'),
-            photoURL: null,
-          )).called(1);
+      expect(result.isRight(), true);
+      verify(mockRemoteDataSource.createUser(
+        firebaseUid: 'firebase_uid_123',
+        email: testEmail,
+        username: anyNamed('username'),
+        displayName: anyNamed('displayName'),
+        photoURL: null,
+      )).called(1);
     });
 
-    test('returns ServerFailure when Firebase sign in fails', () async {
+    test('should return ServerFailure when ServerException occurs', () async {
       // Arrange
-      when(() => mockFirebaseDataSource.signInWithEmailAndPassword(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          )).thenThrow(ServerException('Invalid credentials'));
+      when(mockFirebaseDataSource.signInWithEmailAndPassword(
+        email: anyNamed('email'),
+        password: anyNamed('password'),
+      )).thenThrow(ServerException('Invalid credentials', 401));
 
       // Act
       final result = await repository.signInWithEmailAndPassword(
@@ -140,65 +134,56 @@ void main() {
       );
 
       // Assert
-      expect(result, isA<Left<Failure, UserEntity>>());
-      expect(
-        result.fold((l) => l, (r) => null),
-        isA<ServerFailure>().having(
-          (f) => f.message,
-          'message',
-          'Invalid credentials',
-        ),
+      expect(result.isLeft(), true);
+      final failure = result.fold((l) => l, (r) => null);
+      expect(failure, isA<ServerFailure>());
+      expect((failure as ServerFailure).message, 'Invalid credentials');
+    });
+
+    test('should return ServerFailure on generic exception', () async {
+      // Arrange
+      when(mockFirebaseDataSource.signInWithEmailAndPassword(
+        email: anyNamed('email'),
+        password: anyNamed('password'),
+      )).thenThrow(Exception('Unknown error'));
+
+      // Act
+      final result = await repository.signInWithEmailAndPassword(
+        email: testEmail,
+        password: testPassword,
       );
+
+      // Assert
+      expect(result.isLeft(), true);
+      expect(result.fold((l) => l, (r) => null), isA<ServerFailure>());
     });
   });
 
   group('signUpWithEmailAndPassword', () {
-    test('returns UserEntity when sign up is successful', () async {
-      // Arrange
-      when(() => mockFirebaseDataSource.createUserWithEmailAndPassword(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          )).thenAnswer((_) async => mockFirebaseUser);
+    const testEmail = 'newuser@example.com';
+    const testPassword = 'password123';
+    const testUsername = 'newuser';
 
-      when(() => mockRemoteDataSource.createUser(
-            firebaseUid: any(named: 'firebaseUid'),
-            email: any(named: 'email'),
-            username: any(named: 'username'),
-            displayName: any(named: 'displayName'),
-            photoURL: any(named: 'photoURL'),
-          )).thenAnswer((_) async => testUserModel);
-
-      // Act
-      final result = await repository.signUpWithEmailAndPassword(
-        email: testEmail,
-        password: testPassword,
-        username: testUsername,
-      );
-
-      // Assert
-      expect(result, isA<Right<Failure, UserEntity>>());
-      expect(result.fold((l) => null, (r) => r), isA<UserEntity>());
-
-      verify(() => mockFirebaseDataSource.createUserWithEmailAndPassword(
-            email: testEmail,
-            password: testPassword,
-          )).called(1);
-
-      verify(() => mockRemoteDataSource.createUser(
-            firebaseUid: testFirebaseUid,
-            email: testEmail,
-            username: testUsername,
-            displayName: testUsername,
-            photoURL: null,
-          )).called(1);
+    setUp(() {
+      when(mockFirebaseUser.uid).thenReturn('firebase_uid_new');
+      when(mockFirebaseUser.email).thenReturn(testEmail);
+      when(mockFirebaseUser.photoURL).thenReturn(null);
     });
 
-    test('returns ServerFailure when Firebase user creation fails', () async {
+    test('should return UserEntity when signup succeeds', () async {
       // Arrange
-      when(() => mockFirebaseDataSource.createUserWithEmailAndPassword(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          )).thenThrow(ServerException('Email already in use'));
+      when(mockFirebaseDataSource.createUserWithEmailAndPassword(
+        email: anyNamed('email'),
+        password: anyNamed('password'),
+      )).thenAnswer((_) async => mockFirebaseUser);
+
+      when(mockRemoteDataSource.createUser(
+        firebaseUid: anyNamed('firebaseUid'),
+        email: anyNamed('email'),
+        username: anyNamed('username'),
+        displayName: anyNamed('displayName'),
+        photoURL: anyNamed('photoURL'),
+      )).thenAnswer((_) async => testUserModel);
 
       // Act
       final result = await repository.signUpWithEmailAndPassword(
@@ -208,31 +193,26 @@ void main() {
       );
 
       // Assert
-      expect(result, isA<Left<Failure, UserEntity>>());
-      expect(
-        result.fold((l) => l, (r) => null),
-        isA<ServerFailure>().having(
-          (f) => f.message,
-          'message',
-          'Email already in use',
-        ),
-      );
+      expect(result.isRight(), true);
+      verify(mockFirebaseDataSource.createUserWithEmailAndPassword(
+        email: testEmail,
+        password: testPassword,
+      )).called(1);
+      verify(mockRemoteDataSource.createUser(
+        firebaseUid: 'firebase_uid_new',
+        email: testEmail,
+        username: testUsername,
+        displayName: testUsername,
+        photoURL: null,
+      )).called(1);
     });
 
-    test('returns ServerFailure when backend user creation fails', () async {
+    test('should return ServerFailure when email already exists', () async {
       // Arrange
-      when(() => mockFirebaseDataSource.createUserWithEmailAndPassword(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          )).thenAnswer((_) async => mockFirebaseUser);
-
-      when(() => mockRemoteDataSource.createUser(
-            firebaseUid: any(named: 'firebaseUid'),
-            email: any(named: 'email'),
-            username: any(named: 'username'),
-            displayName: any(named: 'displayName'),
-            photoURL: any(named: 'photoURL'),
-          )).thenThrow(ServerException('Backend error'));
+      when(mockFirebaseDataSource.createUserWithEmailAndPassword(
+        email: anyNamed('email'),
+        password: anyNamed('password'),
+      )).thenThrow(ServerException('Email already in use', 400));
 
       // Act
       final result = await repository.signUpWithEmailAndPassword(
@@ -242,222 +222,148 @@ void main() {
       );
 
       // Assert
-      expect(result, isA<Left<Failure, UserEntity>>());
-      expect(
-        result.fold((l) => l, (r) => null),
-        isA<ServerFailure>(),
+      expect(result.isLeft(), true);
+      expect(result.fold((l) => l, (r) => null), isA<ServerFailure>());
+    });
+
+    test('should return ServerFailure when backend creation fails', () async {
+      // Arrange
+      when(mockFirebaseDataSource.createUserWithEmailAndPassword(
+        email: anyNamed('email'),
+        password: anyNamed('password'),
+      )).thenAnswer((_) async => mockFirebaseUser);
+
+      when(mockRemoteDataSource.createUser(
+        firebaseUid: anyNamed('firebaseUid'),
+        email: anyNamed('email'),
+        username: anyNamed('username'),
+        displayName: anyNamed('displayName'),
+        photoURL: anyNamed('photoURL'),
+      )).thenThrow(ServerException('Username taken', 409));
+
+      // Act
+      final result = await repository.signUpWithEmailAndPassword(
+        email: testEmail,
+        password: testPassword,
+        username: testUsername,
       );
+
+      // Assert
+      expect(result.isLeft(), true);
+      final failure = result.fold((l) => l, (r) => null);
+      expect(failure, isA<ServerFailure>());
+      expect((failure as ServerFailure).message, 'Username taken');
     });
   });
 
   group('signOut', () {
-    test('returns Right(null) when sign out is successful', () async {
+    test('should complete successfully', () async {
       // Arrange
-      when(() => mockFirebaseDataSource.signOut())
-          .thenAnswer((_) async => {});
+      when(mockFirebaseDataSource.signOut())
+          .thenAnswer((_) async => Future.value());
 
       // Act
       final result = await repository.signOut();
 
       // Assert
-      expect(result, const Right(null));
-      verify(() => mockFirebaseDataSource.signOut()).called(1);
+      expect(result.isRight(), true);
+      verify(mockFirebaseDataSource.signOut()).called(1);
     });
 
-    test('returns ServerFailure when sign out fails', () async {
+    test('should return ServerFailure on error', () async {
       // Arrange
-      when(() => mockFirebaseDataSource.signOut())
-          .thenThrow(ServerException('Sign out failed'));
+      when(mockFirebaseDataSource.signOut())
+          .thenThrow(ServerException('Sign out failed', 500));
 
       // Act
       final result = await repository.signOut();
 
       // Assert
-      expect(result, isA<Left<Failure, void>>());
-      expect(
-        result.fold((l) => l, (r) => null),
-        isA<ServerFailure>(),
-      );
+      expect(result.isLeft(), true);
+      expect(result.fold((l) => l, (r) => null), isA<ServerFailure>());
     });
   });
 
   group('getCurrentUser', () {
-    test('returns UserEntity when user is logged in', () async {
+    setUp(() {
+      when(mockFirebaseUser.uid).thenReturn('firebase_uid_123');
+    });
+
+    test('should return null when no user is signed in', () async {
       // Arrange
-      when(() => mockFirebaseDataSource.getCurrentFirebaseUser())
+      when(mockFirebaseDataSource.getCurrentFirebaseUser()).thenReturn(null);
+
+      // Act
+      final result = await repository.getCurrentUser();
+
+      // Assert
+      expect(result.isRight(), true);
+      final user = result.getOrElse(() => throw Exception());
+      expect(user, isNull);
+    });
+
+    test('should return UserEntity when user is signed in', () async {
+      // Arrange
+      when(mockFirebaseDataSource.getCurrentFirebaseUser())
           .thenReturn(mockFirebaseUser);
 
-      when(() => mockRemoteDataSource.getUserByFirebaseUid(any()))
+      when(mockRemoteDataSource.getUserByFirebaseUid(any))
           .thenAnswer((_) async => testUserModel);
 
       // Act
       final result = await repository.getCurrentUser();
 
       // Assert
-      expect(result, isA<Right<Failure, UserEntity?>>());
-      expect(result.fold((l) => null, (r) => r), isA<UserEntity>());
-
-      verify(() => mockFirebaseDataSource.getCurrentFirebaseUser()).called(1);
-      verify(() => mockRemoteDataSource.getUserByFirebaseUid(testFirebaseUid))
+      expect(result.isRight(), true);
+      final user = result.getOrElse(() => throw Exception());
+      expect(user, isNotNull);
+      expect(user!.firebaseUid, 'firebase_uid_123');
+      verify(mockRemoteDataSource.getUserByFirebaseUid('firebase_uid_123'))
           .called(1);
     });
 
-    test('returns Right(null) when no user is logged in', () async {
+    test('should return null when CacheException occurs', () async {
       // Arrange
-      when(() => mockFirebaseDataSource.getCurrentFirebaseUser())
-          .thenReturn(null);
-
-      // Act
-      final result = await repository.getCurrentUser();
-
-      // Assert
-      expect(result, const Right<Failure, UserEntity?>(null));
-      verify(() => mockFirebaseDataSource.getCurrentFirebaseUser()).called(1);
-      verifyNever(() => mockRemoteDataSource.getUserByFirebaseUid(any()));
-    });
-
-    test('returns Right(null) when user not found in backend', () async {
-      // Arrange
-      when(() => mockFirebaseDataSource.getCurrentFirebaseUser())
+      when(mockFirebaseDataSource.getCurrentFirebaseUser())
           .thenReturn(mockFirebaseUser);
 
-      when(() => mockRemoteDataSource.getUserByFirebaseUid(any()))
+      when(mockRemoteDataSource.getUserByFirebaseUid(any))
           .thenThrow(CacheException('User not found'));
 
       // Act
       final result = await repository.getCurrentUser();
 
       // Assert
-      expect(result, const Right<Failure, UserEntity?>(null));
-    });
-  });
-
-  group('updateUser', () {
-    const updatedUsername = 'newusername';
-
-    test('returns updated UserEntity when update is successful', () async {
-      // Arrange
-      final updatedUserModel = UserModel(
-        id: testUserModel.id,
-        firebaseUid: testUserModel.firebaseUid,
-        email: testUserModel.email,
-        username: updatedUsername,
-        displayName: testUserModel.displayName,
-        photoURL: testUserModel.photoURL,
-        createdAt: testUserModel.createdAt,
-        updatedAt: testUserModel.updatedAt,
-      );
-
-      when(() => mockRemoteDataSource.updateUser(
-            id: any(named: 'id'),
-            username: any(named: 'username'),
-            displayName: any(named: 'displayName'),
-            photoURL: any(named: 'photoURL'),
-          )).thenAnswer((_) async => updatedUserModel);
-
-      // Act
-      final result = await repository.updateUser(
-        id: '1',
-        username: updatedUsername,
-      );
-
-      // Assert
-      expect(result, isA<Right<Failure, UserEntity>>());
-      expect(
-        result.fold((l) => null, (r) => r.username),
-        updatedUsername,
-      );
-
-      verify(() => mockRemoteDataSource.updateUser(
-            id: '1',
-            username: updatedUsername,
-            displayName: null,
-            photoURL: null,
-          )).called(1);
+      expect(result.isRight(), true);
+      final user = result.getOrElse(() => throw Exception());
+      expect(user, isNull);
     });
 
-    test('returns ServerFailure when update fails', () async {
+    test('should return ServerFailure on ServerException', () async {
       // Arrange
-      when(() => mockRemoteDataSource.updateUser(
-            id: any(named: 'id'),
-            username: any(named: 'username'),
-            displayName: any(named: 'displayName'),
-            photoURL: any(named: 'photoURL'),
-          )).thenThrow(ServerException('Update failed'));
+      when(mockFirebaseDataSource.getCurrentFirebaseUser())
+          .thenReturn(mockFirebaseUser);
+
+      when(mockRemoteDataSource.getUserByFirebaseUid(any))
+          .thenThrow(ServerException('Server error', 500));
 
       // Act
-      final result = await repository.updateUser(
-        id: '1',
-        username: updatedUsername,
-      );
+      final result = await repository.getCurrentUser();
 
       // Assert
-      expect(result, isA<Left<Failure, UserEntity>>());
-      expect(
-        result.fold((l) => l, (r) => null),
-        isA<ServerFailure>(),
-      );
-    });
-  });
-
-  group('getIdToken', () {
-    const testToken = 'test_token_123';
-
-    test('returns token when successful', () async {
-      // Arrange
-      when(() => mockFirebaseDataSource.getIdToken(
-            forceRefresh: any(named: 'forceRefresh'),
-          )).thenAnswer((_) async => testToken);
-
-      // Act
-      final result = await repository.getIdToken();
-
-      // Assert
-      expect(result, const Right<Failure, String>(testToken));
-      verify(() => mockFirebaseDataSource.getIdToken(forceRefresh: false))
-          .called(1);
-    });
-
-    test('returns ServerFailure when getting token fails', () async {
-      // Arrange
-      when(() => mockFirebaseDataSource.getIdToken(
-            forceRefresh: any(named: 'forceRefresh'),
-          )).thenThrow(ServerException('Failed to get token'));
-
-      // Act
-      final result = await repository.getIdToken();
-
-      // Assert
-      expect(result, isA<Left<Failure, String>>());
-      expect(
-        result.fold((l) => l, (r) => null),
-        isA<ServerFailure>(),
-      );
+      expect(result.isLeft(), true);
+      expect(result.fold((l) => l, (r) => null), isA<ServerFailure>());
     });
   });
 
   group('watchAuthState', () {
-    test('emits UserEntity when Firebase auth state emits user', () async {
-      // Arrange
-      when(() => mockFirebaseDataSource.watchAuthState())
-          .thenAnswer((_) => Stream.value(mockFirebaseUser));
-
-      when(() => mockRemoteDataSource.getUserByFirebaseUid(any()))
-          .thenAnswer((_) async => testUserModel);
-
-      // Act
-      final stream = repository.watchAuthState();
-
-      // Assert
-      await expectLater(
-        stream,
-        emits(isA<UserEntity>()),
-      );
+    setUp(() {
+      when(mockFirebaseUser.uid).thenReturn('firebase_uid_123');
     });
 
-    test('emits null when Firebase auth state emits null', () async {
+    test('should emit null when user signs out', () async {
       // Arrange
-      when(() => mockFirebaseDataSource.watchAuthState())
+      when(mockFirebaseDataSource.watchAuthState())
           .thenAnswer((_) => Stream.value(null));
 
       // Act
@@ -467,13 +373,32 @@ void main() {
       await expectLater(stream, emits(null));
     });
 
-    test('emits null when backend call fails', () async {
+    test('should emit UserEntity when user signs in', () async {
       // Arrange
-      when(() => mockFirebaseDataSource.watchAuthState())
+      when(mockFirebaseDataSource.watchAuthState())
           .thenAnswer((_) => Stream.value(mockFirebaseUser));
 
-      when(() => mockRemoteDataSource.getUserByFirebaseUid(any()))
-          .thenThrow(ServerException('Backend error'));
+      when(mockRemoteDataSource.getUserByFirebaseUid(any))
+          .thenAnswer((_) async => testUserModel);
+
+      // Act
+      final stream = repository.watchAuthState();
+
+      // Assert
+      await expectLater(
+        stream,
+        emits(predicate<dynamic>((user) =>
+            user != null && user.firebaseUid == 'firebase_uid_123')),
+      );
+    });
+
+    test('should emit null when backend user fetch fails', () async {
+      // Arrange
+      when(mockFirebaseDataSource.watchAuthState())
+          .thenAnswer((_) => Stream.value(mockFirebaseUser));
+
+      when(mockRemoteDataSource.getUserByFirebaseUid(any))
+          .thenThrow(ServerException('Server error', 500));
 
       // Act
       final stream = repository.watchAuthState();
@@ -481,6 +406,155 @@ void main() {
       // Assert
       await expectLater(stream, emits(null));
     });
+
+    test('should emit user state changes', () async {
+      // Arrange
+      when(mockFirebaseDataSource.watchAuthState()).thenAnswer(
+        (_) => Stream.fromIterable([null, mockFirebaseUser, null]),
+      );
+
+      when(mockRemoteDataSource.getUserByFirebaseUid(any))
+          .thenAnswer((_) async => testUserModel);
+
+      // Act
+      final stream = repository.watchAuthState();
+
+      // Assert
+      await expectLater(
+        stream,
+        emitsInOrder([
+          null,
+          predicate<dynamic>((user) => user != null),
+          null,
+        ]),
+      );
+    });
+  });
+
+  group('getIdToken', () {
+    test('should return token when successful', () async {
+      // Arrange
+      const expectedToken = 'test_id_token_123';
+      when(mockFirebaseDataSource.getIdToken(forceRefresh: anyNamed('forceRefresh')))
+          .thenAnswer((_) async => expectedToken);
+
+      // Act
+      final result = await repository.getIdToken();
+
+      // Assert
+      expect(result.isRight(), true);
+      final token = result.getOrElse(() => '');
+      expect(token, expectedToken);
+      verify(mockFirebaseDataSource.getIdToken(forceRefresh: false)).called(1);
+    });
+
+    test('should pass forceRefresh parameter', () async {
+      // Arrange
+      when(mockFirebaseDataSource.getIdToken(forceRefresh: anyNamed('forceRefresh')))
+          .thenAnswer((_) async => 'token');
+
+      // Act
+      await repository.getIdToken(forceRefresh: true);
+
+      // Assert
+      verify(mockFirebaseDataSource.getIdToken(forceRefresh: true)).called(1);
+    });
+
+    test('should return ServerFailure on error', () async {
+      // Arrange
+      when(mockFirebaseDataSource.getIdToken(forceRefresh: anyNamed('forceRefresh')))
+          .thenThrow(ServerException('Failed to get token', 500));
+
+      // Act
+      final result = await repository.getIdToken();
+
+      // Assert
+      expect(result.isLeft(), true);
+      expect(result.fold((l) => l, (r) => null), isA<ServerFailure>());
+    });
+  });
+
+  group('updateUser', () {
+    const userId = 'user1';
+    const newUsername = 'newusername';
+    const newDisplayName = 'New Display Name';
+
+    test('should return updated UserEntity when successful', () async {
+      // Arrange
+      final updatedUserJson = {...testUserJson, 'username': newUsername};
+      final updatedUserModel = UserModel.fromJson(updatedUserJson);
+
+      when(mockRemoteDataSource.updateUser(
+        id: anyNamed('id'),
+        username: anyNamed('username'),
+        displayName: anyNamed('displayName'),
+        photoURL: anyNamed('photoURL'),
+      )).thenAnswer((_) async => updatedUserModel);
+
+      // Act
+      final result = await repository.updateUser(
+        id: userId,
+        username: newUsername,
+        displayName: newDisplayName,
+      );
+
+      // Assert
+      expect(result.isRight(), true);
+      final user = result.getOrElse(() => throw Exception());
+      expect(user.username, newUsername);
+      verify(mockRemoteDataSource.updateUser(
+        id: userId,
+        username: newUsername,
+        displayName: newDisplayName,
+        photoURL: null,
+      )).called(1);
+    });
+
+    test('should return ServerFailure when validation fails', () async {
+      // Arrange
+      when(mockRemoteDataSource.updateUser(
+        id: anyNamed('id'),
+        username: anyNamed('username'),
+        displayName: anyNamed('displayName'),
+        photoURL: anyNamed('photoURL'),
+      )).thenThrow(ServerException('Username already taken', 409));
+
+      // Act
+      final result = await repository.updateUser(
+        id: userId,
+        username: newUsername,
+      );
+
+      // Assert
+      expect(result.isLeft(), true);
+      final failure = result.fold((l) => l, (r) => null);
+      expect(failure, isA<ServerFailure>());
+      expect((failure as ServerFailure).message, 'Username already taken');
+    });
+
+    test('should handle partial updates', () async {
+      // Arrange
+      when(mockRemoteDataSource.updateUser(
+        id: anyNamed('id'),
+        username: anyNamed('username'),
+        displayName: anyNamed('displayName'),
+        photoURL: anyNamed('photoURL'),
+      )).thenAnswer((_) async => testUserModel);
+
+      // Act
+      final result = await repository.updateUser(
+        id: userId,
+        displayName: newDisplayName,
+      );
+
+      // Assert
+      expect(result.isRight(), true);
+      verify(mockRemoteDataSource.updateUser(
+        id: userId,
+        username: null,
+        displayName: newDisplayName,
+        photoURL: null,
+      )).called(1);
+    });
   });
 }
-

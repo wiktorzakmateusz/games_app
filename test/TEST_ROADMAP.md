@@ -36,100 +36,39 @@
 **3 test files, ~120 tests - Comprehensive coverage**
 
 - ✅ `test/core/game_logic/tic_tac_toe_logic_test.dart` (26 tests)
-- ✅ `test/core/game_logic/connect4_logic_test.dart` (~50 tests) **NEW**
-- ✅ `test/core/game_logic/mini_sudoku_logic_test.dart` (~45 tests) **NEW**
+- ✅ `test/core/game_logic/connect4_logic_test.dart` (~50 tests)
+- ✅ `test/core/game_logic/mini_sudoku_logic_test.dart` (~45 tests)
+
+### Phase 3: Repository Implementation Tests (100% COMPLETE)
+**4 test files, ~70 tests - All passing with mockito pattern**
+
+- ✅ `test/features/game/data/repositories/game_repository_impl_test.dart`
+- ✅ `test/features/auth/data/repositories/auth_repository_impl_test.dart` (23 tests)
+- ✅ `test/features/lobby/data/repositories/lobby_repository_impl_test.dart` (29 tests)
+- ✅ `test/features/stats/data/repositories/stats_repository_impl_test.dart` (17 tests)
+
+#### Test Coverage Achieved:
+- **Auth Repository**: signInWithEmailAndPassword, signUpWithEmailAndPassword, signOut, getCurrentUser, updateUser, watchAuthState, getIdToken, exception handling
+- **Lobby Repository**: createLobby, joinLobby, leaveLobby, toggleReady, updateGameType, getLobby, getCurrentUserLobby, watchLobby, watchAvailableLobbies
+- **Stats Repository**: getUserStats, getUserStatsByGameType, getAggregateStats, integration scenarios
+
+### Phase 4: Integration Tests (Cubit/Bloc) (100% COMPLETE) ✅
+**4 test files, ~80 tests - All passing with bloc_test pattern**
+
+- ✅ `test/features/game/presentation/cubit/game_cubit_test.dart` (~25 tests) **NEW**
+- ✅ `test/features/lobby/presentation/cubit/lobby_waiting_cubit_test.dart` (~20 tests) **NEW**
+- ✅ `test/features/lobby/presentation/cubit/lobby_list_cubit_test.dart` (~20 tests) **NEW**
+- ✅ `test/features/stats/presentation/cubit/stats_cubit_test.dart` (~15 tests) **NEW**
+
+#### Test Coverage Achieved:
+- **Game Cubit**: watchGame flow, makeMove with optimistic updates, abandonGame, Connect4 support, error handling, state transitions, complete game journeys
+- **Lobby Waiting Cubit**: watchLobby updates, toggleReady with optimistic updates, leaveLobby, startGame, updateGameType, game start transitions, retry logic
+- **Lobby List Cubit**: watchAvailableLobbies, createLobby flow, joinLobby flow, multiple lobby types, retry logic, complete lobby journeys
+- **Stats Cubit**: loadUserStats with/without aggregate, loadAggregateStats, error handling, stats calculations verification, multiple users, game type specific stats
 
 ---
 
 ## 🚧 REMAINING PHASES
-
-### Phase 3: Repository Implementation Tests (PENDING)
-
-**Pattern to Follow:** See `test/features/game/data/repositories/game_repository_impl_test.dart`
-
-#### Files to Create:
-
-1. **Auth Repository** (`test/features/auth/data/repositories/auth_repository_impl_test.dart`)
-   - Source: `lib/features/auth/data/repositories/auth_repository_impl.dart`
-   - Mock: `AuthRemoteDataSource`, `AuthFirebaseDataSource`
-   - Test Coverage:
-     - signInWithEmailAndPassword (success, failures)
-     - signUpWithEmailAndPassword (success, email/username taken)
-     - signOut (success, failures)
-     - getCurrentUser (user exists, no user, failures)
-     - updateUser (success, validation failures)
-     - watchAuthState (stream emissions, errors)
-     - Exception → Failure mapping
-
-2. **Lobby Repository** (`test/features/lobby/data/repositories/lobby_repository_impl_test.dart`)
-   - Source: `lib/features/lobby/data/repositories/lobby_repository_impl.dart`
-   - Mock: `LobbyRemoteDataSource`, `LobbyFirestoreDataSource`
-   - Test Coverage:
-     - createLobby
-     - joinLobby
-     - leaveLobby
-     - toggleReady
-     - updateGameType
-     - watchLobby
-     - watchAvailableLobbies
-
-3. **Stats Repository** (`test/features/stats/data/repositories/stats_repository_impl_test.dart`)
-   - Source: `lib/features/stats/data/repositories/stats_repository_impl.dart`
-   - Mock: `StatsRemoteDataSource`
-   - Test Coverage:
-     - getUserStats
-     - getAggregateStats
-     - getUserStatsByGameType
-
----
-
-### Phase 4: Integration Tests (Cubit/Bloc) (PENDING)
-
-**Pattern to Follow:** See `test/features/auth/presentation/cubit/auth_cubit_integration_test.dart`
-
-#### Files to Create:
-
-1. **Game Cubit** (`test/features/game/presentation/cubit/game_cubit_test.dart`)
-   - Source: `lib/features/game/presentation/cubit/game_cubit.dart`
-   - Mock: All game use cases
-   - Test Coverage:
-     - startGame flow
-     - makeMove flow
-     - watchGame emissions
-     - abandonGame flow
-     - State transitions
-     - Error handling
-     - Complete game scenarios
-
-2. **Lobby Waiting Cubit** (`test/features/lobby/presentation/cubit/lobby_waiting_cubit_test.dart`)
-   - Source: `lib/features/lobby/presentation/cubit/lobby_waiting_cubit.dart`
-   - Mock: Lobby use cases
-   - Test Coverage:
-     - watchLobby updates
-     - toggleReady
-     - leaveLobby
-     - Player join/leave handling
-     - Game start transition
-
-3. **Lobby List Cubit** (`test/features/lobby/presentation/cubit/lobby_list_cubit_test.dart`)
-   - Source: `lib/features/lobby/presentation/cubit/lobby_list_cubit.dart`
-   - Mock: Lobby use cases
-   - Test Coverage:
-     - watchAvailableLobbies
-     - createLobby flow
-     - joinLobby flow
-     - Lobby updates
-
-4. **Stats Cubit** (`test/features/stats/presentation/cubit/stats_cubit_test.dart`)
-   - Source: `lib/features/stats/presentation/cubit/stats_cubit.dart`
-   - Mock: Stats use cases
-   - Test Coverage:
-     - fetchUserStats
-     - fetchAggregateStats
-     - fetchStatsByGameType
-     - State transitions
-
----
 
 ### Phase 5: Widget Tests (PENDING)
 
@@ -363,28 +302,29 @@ open coverage/html/index.html
 
 - ✅ Phase 1: Domain Use Cases (100%)
 - ✅ Phase 2: Game Logic (100%)
-- ⏳ Phase 3: Repositories (0%)
-- ⏳ Phase 4: Cubits/Blocs (0%)
+- ✅ Phase 3: Repositories (100%)
+- ✅ Phase 4: Cubits/Blocs (100%)
 - ⏳ Phase 5: Widgets (0%)
 
-**Total Tests Created:** ~240 comprehensive tests
+**Total Tests Created:** ~390 comprehensive tests
 **Test Coverage:** ~100% for completed phases
 
 ---
 
 ## 🎯 NEXT STEPS
 
-1. **Start with Phase 3:** Repository tests
-   - Begin with Auth Repository (most straightforward)
-   - Use existing `game_repository_impl_test.dart` as reference
-   - Create comprehensive test for each repository
+1. **✅ COMPLETED: Phase 3 Repository tests**
+   - ✅ Auth Repository (23 tests)
+   - ✅ Lobby Repository (29 tests)
+   - ✅ Stats Repository (17 tests)
 
-2. **Move to Phase 4:** Integration tests
-   - Start with Game Cubit
-   - Use existing `auth_cubit_integration_test.dart` as reference
-   - Test complete user flows
+2. **✅ COMPLETED: Phase 4 Integration tests (Cubits/Blocs)**
+   - ✅ Game Cubit (~25 tests)
+   - ✅ Lobby Waiting Cubit (~20 tests)
+   - ✅ Lobby List Cubit (~20 tests)
+   - ✅ Stats Cubit (~15 tests)
 
-3. **Finish with Phase 5:** Widget tests
+3. **START Phase 5:** Widget tests
    - Focus on game boards first (highest value)
    - Then navigation components
    - Finally smaller reusable widgets
