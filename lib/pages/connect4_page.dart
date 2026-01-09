@@ -224,10 +224,10 @@ class _Connect4PageState extends State<Connect4Page>
         difficulty: difficulty,
       ),
       child: SafeArea(
-        child: ResponsiveLayout.constrainWidth(
-          context,
-          SingleChildScrollView(
-            child: Padding(
+        child: SingleChildScrollView(
+          child: ResponsiveLayout.constrainWidth(
+            context,
+            Padding(
               padding: ResponsiveLayout.getPadding(context),
               child: Center(
                 child: Column(

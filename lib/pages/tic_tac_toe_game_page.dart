@@ -219,10 +219,10 @@ class _TicTacToePageState extends State<TicTacToePage>
         difficulty: difficulty,
       ),
       child: SafeArea(
-        child: ResponsiveLayout.constrainWidth(
-          context,
-          SingleChildScrollView(
-            child: Padding(
+        child: SingleChildScrollView(
+          child: ResponsiveLayout.constrainWidth(
+            context,
+            Padding(
               padding: ResponsiveLayout.getPadding(context),
               child: Center(
                 child: Column(

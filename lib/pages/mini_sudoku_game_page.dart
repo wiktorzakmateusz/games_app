@@ -138,10 +138,10 @@ class _MiniSudokuPageState extends State<MiniSudokuPage> {
         difficulty: difficulty,
       ),
       child: SafeArea(
-        child: ResponsiveLayout.constrainWidth(
-          context,
-          SingleChildScrollView(
-            child: Padding(
+        child: SingleChildScrollView(
+          child: ResponsiveLayout.constrainWidth(
+            context,
+            Padding(
               padding: ResponsiveLayout.getPadding(context),
               child: Center(
                 child: Column(
