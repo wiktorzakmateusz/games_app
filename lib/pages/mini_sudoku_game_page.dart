@@ -158,6 +158,7 @@ class _MiniSudokuPageState extends State<MiniSudokuPage> {
                       ),
                       wrongIndices: _gameState.errorCells,
                       onCellTap: _handleTap,
+                      size: ResponsiveLayout.getBoardSize(context),
                     ),
                     SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.875),
                     GameControls(

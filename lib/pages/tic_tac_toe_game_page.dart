@@ -249,6 +249,7 @@ class _TicTacToePageState extends State<TicTacToePage>
                       winningPattern: _gameState.winningPattern,
                       lineAnimation: _lineAnimation,
                       onCellTap: _handleTap,
+                      size: ResponsiveLayout.getBoardSize(context),
                     ),
                     SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
                     GameControls(

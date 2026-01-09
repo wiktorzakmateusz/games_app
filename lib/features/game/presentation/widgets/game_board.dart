@@ -5,6 +5,7 @@ import '../../domain/entities/game_entity.dart';
 import '../../domain/entities/game_state_entity.dart';
 import '../../../../widgets/local_games/tic_tac_toe/tic_tac_toe_board.dart';
 import '../../../../widgets/local_games/connect4/connect4_board.dart';
+import '../../../../core/utils/responsive_layout.dart';
 
 class GameBoard extends StatefulWidget {
   final GameEntity game;
@@ -105,6 +106,7 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
       winningPattern: _getWinningPattern(),
       lineAnimation: _lineAnimation,
       onCellTap: canMakeMove ? widget.onCellTap : (_) {},
+      size: ResponsiveLayout.getBoardSize(context),
     );
   }
 
@@ -137,6 +139,8 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
       },
       canDropInColumn: (col) => !state.isColumnFull(col),
       isGameOver: widget.game.isOver,
+      width: ResponsiveLayout.getBoardSize(context),
+      height: ResponsiveLayout.getBoardSize(context) * (6 / 7), // Maintain 7:6 aspect ratio
     );
   }
 }

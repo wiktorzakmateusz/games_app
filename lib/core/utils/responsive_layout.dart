@@ -124,5 +124,18 @@ class ResponsiveLayout {
         return desktopSize;
     }
   }
+
+  static double getBoardSize(BuildContext context) {
+    final deviceType = DeviceTypeHelper.getDeviceType(context);
+    
+    switch (deviceType) {
+      case DeviceType.phone:
+        return 350.0;
+      case DeviceType.tablet:
+        return 450.0;
+      case DeviceType.desktop:
+        return 550.0;
+    }
+  }
 }
 

@@ -262,6 +262,8 @@ class _Connect4PageState extends State<Connect4Page>
                       isGameOver: _gameState.isGameOver,
                       rows: Connect4State.rows,
                       columns: Connect4State.columns,
+                      width: ResponsiveLayout.getBoardSize(context),
+                      height: ResponsiveLayout.getBoardSize(context) * (6 / 7), // Maintain 7:6 aspect ratio
                     ),
                     SizedBox(height: ResponsiveLayout.getSpacing(context) * 1.25),
                     GameControls(
