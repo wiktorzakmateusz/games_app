@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsService {
   static const String _soundEffectsKey = 'sound_effects';
   static const String _backgroundMusicKey = 'background_music';
-  static const String _hapticFeedbackKey = 'haptic_feedback';
 
   final SharedPreferences _prefs;
 
@@ -19,12 +18,6 @@ class SettingsService {
   bool get backgroundMusicEnabled => _prefs.getBool(_backgroundMusicKey) ?? true;
   Future<void> setBackgroundMusic(bool enabled) async {
     await _prefs.setBool(_backgroundMusicKey, enabled);
-  }
-
-  // Haptic Feedback
-  bool get hapticFeedbackEnabled => _prefs.getBool(_hapticFeedbackKey) ?? true;
-  Future<void> setHapticFeedback(bool enabled) async {
-    await _prefs.setBool(_hapticFeedbackKey, enabled);
   }
 
   // Initialize

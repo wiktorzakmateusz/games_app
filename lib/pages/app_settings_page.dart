@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:games_app/widgets/app_text.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import '../core/services/settings_service.dart';
@@ -18,7 +17,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   
   bool _soundEffects = true;
   bool _backgroundMusic = true;
-  bool _hapticFeedback = true;
   bool _isLoading = true;
 
   @override
@@ -34,37 +32,19 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     setState(() {
       _soundEffects = _settingsService.soundEffectsEnabled;
       _backgroundMusic = _settingsService.backgroundMusicEnabled;
-      _hapticFeedback = _settingsService.hapticFeedbackEnabled;
       _isLoading = false;
     });
   }
 
   Future<void> _toggleSoundEffects(bool value) async {
-    if (_hapticFeedback) {
-      HapticFeedback.lightImpact();
-    }
-    
     setState(() => _soundEffects = value);
     await _settingsService.setSoundEffects(value);
   }
 
   Future<void> _toggleBackgroundMusic(bool value) async {
-    if (_hapticFeedback) {
-      HapticFeedback.lightImpact();
-    }
-    
     setState(() => _backgroundMusic = value);
     await _settingsService.setBackgroundMusic(value);
     await _audioService.onBackgroundMusicSettingChanged(value);
-  }
-
-  Future<void> _toggleHapticFeedback(bool value) async {
-    if (value) {
-      HapticFeedback.lightImpact();
-    }
-    
-    setState(() => _hapticFeedback = value);
-    await _settingsService.setHapticFeedback(value);
   }
 
   @override
@@ -107,17 +87,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             title: 'Background Music',
                             value: _backgroundMusic,
                             onChanged: _toggleBackgroundMusic,
-                          ),
-                          
-                          const SizedBox(height: 1),
-                          
-                          // Haptic Feedback Toggle
-                          _buildSettingTile(
-                            icon: CupertinoIcons.device_phone_portrait,
-                            iconColor: CupertinoColors.systemOrange,
-                            title: 'Haptic Feedback',
-                            value: _hapticFeedback,
-                            onChanged: _toggleHapticFeedback,
                           ),
                           
                           const SizedBox(height: 32),
