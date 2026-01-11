@@ -2,17 +2,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:games_app/widgets/app_text.dart';
 import 'package:games_app/core/game_logic/game_logic.dart';
+import 'package:games_app/core/utils/game_rules.dart';
+import 'package:games_app/widgets/game_rules_dialog.dart';
 
 class AppGameNavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   final String gameName;
   final GameDifficulty? difficulty;
   final String? title;
+  final GameType? gameType;
 
   const AppGameNavBar({
     super.key,
     required this.gameName,
     this.difficulty,
     this.title,
+    this.gameType,
   });
 
   @override
@@ -41,6 +45,20 @@ class AppGameNavBar extends StatelessWidget implements ObstructingPreferredSizeW
           size: 26.0,
         ),
       ),
+      trailing: gameType != null
+          ? CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                final rules = GameRules.getRules(gameType!);
+                GameRulesDialog.show(context, rules);
+              },
+              child: const Icon(
+                CupertinoIcons.info_circle,
+                color: CupertinoColors.activeBlue,
+                size: 26.0,
+              ),
+            )
+          : null,
     );
   }
 

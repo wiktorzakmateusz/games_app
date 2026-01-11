@@ -31,30 +31,36 @@ class _Connect4PageState extends State<Connect4Page>
   late Animation<double> _lineAnimation;
 
   bool _isProcessingMove = false;
+  bool _isInitialized = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args = ModalRoute.of(context)!.settings.arguments as Map?;
-    isUserFirstPlayer = args?['isUserFirstPlayer'] ?? true;
-    isTwoPlayerMode = args?['isTwoPlayerMode'] ?? false;
-    if (isTwoPlayerMode) {
-      difficulty = null;
-    } else {
-      final difficultyStr = args?['difficulty'] ?? 'Easy';
-      difficulty = GameDifficultyExtension.fromString(difficultyStr);
-    }
-    playerOneName = args?['playerOneName'] ?? 'Player 1';
-    playerTwoName = args?['playerTwoName'] ?? 'Player 2';
+    
+    if (!_isInitialized) {
+      final args = ModalRoute.of(context)!.settings.arguments as Map?;
+      isUserFirstPlayer = args?['isUserFirstPlayer'] ?? true;
+      isTwoPlayerMode = args?['isTwoPlayerMode'] ?? false;
+      if (isTwoPlayerMode) {
+        difficulty = null;
+      } else {
+        final difficultyStr = args?['difficulty'] ?? 'Easy';
+        difficulty = GameDifficultyExtension.fromString(difficultyStr);
+      }
+      playerOneName = args?['playerOneName'] ?? 'Player 1';
+      playerTwoName = args?['playerTwoName'] ?? 'Player 2';
 
-    _gameState = _gameLogic.createInitialState(
-      startingPlayer: PlayerSymbol.x,
-    );
+      _gameState = _gameLogic.createInitialState(
+        startingPlayer: PlayerSymbol.x,
+      );
 
-    if (!isTwoPlayerMode && !isUserFirstPlayer) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _makeComputerMove();
-      });
+      if (!isTwoPlayerMode && !isUserFirstPlayer) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _makeComputerMove();
+        });
+      }
+      
+      _isInitialized = true;
     }
   }
 
@@ -232,6 +238,7 @@ class _Connect4PageState extends State<Connect4Page>
         navigationBar: AppGameNavBar(
           gameName: 'Connect 4',
           difficulty: difficulty,
+          gameType: GameType.connect4,
         ),
         child: SafeArea(
           child: SingleChildScrollView(
