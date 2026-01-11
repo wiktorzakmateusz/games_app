@@ -1,4 +1,4 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'package:just_audio/just_audio.dart';
 import 'settings_service.dart';
 
 class AudioService {
@@ -17,7 +17,8 @@ class AudioService {
     _isInitialized = true;
     
     // Set music player to loop
-    _musicPlayer.setReleaseMode(ReleaseMode.loop);
+    await _musicPlayer.setLoopMode(LoopMode.all);
+    await _musicPlayer.setVolume(0.3); // Set to 30% volume
     
     // Start background music if enabled
     if (_settingsService!.backgroundMusicEnabled) {
@@ -30,8 +31,8 @@ class AudioService {
     if (!_isInitialized || !_settingsService!.backgroundMusicEnabled) return;
     
     try {
-      await _musicPlayer.play(AssetSource('audio/background_music.mp3'));
-      await _musicPlayer.setVolume(1); // Set to 30% volume
+      await _musicPlayer.setAsset('assets/audio/background_music.mp3');
+      await _musicPlayer.play();
     } catch (e) {
       // If audio file doesn't exist, fail silently
       print('Background music file not found: $e');
@@ -48,7 +49,7 @@ class AudioService {
 
   Future<void> resumeBackgroundMusic() async {
     if (!_isInitialized || !_settingsService!.backgroundMusicEnabled) return;
-    await _musicPlayer.resume();
+    await _musicPlayer.play();
   }
 
   // Sound Effects
@@ -56,7 +57,8 @@ class AudioService {
     if (!_isInitialized || !_settingsService!.soundEffectsEnabled) return;
     
     try {
-      await _sfxPlayer.play(AssetSource('audio/click.mp3'));
+      await _sfxPlayer.setAsset('assets/audio/click.mp3');
+      await _sfxPlayer.play();
     } catch (e) {
       // Fail silently if sound doesn't exist
     }
@@ -66,7 +68,8 @@ class AudioService {
     if (!_isInitialized || !_settingsService!.soundEffectsEnabled) return;
     
     try {
-      await _sfxPlayer.play(AssetSource('audio/win.mp3'));
+      await _sfxPlayer.setAsset('assets/audio/win.mp3');
+      await _sfxPlayer.play();
     } catch (e) {
       // Fail silently if sound doesn't exist
     }
@@ -76,7 +79,8 @@ class AudioService {
     if (!_isInitialized || !_settingsService!.soundEffectsEnabled) return;
     
     try {
-      await _sfxPlayer.play(AssetSource('audio/move.mp3'));
+      await _sfxPlayer.setAsset('assets/audio/move.mp3');
+      await _sfxPlayer.play();
     } catch (e) {
       // Fail silently if sound doesn't exist
     }

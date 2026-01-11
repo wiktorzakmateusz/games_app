@@ -52,7 +52,7 @@ dependencies:
   
   # Settings & Audio
   shared_preferences: ^2.3.5
-  audioplayers: ^6.1.0
+  just_audio: ^0.9.36
 
 dev_dependencies:
   flutter_test:
