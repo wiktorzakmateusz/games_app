@@ -82,22 +82,23 @@ class PlayerInfoCard extends StatelessWidget {
         },
       );
     } else if (imageUrl != null && imageUrl!.isNotEmpty) {
-      return Image.network(
-        imageUrl!,
+      // Ensure the path starts with 'assets/' if it doesn't already
+      String assetPath = imageUrl!;
+      if (!assetPath.startsWith('assets/')) {
+        assetPath = 'assets/$assetPath';
+      }
+      
+      return Image.asset(
+        assetPath,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
+          // If the provided asset fails, try the default user icon
           return Image.asset(
             'assets/images/user_icon.png',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return _buildPlaceholder();
             },
-          );
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return const Center(
-            child: CupertinoActivityIndicator(),
           );
         },
       );

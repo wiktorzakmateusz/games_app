@@ -37,6 +37,7 @@ class GameModel {
               userId: p['userId'] as String,
               username: p['username'] as String,
               displayName: p['displayName'] as String,
+              photoURL: p['photoURL'] as String?,
               symbol: p['symbol'] as String?,
             ))
         .toList();
@@ -73,6 +74,7 @@ class GameModel {
                 'userId': p.userId,
                 'username': p.username,
                 'displayName': p.displayName,
+                if (p.photoURL != null) 'photoURL': p.photoURL,
                 if (p.symbol != null) 'symbol': p.symbol,
               })
           .toList(),

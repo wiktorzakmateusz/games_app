@@ -12,6 +12,8 @@ import '../cubit/game_cubit.dart';
 import '../cubit/game_state.dart';
 import '../widgets/game_board.dart';
 import '../widgets/game_status_header.dart';
+import '../../domain/entities/game_state_entity.dart';
+import '../../domain/entities/game_entity.dart';
 
 class OnlineGamePage extends StatefulWidget {
   const OnlineGamePage({super.key});
@@ -182,6 +184,45 @@ class _OnlineGamePageState extends State<OnlineGamePage> with WidgetsBindingObse
     );
   }
 
+  void _handleTimeout(GameEntity game, GameLoaded state) {
+    // Only make a move if it's the current user's turn and game isn't over
+    if (game.isOver || _currentUserId == null || !game.isPlayerTurn(_currentUserId!)) {
+      return;
+    }
+
+    // Don't make a move if already performing an action
+    if (state.isPerformingAction) {
+      return;
+    }
+
+    final gameState = game.state;
+    List<int> validMoves = [];
+
+    // Get valid moves based on game type
+    if (gameState is TicTacToeGameStateEntity) {
+      // Find all empty cells (positions 0-8)
+      for (int i = 0; i < 9; i++) {
+        if (gameState.isEmpty(i)) {
+          validMoves.add(i);
+        }
+      }
+    } else if (gameState is Connect4GameStateEntity) {
+      // Find all columns that aren't full (columns 0-6)
+      for (int col = 0; col < 7; col++) {
+        if (!gameState.isColumnFull(col)) {
+          validMoves.add(col);
+        }
+      }
+    }
+
+    // Make a random move if there are valid moves available
+    if (validMoves.isNotEmpty) {
+      final random = DateTime.now().millisecondsSinceEpoch % validMoves.length;
+      final randomMove = validMoves[random];
+      context.read<GameCubit>().makeMove(randomMove);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_gameId == null) {
@@ -318,6 +359,18 @@ class _OnlineGamePageState extends State<OnlineGamePage> with WidgetsBindingObse
     );
     final currentPlayer = game.currentPlayer;
     
+    // Get photoURL from current user if player's photoURL is null
+    String? myPlayerPhotoURL = myPlayer.photoURL;
+    String? opponentPhotoURL = opponent.photoURL;
+    
+    // If myPlayer's photoURL is null, try to get it from AuthCubit
+    if (myPlayerPhotoURL == null || myPlayerPhotoURL.isEmpty) {
+      final authState = context.read<AuthCubit>().state;
+      if (authState is Authenticated && authState.user.id == myPlayer.userId) {
+        myPlayerPhotoURL = authState.user.photoURL;
+      }
+    }
+    
     // Determine border colors based on symbols
     final player1BorderColor = myPlayer.symbol == 'X' 
         ? CupertinoColors.systemRed 
@@ -327,6 +380,7 @@ class _OnlineGamePageState extends State<OnlineGamePage> with WidgetsBindingObse
         : CupertinoColors.systemBlue;
     
     final isPlayer1Turn = currentPlayer?.userId == myPlayer.userId;
+    final isMyTurn = _currentUserId != null && game.isPlayerTurn(_currentUserId!);
 
     return Center(
       child: SingleChildScrollView(
@@ -338,9 +392,11 @@ class _OnlineGamePageState extends State<OnlineGamePage> with WidgetsBindingObse
               const SizedBox(height: 20),
               GameHeader(
                 player1Name: myPlayer.displayName,
+                player1ImageUrl: myPlayerPhotoURL,
                 player1IsBot: false,
                 player1BorderColor: player1BorderColor,
                 player2Name: opponent.displayName,
+                player2ImageUrl: opponentPhotoURL,
                 player2IsBot: false,
                 player2BorderColor: player2BorderColor,
                 isPlayer1Turn: isPlayer1Turn,
@@ -348,7 +404,7 @@ class _OnlineGamePageState extends State<OnlineGamePage> with WidgetsBindingObse
                 shouldRunTimer: !game.isOver,
                 timerDuration: const Duration(seconds: 60),
                 onTimeout: () {
-                  // Handle timeout - could show a message or make a move
+                  _handleTimeout(game, state);
                 },
               ),
               const SizedBox(height: 24),
