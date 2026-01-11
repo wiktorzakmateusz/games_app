@@ -8,6 +8,7 @@ import 'pages/welcome_page.dart';
 import 'pages/tic_tac_toe_game_page.dart';
 import 'pages/connect4_page.dart';
 import 'pages/players_names_page.dart';
+import 'pages/app_settings_page.dart';
 import 'injection_container.dart' as di;
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/auth/presentation/pages/auth_page.dart';
@@ -119,6 +120,11 @@ class MyApp extends StatelessWidget {
             case '/edit_profile':
               return CupertinoPageRoute(
                 builder: (_) => const EditProfilePage(),
+                settings: settings,
+              );
+            case '/app_settings':
+              return CupertinoPageRoute(
+                builder: (_) => const AppSettingsPage(),
                 settings: settings,
               );
             default:

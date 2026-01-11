@@ -6,11 +6,11 @@ class GameImageHelper {
   }
 
   static String getPreviewImagePath(GameType gameType) {
-    return 'images/${_gameTypeToPath(gameType)}/preview.png';
+    return 'assets/images/${_gameTypeToPath(gameType)}/preview.png';
   }
 
   static String getIconImagePath(GameType gameType) {
-    return 'images/${_gameTypeToPath(gameType)}/icon.png';
+    return 'assets/images/${_gameTypeToPath(gameType)}/icon.png';
   }
 }
 

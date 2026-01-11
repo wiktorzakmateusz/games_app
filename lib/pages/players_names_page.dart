@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
+import '../core/services/audio_service.dart';
 
 class PlayerNamesPage extends StatefulWidget {
   const PlayerNamesPage({super.key});
@@ -20,6 +21,8 @@ class _PlayerNamesPageState extends State<PlayerNamesPage> {
   }
 
   void _startGame() {
+    AudioService().playClickSound();
+    
     final playerOneName = playerOneController.text.trim().isEmpty
         ? 'Player 1'
         : playerOneController.text.trim();

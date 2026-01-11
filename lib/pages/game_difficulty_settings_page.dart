@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:games_app/widgets/app_text.dart';
 import '../../widgets/game_button.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
+import '../core/services/audio_service.dart';
 
 class DifficultyPage extends StatefulWidget {
   const DifficultyPage({super.key});
@@ -16,6 +17,7 @@ class _DifficultyPageState extends State<DifficultyPage> {
 
   @override
   Widget build(BuildContext context) {
+    final audioService = AudioService();
     final String gameType = (ModalRoute.of(context)?.settings.arguments as String?) ?? 'tic_tac_toe';
     return CupertinoPageScaffold(
       navigationBar: const AppMenuNavBar(title: 'Choose difficulty'),
@@ -38,6 +40,7 @@ class _DifficultyPageState extends State<DifficultyPage> {
                       borderRadius: BorderRadius.circular(8),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       onPressed: () {
+                        audioService.playClickSound();
                         setState(() => selectedDifficulty = level);
                       },
                       child: AppText.button(level),
@@ -54,6 +57,7 @@ class _DifficultyPageState extends State<DifficultyPage> {
                       value: isUserFirstPlayer,
                       activeTrackColor: CupertinoTheme.of(context).primaryColor,
                       onChanged: (bool value) {
+                        audioService.playClickSound();
                         setState(() => isUserFirstPlayer = value);
                       },
                     ),

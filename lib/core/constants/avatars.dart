@@ -1,7 +1,7 @@
 import 'dart:math';
 
 class Avatars {
-  static const String basePath = 'images/avatars';
+  static const String basePath = 'assets/images/avatars';
   
   static const List<String> availableAvatars = [
     '$basePath/avatar_0.png',

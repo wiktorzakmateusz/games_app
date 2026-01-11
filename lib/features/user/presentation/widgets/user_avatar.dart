@@ -37,7 +37,7 @@ class UserAvatar extends StatelessWidget {
 
   Widget _buildPlaceholder() {
     return Image.asset(
-      'images/user_icon.png',
+      'assets/images/user_icon.png',
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
         return Container(

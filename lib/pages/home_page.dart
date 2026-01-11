@@ -3,12 +3,14 @@ import 'package:games_app/widgets/app_text.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import '../core/utils/responsive_layout.dart';
 import '../core/utils/device_type.dart';
+import '../core/services/audio_service.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final audioService = AudioService();
     final isTablet = DeviceTypeHelper.isTablet(context);
     final gameImageSize = isTablet ? 180.0 : 150.0;
     
@@ -39,13 +41,17 @@ class HomePage extends StatelessWidget {
                       runSpacing: ResponsiveLayout.getSpacing(context) * 1.5,
                       children: [
                         GestureDetector(
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            '/game_player_settings',
-                            arguments: 'tic_tac_toe'),
+                          onTap: () {
+                            audioService.playClickSound();
+                            Navigator.pushNamed(
+                              context,
+                              '/game_player_settings',
+                              arguments: 'tic_tac_toe',
+                            );
+                          },
                           child: Column(
                             children: [
-                              Image.asset('images/tic_tac_toe.png',
+                              Image.asset('assets/images/tic_tac_toe.png',
                                   width: gameImageSize, height: gameImageSize),
                               SizedBox(height: ResponsiveLayout.getSpacing(context) * 0.5),
                               AppText.h5('Tic-Tac-Toe'),
@@ -53,13 +59,17 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            '/game_difficulty_settings',
-                            arguments: 'mini_sudoku'),
+                          onTap: () {
+                            audioService.playClickSound();
+                            Navigator.pushNamed(
+                              context,
+                              '/game_difficulty_settings',
+                              arguments: 'mini_sudoku',
+                            );
+                          },
                           child: Column(
                             children: [
-                              Image.asset('images/mini_sudoku.png',
+                              Image.asset('assets/images/mini_sudoku.png',
                                   width: gameImageSize, height: gameImageSize),
                               SizedBox(height: ResponsiveLayout.getSpacing(context) * 0.5),
                               AppText.h5('Mini Sudoku'),
@@ -67,13 +77,17 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            '/game_player_settings',
-                            arguments: 'connect4'),
+                          onTap: () {
+                            audioService.playClickSound();
+                            Navigator.pushNamed(
+                              context,
+                              '/game_player_settings',
+                              arguments: 'connect4',
+                            );
+                          },
                           child: Column(
                             children: [
-                              Image.asset('images/connect_4.jpeg',
+                              Image.asset('assets/images/connect_4.jpeg',
                                   width: gameImageSize, height: gameImageSize),
                               SizedBox(height: ResponsiveLayout.getSpacing(context) * 0.5),
                               AppText.h5('Connect 4'),

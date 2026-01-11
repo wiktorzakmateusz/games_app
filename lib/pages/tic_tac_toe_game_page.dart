@@ -5,6 +5,7 @@ import '../widgets/local_games/tic_tac_toe/tic_tac_toe_board.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import 'package:games_app/widgets/game_header.dart';
 import '../core/utils/responsive_layout.dart';
+import '../core/services/audio_service.dart';
 
 class TicTacToePage extends StatefulWidget {
   const TicTacToePage({super.key});
@@ -16,6 +17,7 @@ class TicTacToePage extends StatefulWidget {
 class _TicTacToePageState extends State<TicTacToePage>
     with SingleTickerProviderStateMixin {
   final TicTacToeLogic _gameLogic = TicTacToeLogic();
+  final AudioService _audioService = AudioService();
 
   late TicTacToeState _gameState;
 
@@ -106,7 +108,11 @@ class _TicTacToePageState extends State<TicTacToePage>
       _gameState = _gameLogic.applyMove(_gameState, move);
     });
 
+    // Play move sound
+    _audioService.playMoveSound();
+
     if (_gameState.isGameOver && _gameState.winningPattern != null) {
+      _audioService.playWinSound();
       _lineController.forward(from: 0);
       _isProcessingMove = false;
       return;
@@ -155,7 +161,11 @@ class _TicTacToePageState extends State<TicTacToePage>
       _gameState = _gameLogic.applyMove(_gameState, move);
     });
 
+    // Play move sound for computer
+    _audioService.playMoveSound();
+
     if (_gameState.isGameOver && _gameState.winningPattern != null) {
+      _audioService.playWinSound();
       _lineController.forward(from: 0);
     }
     

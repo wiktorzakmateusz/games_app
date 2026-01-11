@@ -5,6 +5,7 @@ import '../widgets/local_games/game_controls.dart';
 import '../widgets/local_games/mini_sudoku/mini_sudoku_board.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import '../core/utils/responsive_layout.dart';
+import '../core/services/audio_service.dart';
 
 class MiniSudokuPage extends StatefulWidget {
   const MiniSudokuPage({super.key});
@@ -15,6 +16,7 @@ class MiniSudokuPage extends StatefulWidget {
 
 class _MiniSudokuPageState extends State<MiniSudokuPage> {
   final MiniSudokuLogic _gameLogic = MiniSudokuLogic();
+  final AudioService _audioService = AudioService();
   late MiniSudokuState _gameState;
   late GameDifficulty difficulty;
   bool _isInitialized = false;
@@ -58,6 +60,8 @@ class _MiniSudokuPageState extends State<MiniSudokuPage> {
   void _handleTap(int index) {
     if (_gameState.isLocked(index) || _gameState.isGameOver) return;
 
+    _audioService.playClickSound();
+
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
@@ -96,9 +100,19 @@ class _MiniSudokuPageState extends State<MiniSudokuPage> {
       return;
     }
 
+    // Play move sound for valid move
+    _audioService.playMoveSound();
+
+    final wasGameOver = _gameState.isGameOver;
+    
     setState(() {
       _gameState = _gameLogic.applyMove(_gameState, move);
     });
+
+    // Play win sound if puzzle just got solved
+    if (!wasGameOver && _gameState.isGameOver) {
+      _audioService.playWinSound();
+    }
   }
 
   void _showInvalidMoveAlert() {
@@ -146,6 +160,7 @@ class _MiniSudokuPageState extends State<MiniSudokuPage> {
         navigationBar: AppGameNavBar(
           gameName: 'Mini Sudoku',
           difficulty: difficulty,
+          gameType: GameType.miniSudoku,
         ),
         child: SafeArea(
           child: SingleChildScrollView(

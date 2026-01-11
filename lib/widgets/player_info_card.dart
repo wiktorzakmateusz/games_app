@@ -75,7 +75,7 @@ class PlayerInfoCard extends StatelessWidget {
   Widget _buildAvatar() {
     if (isBot) {
       return Image.asset(
-        'images/bot_icon.png',
+        'assets/images/bot_icon.png',
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
           return _buildPlaceholder();
@@ -87,7 +87,7 @@ class PlayerInfoCard extends StatelessWidget {
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
           return Image.asset(
-            'images/user_icon.png',
+            'assets/images/user_icon.png',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return _buildPlaceholder();
@@ -103,7 +103,7 @@ class PlayerInfoCard extends StatelessWidget {
       );
     } else {
       return Image.asset(
-        'images/user_icon.png',
+        'assets/images/user_icon.png',
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
           return _buildPlaceholder();

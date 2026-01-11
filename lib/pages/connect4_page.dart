@@ -5,6 +5,7 @@ import '../widgets/local_games/connect4/connect4_board.dart';
 import 'package:games_app/widgets/navigation/navigation_bars.dart';
 import 'package:games_app/widgets/game_header.dart';
 import '../core/utils/responsive_layout.dart';
+import '../core/services/audio_service.dart';
 
 class Connect4Page extends StatefulWidget {
   const Connect4Page({super.key});
@@ -16,6 +17,7 @@ class Connect4Page extends StatefulWidget {
 class _Connect4PageState extends State<Connect4Page>
     with SingleTickerProviderStateMixin {
   final Connect4Logic _gameLogic = Connect4Logic();
+  final AudioService _audioService = AudioService();
 
   late Connect4State _gameState;
 
@@ -106,7 +108,11 @@ class _Connect4PageState extends State<Connect4Page>
       _gameState = _gameLogic.applyMove(_gameState, move);
     });
 
+    // Play move sound
+    _audioService.playMoveSound();
+
     if (_gameState.isGameOver && _gameState.winningPattern != null) {
+      _audioService.playWinSound();
       _lineController.forward(from: 0);
       _isProcessingMove = false;
       return;
@@ -155,7 +161,11 @@ class _Connect4PageState extends State<Connect4Page>
       _gameState = _gameLogic.applyMove(_gameState, move);
     });
 
+    // Play move sound for computer
+    _audioService.playMoveSound();
+
     if (_gameState.isGameOver && _gameState.winningPattern != null) {
+      _audioService.playWinSound();
       _lineController.forward(from: 0);
     }
     

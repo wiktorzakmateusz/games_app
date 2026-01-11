@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import '../../core/services/audio_service.dart';
 
 
 class GameControls extends StatelessWidget {
@@ -19,11 +20,16 @@ class GameControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final audioService = AudioService();
+    
     if (!isGameOver && onNewGame == null) {
       return SizedBox(
         height: 50,
         child: CupertinoButton.filled(
-          onPressed: onReset,
+          onPressed: () {
+            audioService.playClickSound();
+            onReset();
+          },
           child: Text(resetLabel ?? 'Reset'),
         ),
       );
@@ -33,7 +39,14 @@ class GameControls extends StatelessWidget {
       return SizedBox(
         height: 50,
         child: CupertinoButton.filled(
-          onPressed: onNewGame ?? onReset,
+          onPressed: () {
+            audioService.playClickSound();
+            if (onNewGame != null) {
+              onNewGame!();
+            } else {
+              onReset();
+            }
+          },
           child: Text(newGameLabel ?? (onNewGame != null ? 'New Game' : 'Play Again')),
         ),
       );
