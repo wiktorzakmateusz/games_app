@@ -6,13 +6,37 @@ import '../features/auth/presentation/cubit/auth_state.dart';
 import '../widgets/game_button.dart';
 import '../core/utils/responsive_layout.dart';
 import '../core/services/audio_service.dart';
+import '../core/services/settings_service.dart';
 
-class WelcomePage extends StatelessWidget {
+class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
 
   @override
+  State<WelcomePage> createState() => _WelcomePageState();
+}
+
+class _WelcomePageState extends State<WelcomePage> {
+  final audioService = AudioService();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize audio in the background without blocking the UI
+    _initializeAudio();
+  }
+
+  Future<void> _initializeAudio() async {
+    try {
+      final settingsService = await SettingsService.getInstance();
+      await audioService.initialize(settingsService);
+    } catch (e) {
+      // Fail silently if audio initialization fails
+      print('Audio initialization failed: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final audioService = AudioService();
     
     return CupertinoPageScaffold(
       child: Stack(
@@ -80,4 +104,3 @@ class WelcomePage extends StatelessWidget {
     );
   }
 }
-
