@@ -13,6 +13,9 @@ class AudioService {
   bool _isInitialized = false;
 
   Future<void> initialize(SettingsService settingsService) async {
+    // Only initialize once
+    if (_isInitialized) return;
+    
     _settingsService = settingsService;
     _isInitialized = true;
     
@@ -29,6 +32,9 @@ class AudioService {
   // Background Music
   Future<void> playBackgroundMusic() async {
     if (!_isInitialized || !_settingsService!.backgroundMusicEnabled) return;
+    
+    // Don't restart if already playing
+    if (_musicPlayer.playing) return;
     
     try {
       await _musicPlayer.setAsset('assets/audio/background_music.mp3');
